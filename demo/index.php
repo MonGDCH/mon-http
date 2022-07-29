@@ -1,6 +1,7 @@
 <?php
 
 use mon\worker\App;
+use mon\worker\interfaces\Middleware;
 use mon\worker\libs\Container;
 use mon\worker\Request;
 use mon\worker\Response;
@@ -58,10 +59,17 @@ if (property_exists(Worker::class, 'stopTimeout')) {
 
 
 // 注册路由
-Route::instance()->get('/', [A::class, 'test']);
+// Route::instance()->get('/', [A::class, 'test']);
 Route::instance()->get('/test', 'A@demo');
 Route::instance()->get('/demo', function () {
-    var_dump(1);
+    // return new Response(200, [], 'demo');
+    return 123;
+});
+Route::instance()->get(['path' => '/', 'befor' => [B::class, C::class]], [A::class, 'test']);
+
+
+Route::instance()->group(['middleware' => D::class], function ($route) {
+    Route::instance()->get(['path' => '/xxx', 'middleware' => [B::class, C::class]], [A::class, 'xxx']);
 });
 
 if ($config['listen']) {
@@ -100,15 +108,53 @@ if ($config['listen']) {
 
 class A
 {
-    public function test(Request $request)
+    public function test(A $a, $id = 1, Request $req, Response $res)
     {
-        return $request->path();
+        // debug($id);
+        // debug($req);
+        // return $res->withBody('test!!!');
+        return $req->path();
     }
 
-    public function demo(Request $request)
+    public function demo(Response $res)
     {
-        return new Response(200, [], 'demo');
+        return $res;
+    }
+
+    public function xxx()
+    {
+        return __METHOD__;
     }
 }
+
+class B implements Middleware
+{
+    public function handler($request, $callback): Response
+    {
+        var_dump(__CLASS__);
+        // return new Response(200, [], '1123');
+        return $callback($request);
+    }
+}
+
+class C implements Middleware
+{
+    public function handler($request, $callback): Response
+    {
+        var_dump(__CLASS__);
+        return $callback($request);
+    }
+}
+
+
+class D implements Middleware
+{
+    public function handler($request, $callback): Response
+    {
+        var_dump(__CLASS__);
+        return $callback($request);
+    }
+}
+
 
 Worker::runAll();
