@@ -13,6 +13,15 @@ use Psr\Container\ContainerInterface;
 interface Container extends ContainerInterface
 {
     /**
+     * 绑定类、闭包、实例、接口实现到容器
+     *
+     * @param  mixed  $abstract 类名称或标识符或者数组
+     * @param  mixed  $server   要绑定的实例
+     * @return Container
+     */
+    public function set($abstract, $server = null);
+
+    /**
      * 反射执行回调方法
      *
      * @param  mixed  $callback 回调方法
@@ -20,31 +29,4 @@ interface Container extends ContainerInterface
      * @return mixed
      */
     public function invoke($callback, $vars = []);
-
-    /**
-     * 反射执行对象实例化，支持构造方法依赖注入
-     *
-     * @param  string $class 对象名称
-     * @param  array  $vars  绑定构造方法参数
-     * @return mixed
-     */
-    public function invokeClass($class, $vars = []);
-
-    /**
-     * 执行类方法， 绑定参数
-     *
-     * @param  string|array $method 类方法, 用@分割, 如: Test@say | [Test::class, 'say']
-     * @param  array        $vars   绑定参数
-     * @return mixed
-     */
-    public function invokeMethd($method, $vars = []);
-
-    /**
-     * 绑定参数，执行函数或者闭包
-     *
-     * @param  mixed $function 函数或者闭包
-     * @param  array $vars     绑定参数
-     * @return mixed
-     */
-    public function invokeFunction($function, $vars = []);
 }

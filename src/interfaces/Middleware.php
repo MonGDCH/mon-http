@@ -2,7 +2,8 @@
 
 namespace mon\worker\interfaces;
 
-use mon\worker\App;
+use mon\worker\Request;
+use mon\worker\Response;
 
 /**
  * 中间件接口
@@ -13,11 +14,11 @@ use mon\worker\App;
 interface Middleware
 {
     /**
-     * 中间件回调
+     * 中间件实现接口
      *
-     * @param App $app  App实例
-     * @param array $vals   路由参数
-     * @return mixed
+     * @param Request $request      请求实例
+     * @param callable $callback    执行下一个中间件回调方法
+     * @return Response
      */
-    public function handler(App $app, array $vals = []);
+    public function handler(Request $request, callable $callback): Response;
 }

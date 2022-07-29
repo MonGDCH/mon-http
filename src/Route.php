@@ -59,18 +59,11 @@ class Route
     protected $prefix = '';
 
     /**
-     * 路由前置回调(前置中间件)
+     * 中间件
      *
      * @var array
      */
-    protected $befor = [];
-
-    /**
-     * 路由后置回调(后置中间件)
-     *
-     * @var array
-     */
-    protected $after = [];
+    protected $middleware = [];
 
     /**
      * 私有化构造方法
@@ -224,21 +217,18 @@ class Route
     {
         $groupPrefix = $this->groupPrefix;
         $prefix = $this->prefix;
-        $befor  = $this->befor;
-        $after  = $this->after;
+        $middleware  = $this->middleware;
 
         $parse = $this->parsePattern($pattern);
         $this->groupPrefix .= $parse['path'];
         $this->prefix = $parse['namespace'];
-        $this->befor  = $parse['befor'];
-        $this->after  = $parse['after'];
+        $this->middleware  = $parse['middleware'];
 
         call_user_func($callback, $this);
 
         $this->groupPrefix = $groupPrefix;
         $this->prefix = $prefix;
-        $this->befor  = $befor;
-        $this->after  = $after;
+        $this->middleware  = $middleware;
     }
 
     /**
@@ -262,9 +252,8 @@ class Route
         $method = array_map('strtoupper', $method);
 
         $result = [
-            'befor'    => $parse['befor'],
-            'callback' => $callback,
-            'after'    => $parse['after']
+            'middleware'=> $parse['middleware'],
+            'callback'  => $callback,
         ];
         // 注册fast-route路由表
         $this->collector()->addRoute($method, $path, $result);
@@ -286,9 +275,7 @@ class Route
             // 命名空间
             'namespace' => $this->prefix,
             // 中间件
-            'befor'     => $this->befor,
-            // 后置件
-            'after'     => $this->after,
+            'middleware'=> $this->middleware,
         ];
         if (is_string($pattern)) {
             // 字符串，标示请求路径
@@ -301,11 +288,8 @@ class Route
             if (isset($pattern['namespace']) && !empty($pattern['namespace'])) {
                 $res['namespace'] = $pattern['namespace'];
             }
-            if (isset($pattern['befor']) && !empty($pattern['befor'])) {
-                $res['befor'] = array_merge((array) $this->befor, (array) $pattern['befor']);
-            }
-            if (isset($pattern['after']) && !empty($pattern['after'])) {
-                $res['after'] = array_merge((array) $this->after, (array) $pattern['after']);
+            if (isset($pattern['middleware']) && !empty($pattern['middleware'])) {
+                $res['middleware'] = array_merge($this->middleware, (array) $pattern['middleware']);
             }
         }
 
