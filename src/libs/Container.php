@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace mon\worker\libs;
 
 use mon\util\Container as UtilContainer;

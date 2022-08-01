@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace mon\worker\exception;
 
 use Exception;
@@ -13,11 +15,11 @@ use Exception;
 class RouteException extends Exception
 {
     /**
-     * 异常相关数据
+     * 异常相关请求头
      *
-     * @var integer
+     * @var array
      */
-    protected $data = 500;
+    protected $header = [];
 
     /**
      * 设置异常相关
@@ -25,9 +27,9 @@ class RouteException extends Exception
      * @param mixed $data 移除信息
      * @return RouteException
      */
-    public function set($data)
+    public function setHeader($header)
     {
-        $this->data = $data;
+        $this->header = $header;
 
         return $this;
     }
@@ -37,8 +39,8 @@ class RouteException extends Exception
      *
      * @return mixed
      */
-    public function get()
+    public function getHeader()
     {
-        return $this->data;
+        return $this->header;
     }
 }

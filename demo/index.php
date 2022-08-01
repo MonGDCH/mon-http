@@ -12,6 +12,8 @@ use Workerman\Worker;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+ini_set('display_errors', 'on');
+error_reporting(E_ALL);
 
 $config = [
     'listen' => 'http://0.0.0.0:8787',
@@ -81,27 +83,32 @@ if ($config['listen']) {
         }
     }
 
-    // 绑定错误处理
-    set_error_handler(function ($level, $message, $file = '', $line = 0, $context = []) {
-        if (error_reporting() & $level) {
-            throw new ErrorException($message, 0, $level, $file, $line);
-        }
-    });
-    if ($worker) {
+
+
+
+    // 监听事件
+    $worker->onWorkerStart = function ($worker) {
+        // require_once base_path() . '/support/bootstrap.php';
+
+        // 绑定错误处理
+        set_error_handler(function ($level, $message, $file = '', $line = 0, $context = []) {
+            if (error_reporting() & $level) {
+                throw new ErrorException($message, 0, $level, $file, $line);
+            }
+        });
         register_shutdown_function(function ($start_time) {
             if (time() - $start_time <= 1) {
                 sleep(1);
             }
         }, time());
-    }
 
-    // 监听事件
-    $worker->onWorkerStart = function ($worker) {
-        // require_once base_path() . '/support/bootstrap.php';
         $container = Container::instance();
         $app = App::instance()->init($worker, $container);
         Http::requestClass(Request::class);
         $worker->onMessage = [$app, 'onMessage'];
+        $worker->onClose = function (TcpConnection $connection) {
+            echo "connection closed\n";
+        };
     };
 }
 
@@ -121,9 +128,13 @@ class A
         return $res;
     }
 
-    public function xxx()
+    public function xxx(Request $request)
     {
-        return __METHOD__;
+        // throw new Exception(123987);
+        $a = 123;
+        return $$a;
+        // var_dump($request->test);
+        // return __METHOD__;
     }
 }
 
@@ -151,6 +162,7 @@ class D implements Middleware
 {
     public function handler($request, $callback): Response
     {
+        $request->test = 123;
         var_dump(__CLASS__);
         return $callback($request);
     }
