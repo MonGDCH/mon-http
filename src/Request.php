@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace mon\worker;
 
+use mon\worker\libs\UploadFile;
 use Workerman\Protocols\Http\Request as HttpRequest;
 
 /**

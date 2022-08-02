@@ -8,12 +8,17 @@ use Throwable;
 use ErrorException;
 use Workerman\Worker;
 use mon\util\Instance;
-use mon\worker\libs\Log;
 use FastRoute\Dispatcher;
+use mon\util\Event;
+use Psr\Log\LoggerInterface;
 use mon\worker\interfaces\Container;
 use Workerman\Connection\TcpConnection;
 use mon\worker\exception\JumpException;
 use mon\worker\exception\RouteException;
+use mon\worker\support\Error;
+use mon\worker\libs\Log;
+use mon\worker\support\ErrorHandler;
+use Workerman\Protocols\Http;
 
 /**
  * 应用实例
@@ -68,6 +73,27 @@ class App
     protected $container;
 
     /**
+     * 日志对象
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * 是否支持静态文件访问
+     *
+     * @var boolean
+     */
+    protected $support_static_files = true;
+
+    /**
+     * 静态文件目录
+     *
+     * @var string
+     */
+    protected $static_path = '';
+
+    /**
      * 私有初始化
      */
     protected function __construct()
@@ -82,11 +108,12 @@ class App
      * @param boolean $debug
      * @return App
      */
-    public function init(Worker $worker, Container $container, bool $debug = true): App
+    public function init(Worker $worker, Container $container, LoggerInterface $logger, bool $debug = true): App
     {
         // 绑定变量
         $this->worker = $worker;
         $this->container = $container;
+        $this->logger = $logger;
         $this->debug = $debug;
 
         $this->init = true;
@@ -101,6 +128,16 @@ class App
     public function debug(): bool
     {
         return $this->debug;
+    }
+
+    /**
+     * 获取应用名
+     *
+     * @return string
+     */
+    public function name(): string
+    {
+        return 'mon';
     }
 
     /**
@@ -144,6 +181,16 @@ class App
     }
 
     /**
+     * 获取日志服务实例
+     *
+     * @return LoggerInterface
+     */
+    public function logger(): LoggerInterface
+    {
+        return $this->logger;
+    }
+
+    /**
      * 请求回调
      *
      * @param TcpConnection $connection
@@ -166,31 +213,44 @@ class App
             $path = $request->path();
             // 请求方式
             $method = $request->method();
-            // 验证请求路径
-            if ($this->unsafeUri($path)) {
+            // 验证请求路径安全
+            if (strpos($path, '/../') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false) {
+                Url::instance()->abort(404);
                 return;
             }
+
+            // 执行回调前钩子 
+            Event::instance()->trigger('befor_run', $this->request);
+
             // 执行路由
             $this->runRoute($method, $path);
         } catch (Throwable $e) {
             $this->send($this->handlerException($e));
         }
+
+        Event::instance()->trigger('end_run', $this->request);
         return;
     }
 
     /**
-     * 验证请求安全
+     * 加载静态文件
      *
-     * @param string $path  请求路径
-     * @return boolean
+     * @param string $path  文件路径
+     * @return void
      */
-    protected function unsafeUri(string $path): bool
+    protected function runFile($path): void
     {
-        if (strpos($path, '/../') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false) {
-            $this->send(new Response(404, [], ''));
-            return true;
+        // 验证是否支持静态文件访问及设置静态文件目录
+        if (!$this->support_static_files || empty($this->static_path)) {
+            return;
         }
-        return false;
+
+        // 访问文件路径
+        $file = "{$this->static_path}/{$path}";
+        if (!file_exists($file)) {
+            Url::instance()->abort(404);
+            return;
+        }
     }
 
     /**
@@ -217,7 +277,7 @@ class App
                 // 405 Method Not Allowed  方法不允许
             case Dispatcher::METHOD_NOT_ALLOWED:
                 // 允许调用的请求类型
-                throw (new RouteException("Route method is not found", 405));
+                throw new RouteException("Route method is not found", 405);
 
                 // 404 Not Found 没找到对应的方法
             case Dispatcher::NOT_FOUND:
@@ -262,7 +322,6 @@ class App
             }, function ($request) use ($call, $vars) {
                 // 执行控制器
                 $result = $this->container()->invoke($call, $vars);
-                // var_dump($result);
                 return $this->response($result);
             });
         } else {
@@ -288,25 +347,21 @@ class App
         if ($e instanceof JumpException) {
             return $e->getResponse();
         }
-        // 路由错误
-        if ($e instanceof RouteException) {
-            return new Response($e->getCode(), $e->getHeader(), $e->getMessage());
-        }
 
         try {
             // 自定义异常处理
-            $handler = Error::class;
+            $handler = ErrorHandler::class;
             $params = [];
             /** @var \mon\worker\interfaces\ExceptionHandler */
             $callback = $this->container()->make($handler, $params, true);
             $callback->report($e);
             $response = $callback->render($this->request(), $e);
             $response->exception($e);
-            return  $response;
+            return $response;
         } catch (Throwable $err) {
             // 记录日志
-            // $log = 'file: ' . $err->getFile() . ' line: ' . $err->getLine() . ' message: ' . $err->getMessage();
-            // Log::instance()->error($log)->save();
+            $log = 'file: ' . $err->getFile() . ' line: ' . $err->getLine() . ' message: ' . $err->getMessage();
+            $this->logger()->error($log);
             // 抛出异常
             $response = new Response(500, [], $this->debug ? (string)$err : $err->getMessage());
             $response->exception($err);
@@ -353,7 +408,7 @@ class App
      *
      * @return void
      */
-    protected function clearAction()
+    protected function clearAction(): void
     {
         $this->request = null;
         $this->connection = null;

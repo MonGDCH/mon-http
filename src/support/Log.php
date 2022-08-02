@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\worker\libs;
+namespace mon\worker\support;
 
 use mon\util\Log as UtilLog;
 use Psr\Log\LoggerInterface;

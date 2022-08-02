@@ -60,3 +60,13 @@ Stack trace:
 #10 C:\Users\Administrator\Desktop\mon-worker\vendor\workerman\workerman\Worker.php(557): Workerman\Worker::forkWorkers()
 #11 C:\Users\Administrator\Desktop\mon-worker\demo\index.php(172): Workerman\Worker::runAll()
 #12 {main}
+2022-08-02 10:10:12 pid:1 ErrorException: Please init the app in C:\Users\Administrator\Desktop\mon-worker\src\App.php:174
+Stack trace:
+#0 C:\Users\Administrator\Desktop\mon-worker\vendor\workerman\workerman\Connection\TcpConnection.php(638): mon\worker\App->onMessage(Object(Workerman\Connection\TcpConnection), Object(mon\worker\Request))
+#1 C:\Users\Administrator\Desktop\mon-worker\vendor\workerman\workerman\Events\Select.php(295): Workerman\Connection\TcpConnection->baseRead(Resource id #40)
+#2 C:\Users\Administrator\Desktop\mon-worker\vendor\workerman\workerman\Worker.php(2465): Workerman\Events\Select->loop()
+#3 C:\Users\Administrator\Desktop\mon-worker\vendor\workerman\workerman\Worker.php(1449): Workerman\Worker->run()
+#4 C:\Users\Administrator\Desktop\mon-worker\vendor\workerman\workerman\Worker.php(1392): Workerman\Worker::forkWorkersForWindows()
+#5 C:\Users\Administrator\Desktop\mon-worker\vendor\workerman\workerman\Worker.php(557): Workerman\Worker::forkWorkers()
+#6 C:\Users\Administrator\Desktop\mon-worker\demo\index.php(186): Workerman\Worker::runAll()
+#7 {main}

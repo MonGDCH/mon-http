@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\worker;
+namespace mon\worker\libs;
 
 /**
  * 文件上传文件对象

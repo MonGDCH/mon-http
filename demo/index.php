@@ -2,7 +2,8 @@
 
 use mon\worker\App;
 use mon\worker\interfaces\Middleware;
-use mon\worker\libs\Container;
+use mon\worker\support\Container;
+use mon\worker\support\Log;
 use mon\worker\Request;
 use mon\worker\Response;
 use mon\worker\Route;
@@ -31,6 +32,21 @@ $config = [
     'stdout_file' => './stdout.log',
     'log_file' => './workerman.log',
     'max_package_size' => 10 * 1024 * 1024
+];
+
+$logConfig = [
+    // 日志文件大小
+    'maxSize'   => 20480000,
+    // 日志目录
+    'logPath'   => __DIR__,
+    // 日志滚动卷数   
+    'rollNum'   => 3,
+    // 日志名称，空则使用当前日期作为名称       
+    'logName'   => '',
+    // 日志分割符
+    'splitLine' => '====================================================================================',
+    // 是否自动执行save方法保存日志
+    'save'      => false,
 ];
 
 
@@ -87,7 +103,7 @@ if ($config['listen']) {
 
 
     // 监听事件
-    $worker->onWorkerStart = function ($worker) {
+    $worker->onWorkerStart = function ($worker) use ($logConfig) {
         // require_once base_path() . '/support/bootstrap.php';
 
         // 绑定错误处理
@@ -103,12 +119,10 @@ if ($config['listen']) {
         }, time());
 
         $container = Container::instance();
-        $app = App::instance()->init($worker, $container);
+        $logger = Log::instance()->setConfig($logConfig);
+        $app = App::instance()->init($worker, $container, $logger);
         Http::requestClass(Request::class);
         $worker->onMessage = [$app, 'onMessage'];
-        $worker->onClose = function (TcpConnection $connection) {
-            echo "connection closed\n";
-        };
     };
 }
 

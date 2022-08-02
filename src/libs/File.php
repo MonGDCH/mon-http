@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\worker;
+namespace mon\worker\libs;
 
 use SplFileInfo;
 use mon\worker\exception\FileException;

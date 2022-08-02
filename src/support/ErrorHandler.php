@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace mon\worker;
+namespace mon\worker\support;
 
 use Throwable;
-use mon\worker\libs\Log;
+use mon\worker\App;
+use mon\worker\Request;
+use mon\worker\Response;
 use mon\worker\interfaces\ExceptionHandler;
 
 /**
@@ -14,7 +16,7 @@ use mon\worker\interfaces\ExceptionHandler;
  * @author  Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Error implements ExceptionHandler
+class ErrorHandler implements ExceptionHandler
 {
     /**
      * 上报异常信息
@@ -25,7 +27,7 @@ class Error implements ExceptionHandler
     public function report(Throwable $e): void
     {
         $log = 'file: ' . $e->getFile() . ' line: ' . $e->getLine() . ' message: ' . $e->getMessage();
-        Log::instance()->error($log)->save();
+        App::instance()->logger()->error($log);
     }
 
     /**

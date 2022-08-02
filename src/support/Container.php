@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\worker\libs;
+namespace mon\worker\support;
 
 use mon\util\Container as UtilContainer;
 use mon\worker\interfaces\Container as InterfacesContainer;
