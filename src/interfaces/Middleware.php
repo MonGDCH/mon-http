@@ -22,5 +22,5 @@ interface Middleware
      * @param callable $callback    执行下一个中间件回调方法
      * @return Response
      */
-    public function handler(Request $request, callable $callback): Response;
+    public function process(Request $request, callable $callback): Response;
 }

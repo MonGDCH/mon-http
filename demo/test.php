@@ -14,11 +14,12 @@ register_shutdown_function(function ($start_time) {
 }, time());
 
 
-$a= 'c';
-$b= 'b';
-$c= 'q';
-$abc = <<<eee
-asdfp{$a}]asdaf{$b}{$c}aaa
-eee;
+class A
+{
+    public function test()
+    {
+        return 1;
+    }
+}
 
-var_dump($abc);
+var_dump(method_exists(A::class, 'test'));

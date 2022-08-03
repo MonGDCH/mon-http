@@ -78,7 +78,7 @@ if (property_exists(Worker::class, 'stopTimeout')) {
 
 // 注册路由
 // Route::instance()->get('/', [A::class, 'test']);
-Route::instance()->get('/test', 'A@demo');
+Route::instance()->get('/test[/{id:\d+}]', 'A@demo');
 Route::instance()->get('/demo', function () {
     // return new Response(200, [], 'demo');
     return 123;
@@ -129,7 +129,9 @@ if ($config['listen']) {
 
 class A
 {
-    public function test(A $a, $id = 1, Request $req, Response $res)
+    protected $a = 1;
+
+    public function test(Request $req)
     {
         // debug($id);
         // debug($req);
@@ -137,16 +139,17 @@ class A
         return $req->path();
     }
 
-    public function demo(Response $res)
+    public function demo(Request $request, $id = 456)
     {
-        return $res;
+        return $id;
     }
 
     public function xxx(Request $request)
     {
+
         // throw new Exception(123987);
-        $a = 123;
-        return $$a;
+        $this->a++;
+        return $this->a;
         // var_dump($request->test);
         // return __METHOD__;
     }
@@ -154,7 +157,7 @@ class A
 
 class B implements Middleware
 {
-    public function handler($request, $callback): Response
+    public function process(Request $request, callable $callback): Response
     {
         var_dump(__CLASS__);
         // return new Response(200, [], '1123');
@@ -164,7 +167,7 @@ class B implements Middleware
 
 class C implements Middleware
 {
-    public function handler($request, $callback): Response
+    public function process(Request $request, callable $callback): Response
     {
         var_dump(__CLASS__);
         return $callback($request);
@@ -174,7 +177,7 @@ class C implements Middleware
 
 class D implements Middleware
 {
-    public function handler($request, $callback): Response
+    public function process(Request $request, callable $callback): Response
     {
         $request->test = 123;
         var_dump(__CLASS__);

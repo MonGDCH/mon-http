@@ -4,21 +4,18 @@ declare(strict_types=1);
 
 namespace mon\worker;
 
+use Closure;
 use Throwable;
 use ErrorException;
 use Workerman\Worker;
 use mon\util\Instance;
 use FastRoute\Dispatcher;
-use mon\util\Event;
 use Psr\Log\LoggerInterface;
 use mon\worker\interfaces\Container;
 use Workerman\Connection\TcpConnection;
 use mon\worker\exception\JumpException;
 use mon\worker\exception\RouteException;
-use mon\worker\support\Error;
-use mon\worker\libs\Log;
 use mon\worker\support\ErrorHandler;
-use Workerman\Protocols\Http;
 
 /**
  * 应用实例
@@ -87,11 +84,25 @@ class App
     protected $support_static_files = true;
 
     /**
+     * 支持静态访问文件的类型
+     *
+     * @var array
+     */
+    protected $support_file_type = [];
+
+    /**
      * 静态文件目录
      *
      * @var string
      */
     protected $static_path = '';
+
+    /**
+     * 缓存的处理器
+     *
+     * @var array
+     */
+    protected $cacheHandle = [];
 
     /**
      * 私有初始化
@@ -197,7 +208,7 @@ class App
      * @param Request $request
      * @return void
      */
-    public function onMessage(TcpConnection $connection, Request $request): void
+    public function onMessage(TcpConnection $connection, Request $request)
     {
         if (!$this->init) {
             throw new ErrorException('Please init the app');
@@ -207,48 +218,47 @@ class App
             // 绑定对象容器
             $this->connection = $connection;
             $this->request = $request;
-            $this->container()->set(Request::class, $this->request);
-            $this->container()->set(TcpConnection::class, $this->connection);
             // 请求路径
             $path = $request->path();
             // 请求方式
             $method = $request->method();
             // 验证请求路径安全
-            if (strpos($path, '/../') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false) {
-                Url::instance()->abort(404);
-                return;
+            if (strpos($path, '..') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false) {
+                return $this->send(new Response(404));
             }
-
-            // 执行回调前钩子 
-            Event::instance()->trigger('befor_run', $this->request);
+            // 执行文件
+            $this->runFile($path);
 
             // 执行路由
             $this->runRoute($method, $path);
         } catch (Throwable $e) {
-            $this->send($this->handlerException($e));
+            return $this->send($this->handlerException($e, $request));
         }
-
-        Event::instance()->trigger('end_run', $this->request);
-        return;
     }
 
     /**
-     * 加载静态文件
+     * 查找静态文件资源
      *
-     * @param string $path  文件路径
+     * @param string $path
      * @return void
      */
-    protected function runFile($path): void
+    protected function runFile(string $path): void
     {
-        // 验证是否支持静态文件访问及设置静态文件目录
-        if (!$this->support_static_files || empty($this->static_path)) {
+        // 是否开启静态文件支持
+        if (!$this->support_static_files) {
             return;
         }
-
-        // 访问文件路径
+        // 修正请求路径
+        if (preg_match('/%[0-9a-f]{2}/i', $path)) {
+            $path = urldecode($path);
+        }
+        // 验证文件扩展名白名单
+        if (!empty($this->support_file_type) && !in_array(pathinfo($path, PATHINFO_EXTENSION), $this->support_file_type)) {
+            return;
+        }
+        // 判断文件是否存在
         $file = "{$this->static_path}/{$path}";
         if (!file_exists($file)) {
-            Url::instance()->abort(404);
             return;
         }
     }
@@ -269,9 +279,12 @@ class App
                 // 200 匹配请求
             case Dispatcher::FOUND:
                 // 执行路由响应
-                $response = $this->handler($callback[1], $callback[2]);
+                $handler = $this->getHandler($callback[1], $callback[2]);
+                // 缓存处理器
+                $key = $method . $path;
+                $this->cacheHandle[$key] = $handler;
                 // 返回响应类实例
-                $this->send($response);
+                $this->send($handler($this->request()));
                 return;
 
                 // 405 Method Not Allowed  方法不允许
@@ -284,9 +297,12 @@ class App
                 $default = Route::instance()->dispatch($method, '*');
                 if ($default[0] === Dispatcher::FOUND) {
                     // 存在自定义的默认处理路由
-                    $response = $this->handler($default[1], $default[2]);
+                    $handler = $this->getHandler($default[1], $default[2]);
+                    // 缓存处理器
+                    // $key = $method . '*';
+                    // $this->cacheHandle[$key] = $handler;
                     // 返回响应类实例
-                    $this->send($response);
+                    $this->send($handler($this->request()));
                     return;
                 }
                 throw new RouteException("Route is not found", 404);
@@ -298,50 +314,61 @@ class App
     }
 
     /**
-     * 执行路由
+     * 获取处理器
      *
      * @param  array  $callback 路由回调
      * @param  array  $vars     路由参数
-     * @return Response
+     * @return Closure
      */
-    protected function handler(array $callback, array $vars = []): Response
+    protected function getHandler(array $callback, array $vars = [], string $app = ''): Closure
     {
+        // 整理参数注入
+        $args = array_values($vars);
         // 获取回调中间件
-        $middlewares = [];
+        $middlewares = Middleware::instance()->get($app);
         foreach ($callback['middleware'] as $middleware) {
-            $middlewares[] = [$this->container()->get($middleware), 'handler'];
+            $middlewares[] = [$this->container()->get($middleware), 'process'];
         }
-        // 获取回调控制器
-        $call = $callback['callback'];
+        // 获取回调方法
+        $call = $this->getCallback($callback['callback']);
         // 执行中间件回调控制器方法
         if ($middlewares) {
             $callbackFun = array_reduce(array_reverse($middlewares), function ($carry, $pipe) {
                 return function ($request) use ($carry, $pipe) {
                     return $pipe($request, $carry);
                 };
-            }, function ($request) use ($call, $vars) {
-                // 执行控制器
-                $result = $this->container()->invoke($call, $vars);
+            }, function ($request) use ($call, $args) {
+                // 执行回调
+                try {
+                    $result = $call($request, ...$args);
+                } catch (Throwable $e) {
+                    return $this->handlerException($e, $request);
+                }
                 return $this->response($result);
             });
         } else {
-            $callbackFun = function ($request) use ($call, $vars) {
+            $callbackFun = function ($request) use ($call, $args) {
                 // 没有中间件，直接执行控制器
-                $result = $this->container()->invoke($call, $vars);
+                try {
+                    $result = $call($request, ...$args);
+                } catch (Throwable $e) {
+                    return $this->handlerException($e, $request);
+                }
                 return $this->response($result);
             };
         }
 
-        return $callbackFun($this->request());
+        return $callbackFun;
     }
 
     /**
      * 处理异常
      *
-     * @param Throwable $e 异常错误
+     * @param Throwable $e  异常错误
+     * @param Request $request  当前操作请求类
      * @return Response
      */
-    public function handlerException(Throwable $e): Response
+    protected function handlerException(Throwable $e, Request $request): Response
     {
         // 路由跳转
         if ($e instanceof JumpException) {
@@ -355,18 +382,43 @@ class App
             /** @var \mon\worker\interfaces\ExceptionHandler */
             $callback = $this->container()->make($handler, $params, true);
             $callback->report($e);
-            $response = $callback->render($this->request(), $e);
+            $response = $callback->render($request, $e);
             $response->exception($e);
             return $response;
         } catch (Throwable $err) {
-            // 记录日志
-            $log = 'file: ' . $err->getFile() . ' line: ' . $err->getLine() . ' message: ' . $err->getMessage();
-            $this->logger()->error($log);
             // 抛出异常
             $response = new Response(500, [], $this->debug ? (string)$err : $err->getMessage());
             $response->exception($err);
             return $response;
         }
+    }
+
+    /**
+     * 获取回调方法
+     *
+     * @param mixed $callback
+     * @throws RouteException
+     * @return mixed
+     */
+    protected function getCallback($callback)
+    {
+        if ($callback instanceof Closure) {
+            return $callback;
+        }
+        // 字符串
+        if (is_string($callback)) {
+            // 分割字符串获取对象和方法
+            $call = explode('@', $callback);
+            if (isset($call[0]) && isset($call[1])) {
+                return [$this->container()->get($call[0]), $call[1]];
+            }
+        }
+        // 数组
+        if (is_array($callback) && isset($callback[0]) && isset($callback[1])) {
+            return [$this->container()->get($callback[0]), $callback[1]];
+        }
+
+        throw new RouteException('Callback is faild!', 500);
     }
 
     /**
@@ -399,7 +451,7 @@ class App
             $this->clearAction();
             return;
         }
-        $this->connection->close($response);
+        $this->connection()->close($response);
         $this->clearAction();
     }
 
@@ -412,7 +464,5 @@ class App
     {
         $this->request = null;
         $this->connection = null;
-        $this->container()->set(Request::class, null);
-        $this->container()->set(TcpConnection::class, null);
     }
 }

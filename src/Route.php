@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace mon\worker;
 
 use Closure;
-use mon\util\File;
 use mon\util\Instance;
-use ReflectionFunction;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
@@ -306,50 +304,5 @@ class Route
     public function dispatch(string $method, string $path): array
     {
         return $this->dispatcher()->dispatch($method, $path);
-    }
-
-    /**
-     * 获取路由缓存结果集,或者缓存路由
-     *
-     * @param  string $path 缓存文件路径，存在缓存路径则输出缓存文件
-     * @return mixed
-     */
-    public function cache(string $path = '')
-    {
-        $data = $this->getData();
-        array_walk_recursive($data, [$this, 'buildClosure']);
-        $content = var_export($data, true);
-        $content = str_replace(['\'[__start__', '__end__]\''], '', stripcslashes($content));
-        // 不存在缓存文件路径，返回缓存结果集
-        if (empty($path)) {
-            return $content;
-        }
-        // 缓存路由文件
-        $cache = '<?php ' . PHP_EOL . 'return ' . $content . ';';
-        return File::instance()->createFile($cache, $path, false);
-    }
-
-    /**
-     * 生成路由内容
-     *
-     * @param  mixed  &$value 路由内容
-     * @return void
-     */
-    protected function buildClosure(&$value): void
-    {
-        if ($value instanceof Closure) {
-            $reflection = new ReflectionFunction($value);
-            $startLine  = $reflection->getStartLine();
-            $endLine    = $reflection->getEndLine();
-            $file       = $reflection->getFileName();
-            $item       = file($file);
-            $content    = '';
-            for ($i = $startLine - 1, $j = $endLine - 1; $i <= $j; $i++) {
-                $content .= $item[$i];
-            }
-            $start = strpos($content, 'function');
-            $end   = strrpos($content, '}');
-            $value = '[__start__' . substr($content, $start, $end - $start + 1) . '__end__]';
-        }
     }
 }
