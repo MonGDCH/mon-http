@@ -77,24 +77,6 @@ if (property_exists(Worker::class, 'stopTimeout')) {
     Worker::$stopTimeout = $config['stop_timeout'] ?? 2;
 }
 
-$i = 100;
-
-// 注册路由
-// Route::instance()->get('/', [A::class, 'test']);
-Route::instance()->get('/test[/{id:\d+}]', 'A@demo');
-Route::instance()->get('/demo', function () use ($i) {
-    // return new Response(200, [], 'demo');
-
-    $i--;
-    return $i;
-});
-Route::instance()->get(['path' => '/', 'befor' => [B::class, C::class]], [A::class, 'test']);
-
-
-Route::instance()->group(['middleware' => D::class], function ($route) {
-    Route::instance()->get(['path' => '/xxx', 'middleware' => [B::class, C::class]], [A::class, 'xxx']);
-});
-
 if ($config['listen']) {
     $worker = new Worker($config['listen'], (array)$config['context']);
     $property_map = ['name', 'count', 'user', 'group', 'reusePort', 'transport', 'protocol'];
@@ -103,9 +85,6 @@ if ($config['listen']) {
             $worker->$property = $config[$property];
         }
     }
-
-
-
 
     // 监听事件
     $worker->onWorkerStart = function ($worker) use ($logConfig) {
@@ -133,6 +112,23 @@ if ($config['listen']) {
 }
 
 
+
+
+
+// 注册路由
+// Route::instance()->get('/', [A::class, 'test']);
+Route::instance()->get('/test[/{id:\d+}]', 'A@demo');
+Route::instance()->get('/demo', function (Request $request) {
+    return $request->session()->get('sess');
+});
+Route::instance()->get(['path' => '/', 'befor' => [B::class, C::class]], [A::class, 'test']);
+
+
+Route::instance()->group(['middleware' => D::class], function ($route) {
+    Route::instance()->get(['path' => '/xxx', 'middleware' => [B::class, C::class]], [A::class, 'xxx']);
+});
+
+
 class A
 {
     protected $a = 0;
@@ -144,13 +140,16 @@ class A
 
     public function test(Request $req)
     {
-        $dd = debug($req->session(), false);
+        // $dd = debug($req->session(), false);
+
+        $req->session()->set('sess', 123);
+
         // Jump::instance()->result(123, 'tttt');
         // throw new Exception(11);
         // debug($id);
         // debug($req);
         // return $res->withBody('test!!!');
-        return $dd;
+        return 'Test Session';
     }
 
     public function demo(Request $request, $id = 456)
@@ -199,6 +198,5 @@ class D implements Middleware
         return $response;
     }
 }
-
 
 Worker::runAll();

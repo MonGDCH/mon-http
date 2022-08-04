@@ -16,9 +16,9 @@
         }
     ],
     "require": {
+        "php": ">=7.0.0",
         "workerman/workerman": "^4.0",
         "nikic/fast-route": "^1.3",
-        "mongdch/mon-env": "^1.0",
         "mongdch/mon-util": "^1.3"
     }
 }

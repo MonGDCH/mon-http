@@ -22,9 +22,9 @@ class ErrorHandler implements ExceptionHandler
      * 上报异常信息
      *
      * @param Throwable $e
-     * @return void
+     * @return mixed
      */
-    public function report(Throwable $e): void
+    public function report(Throwable $e)
     {
         // TODO 记录日志
     }

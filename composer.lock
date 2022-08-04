@@ -4,43 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b2add9f18cbe872cb5ed3a6a042c45a0",
+    "content-hash": "0c059d9f2754e7792e5ee238f27b4c20",
     "packages": [
-        {
-            "name": "mongdch/mon-env",
-            "version": "1.0.4",
-            "dist": {
-                "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/mongdch/mon-env/1.0.4/mongdch-mon-env-1.0.4.zip",
-                "reference": "bd87e7ab07fe0dd2ff683d6933d88b3e0cd6d6cf",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.6.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "mon\\env\\": "src/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "MonGDCH",
-                    "email": "985558837@qq.com"
-                }
-            ],
-            "description": "the php env config utils.",
-            "keywords": [
-                "config",
-                "env",
-                "php"
-            ],
-            "time": "2020-09-24T02:10:28+00:00"
-        },
         {
             "name": "mongdch/mon-util",
             "version": "1.3.13",
@@ -87,7 +52,7 @@
             "version": "v1.3.0",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/nikic/fast-route/v1.3.0/nikic-fast-route-v1.3.0.zip",
+                "url": "https://mirrors.tencent.com/repository/composer/nikic/fast-route/v1.3.0/nikic-fast-route-v1.3.0.zip",
                 "reference": "181d480e08d9476e61381e04a71b34dc0432e812",
                 "shasum": ""
             },
@@ -170,7 +135,7 @@
             "version": "1.1.4",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/psr/log/1.1.4/psr-log-1.1.4.zip",
+                "url": "https://mirrors.tencent.com/repository/composer/psr/log/1.1.4/psr-log-1.1.4.zip",
                 "reference": "d49695b909c3b7628b6289db5479a1c204601f11",
                 "shasum": ""
             },
@@ -211,7 +176,7 @@
             "version": "v4.0.42",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/workerman/workerman/v4.0.42/workerman-workerman-v4.0.42.zip",
+                "url": "https://mirrors.tencent.com/repository/composer/workerman/workerman/v4.0.42/workerman-workerman-v4.0.42.zip",
                 "reference": "83f09b50eaf7412504604030daa9e1f9c767e6c3",
                 "shasum": ""
             },
@@ -253,7 +218,9 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": ">=7.0.0"
+    },
     "platform-dev": [],
     "plugin-api-version": "2.2.0"
 }

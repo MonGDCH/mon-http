@@ -9,7 +9,7 @@ use mon\util\Instance;
 use mon\worker\exception\JumpException;
 
 /**
- * 业务跳转服务
+ * 业务跳转
  *
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
@@ -27,7 +27,7 @@ class Jump
      * @throws JumpException
      * @return void
      */
-    public function redirect(string $url = '', array $vars = [], int $code = 302, array $header = []): void
+    public function redirect(string $url = '', array $vars = [], int $code = 302, array $header = [])
     {
         $header['Location'] = App::instance()->request()->build($url, $vars);
         $response = new Response($code, $header);
@@ -43,7 +43,7 @@ class Jump
      * @throws JumpException
      * @return void
      */
-    public function abort(int $code, string $msg = null, array $header = []): void
+    public function abort(int $code, string $msg = null, array $header = [])
     {
         $response = new Response($code, $header, $msg);
         throw new JumpException($response);
@@ -62,7 +62,7 @@ class Jump
      * @throws JumpException
      * @return void
      */
-    public function result(int $code = 0, string $msg = '', array $data = [], array $extend = [], string $type = 'json', int $http_code = 200, array $header = []): void
+    public function result(int $code = 0, string $msg = '', array $data = [], array $extend = [], string $type = 'json', int $http_code = 200, array $header = [])
     {
         // 响应数据
         $result = ['code' => $code, 'msg' => $msg, 'data' => $data];

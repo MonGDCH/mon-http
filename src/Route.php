@@ -211,7 +211,7 @@ class Route
      * @param  Closure $callback 路由回调
      * @return void
      */
-    public function group($pattern, Closure $callback): void
+    public function group($pattern, Closure $callback)
     {
         $groupPrefix = $this->groupPrefix;
         $prefix = $this->prefix;

@@ -17,7 +17,7 @@ use mon\worker\exception\RouteException;
 use mon\worker\interfaces\ExceptionHandler;
 
 /**
- * 应用实例
+ * 应用驱动
  * 
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
@@ -25,6 +25,20 @@ use mon\worker\interfaces\ExceptionHandler;
 class App
 {
     use Instance;
+
+    /**
+     * 版本号
+     * 
+     * @var string
+     */
+    const VERSION = '1.0.0';
+
+    /**
+     * 应用名
+     *
+     * @var string
+     */
+    protected $name = 'mon-worker';
 
     /**
      * 初始化标志
@@ -179,7 +193,7 @@ class App
      */
     public function name(): string
     {
-        return 'mon';
+        return $this->name;
     }
 
     /**
@@ -239,7 +253,7 @@ class App
      * @param Request $request
      * @return void
      */
-    public function onMessage(TcpConnection $connection, Request $request): void
+    public function onMessage(TcpConnection $connection, Request $request)
     {
         if (!$this->init) {
             throw new ErrorException('Please init the app');
@@ -290,7 +304,7 @@ class App
      * @param string|Response $response
      * @return void
      */
-    public function send($response): void
+    public function send($response)
     {
         $keep_alive = $this->request()->header('connection');
         if (($keep_alive === null && $this->request()->protocolVersion() === '1.1') || strtolower($keep_alive) === 'keep-alive') {
@@ -307,7 +321,7 @@ class App
      *
      * @return void
      */
-    public function clearCacheCallback(): void
+    public function clearCacheCallback()
     {
         $this->cacheCallback = [];
     }
@@ -538,7 +552,7 @@ class App
      *
      * @return void
      */
-    protected function clearAction(): void
+    protected function clearAction()
     {
         $this->request = null;
         $this->connection = null;
