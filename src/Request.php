@@ -16,6 +16,76 @@ use Workerman\Protocols\Http\Request as HttpRequest;
 class Request extends HttpRequest
 {
     /**
+     * 构建生成URL
+     *
+     * @param string $url URL路径
+     * @param array $vars 传参
+     * @return string
+     */
+    public function build(string $url = '', array $vars = []): string
+    {
+        // $url为空是，采用当前pathinfo
+        if (empty($url)) {
+            $url = $this->path();
+        }
+
+        // 判断是否包含域名,解析URL和传参
+        if (false === strpos($url, '://') && 0 !== strpos($url, '/')) {
+            $info = parse_url($url);
+            $url  = empty($info['path']) ?: '';
+            // 判断是否存在锚点,解析请求串
+            if (isset($info['fragment'])) {
+                // 解析锚点
+                $anchor = $info['fragment'];
+                if (false !== strpos($anchor, '?')) {
+                    // 解析参数
+                    list($anchor, $info['query']) = explode('?', $anchor, 2);
+                }
+            }
+        } elseif (false !== strpos($url, '://')) {
+            // 存在协议头，自带domain
+            $info = parse_url($url);
+            $url  = $info['host'];
+            $scheme = isset($info['scheme']) ? $info['scheme'] : 'http';
+            // 判断是否存在锚点,解析请求串
+            if (isset($info['fragment'])) {
+                // 解析锚点
+                $anchor = $info['fragment'];
+                if (false !== strpos($anchor, '?')) {
+                    // 解析参数
+                    list($anchor, $info['query']) = explode('?', $anchor, 2);
+                }
+            }
+        }
+
+        // 判断是否已传入URL,且URl中携带传参, 解析传参到$vars中
+        if ($url && isset($info['query'])) {
+            // 解析地址里面参数 合并到vars
+            parse_str($info['query'], $params);
+            $vars = array_merge($params, $vars);
+            unset($info['query']);
+        }
+
+        // 还原锚点
+        $anchor = !empty($anchor) ? '#' . $anchor : '';
+        // 组装传参
+        if (!empty($vars)) {
+            $vars = http_build_query($vars);
+            $url .= '?' . $vars;
+        }
+        $url .= $anchor;
+
+        if (!isset($scheme)) {
+            // 补全baseUrl
+            $url = '/' . ltrim($url, '/');
+        } else {
+            $url = $scheme . '://' . $url;
+        }
+
+        return $url;
+    }
+
+    /**
      * 获取GET数据
      *
      * @param string|null $name 参数键名

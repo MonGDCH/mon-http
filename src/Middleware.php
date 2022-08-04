@@ -64,7 +64,7 @@ class Middleware
      * @param array $middlewares
      * @return Middleware
      */
-    public function register(array $middlewares): Middleware
+    public function load(array $middlewares): Middleware
     {
         foreach ($middlewares as $app => $list) {
             if (!is_array($list)) {

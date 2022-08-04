@@ -10,12 +10,11 @@ use ErrorException;
 use Workerman\Worker;
 use mon\util\Instance;
 use FastRoute\Dispatcher;
-use Psr\Log\LoggerInterface;
 use mon\worker\interfaces\Container;
 use Workerman\Connection\TcpConnection;
 use mon\worker\exception\JumpException;
 use mon\worker\exception\RouteException;
-use mon\worker\support\ErrorHandler;
+use mon\worker\interfaces\ExceptionHandler;
 
 /**
  * 应用实例
@@ -70,25 +69,18 @@ class App
     protected $container;
 
     /**
-     * 日志对象
+     * 异常错误处理对象
      *
-     * @var LoggerInterface
+     * @var ExceptionHandler
      */
-    protected $logger;
+    protected $exceptionHandler;
 
     /**
      * 是否支持静态文件访问
      *
      * @var boolean
      */
-    protected $support_static_files = true;
-
-    /**
-     * 支持静态访问文件的类型
-     *
-     * @var array
-     */
-    protected $support_file_type = [];
+    protected $support_static_files = false;
 
     /**
      * 静态文件目录
@@ -98,11 +90,32 @@ class App
     protected $static_path = '';
 
     /**
-     * 缓存的处理器
+     * 支持静态访问文件的类型
      *
      * @var array
      */
-    protected $cacheHandle = [];
+    protected $support_file_type = [];
+
+    /**
+     * 缓存的回调处理器
+     *
+     * @var array
+     */
+    protected $cacheCallback = [];
+
+    /**
+     * 最大缓存回调处理器数
+     *
+     * @var integer
+     */
+    protected $maxCacheCallback = 1024;
+
+    /**
+     * 是否重新创建回调控制器
+     *
+     * @var boolean
+     */
+    protected $newController = true;
 
     /**
      * 私有初始化
@@ -119,15 +132,33 @@ class App
      * @param boolean $debug
      * @return App
      */
-    public function init(Worker $worker, Container $container, LoggerInterface $logger, bool $debug = true): App
+    public function init(Worker $worker, Container $container, ExceptionHandler $handler, bool $debug = true, bool $newController = true, int $maxCacheCallback = 1024): App
     {
         // 绑定变量
         $this->worker = $worker;
         $this->container = $container;
-        $this->logger = $logger;
+        $this->exceptionHandler = $handler;
         $this->debug = $debug;
+        $this->newController = $newController;
+        $this->maxCacheCallback = $maxCacheCallback;
 
         $this->init = true;
+        return $this;
+    }
+
+    /**
+     * 开启关闭静态文件支持
+     *
+     * @param boolean $supportSatic 是否开启静态文件支持
+     * @param string $staticPath    静态文件目录
+     * @param array $supportType    支持的文件类型，空则表示所有
+     * @return App
+     */
+    public function supportStaticFile(bool $supportSatic, string $staticPath, array $supportType = []): App
+    {
+        $this->support_static_files = $supportSatic;
+        $this->static_path = $staticPath;
+        $this->support_file_type = $supportType;
         return $this;
     }
 
@@ -192,13 +223,13 @@ class App
     }
 
     /**
-     * 获取日志服务实例
+     * 获取错误处理服务实例
      *
-     * @return LoggerInterface
+     * @return ExceptionHandler
      */
-    public function logger(): LoggerInterface
+    public function exceptionHandler(): ExceptionHandler
     {
-        return $this->logger;
+        return $this->exceptionHandler;
     }
 
     /**
@@ -208,7 +239,7 @@ class App
      * @param Request $request
      * @return void
      */
-    public function onMessage(TcpConnection $connection, Request $request)
+    public function onMessage(TcpConnection $connection, Request $request): void
     {
         if (!$this->init) {
             throw new ErrorException('Please init the app');
@@ -224,29 +255,74 @@ class App
             $method = $request->method();
             // 验证请求路径安全
             if (strpos($path, '..') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false) {
-                return $this->send(new Response(404));
+                $failback = $this->getFallback($method);
+                $this->send($failback($request));
+                return;
             }
-            // 执行文件
-            $this->runFile($path);
+            // 判断是否存在缓存处理器，执行缓存处理器
+            $key = $method . $path;
+            if (isset($this->cacheCallback[$key])) {
+                $callback = $this->cacheCallback[$key];
+                $this->send($callback($request));
+                return;
+            }
+            // 处理文件响应
+            if ($this->handlerFile($path, $key)) {
+                return;
+            }
+            // 处理路由响应
+            if ($this->handlerRoute($method, $path, $key)) {
+                return;
+            }
 
-            // 执行路由
-            $this->runRoute($method, $path);
+            // 错误回调响应
+            $failback = $this->getFallback($method);
+            $this->send($failback($request));
         } catch (Throwable $e) {
-            return $this->send($this->handlerException($e, $request));
+            $this->send($this->handlerException($e, $request));
         }
+        return;
     }
 
     /**
-     * 查找静态文件资源
+     * 发送响应内容
      *
-     * @param string $path
+     * @param string|Response $response
      * @return void
      */
-    protected function runFile(string $path): void
+    public function send($response): void
+    {
+        $keep_alive = $this->request()->header('connection');
+        if (($keep_alive === null && $this->request()->protocolVersion() === '1.1') || strtolower($keep_alive) === 'keep-alive') {
+            $this->connection->send($response);
+            $this->clearAction();
+            return;
+        }
+        $this->connection()->close($response);
+        $this->clearAction();
+    }
+
+    /**
+     * 清除回调处理器缓存
+     *
+     * @return void
+     */
+    public function clearCacheCallback(): void
+    {
+        $this->cacheCallback = [];
+    }
+
+    /**
+     * 处理静态文件资源响应
+     *
+     * @param string $path
+     * @return boolean
+     */
+    protected function handlerFile(string $path, string $key): bool
     {
         // 是否开启静态文件支持
-        if (!$this->support_static_files) {
-            return;
+        if (!$this->support_static_files || empty($this->static_path)) {
+            return false;
         }
         // 修正请求路径
         if (preg_match('/%[0-9a-f]{2}/i', $path)) {
@@ -254,115 +330,64 @@ class App
         }
         // 验证文件扩展名白名单
         if (!empty($this->support_file_type) && !in_array(pathinfo($path, PATHINFO_EXTENSION), $this->support_file_type)) {
-            return;
+            return false;
         }
         // 判断文件是否存在
         $file = "{$this->static_path}/{$path}";
-        if (!file_exists($file)) {
-            return;
+        if (!is_file($file)) {
+            return false;
         }
+
+        // 生成处理器
+        $callback = $this->getCallback(['callback' => function ($request) use ($file) {
+            clearstatcache(true, $file);
+            if (!is_file($file)) {
+                $failback = $this->getFallback();
+                return $failback($request);
+            }
+            return (new Response())->file($file);
+        }, 'middleware' => []], [], '__static__');
+        $this->cacheCallback[$key] = $callback;
+        $this->send($callback($this->request()));
+        // 判断清除缓存
+        if (count($this->cacheCallback) > $this->maxCacheCallback) {
+            $this->clearCacheCallback();
+        }
+        return true;
     }
 
     /**
-     * 执行路由
+     * 处理路由响应
      *
      * @param string $method    请求方式
      * @param string $path      请求路径
+     * @param string $key       缓存键名
      * @throws RouteException
-     * @return void
+     * @return boolean
      */
-    protected function runRoute(string $method, string $path): void
+    protected function handlerRoute(string $method, string $path, string $key): bool
     {
         // 执行路由
-        $callback = Route::instance()->dispatch($method, $path);
-        switch ($callback[0]) {
-                // 200 匹配请求
-            case Dispatcher::FOUND:
-                // 执行路由响应
-                $handler = $this->getHandler($callback[1], $callback[2]);
-                // 缓存处理器
-                $key = $method . $path;
-                $this->cacheHandle[$key] = $handler;
-                // 返回响应类实例
-                $this->send($handler($this->request()));
-                return;
-
-                // 405 Method Not Allowed  方法不允许
-            case Dispatcher::METHOD_NOT_ALLOWED:
-                // 允许调用的请求类型
-                throw new RouteException("Route method is not found", 405);
-
-                // 404 Not Found 没找到对应的方法
-            case Dispatcher::NOT_FOUND:
-                $default = Route::instance()->dispatch($method, '*');
-                if ($default[0] === Dispatcher::FOUND) {
-                    // 存在自定义的默认处理路由
-                    $handler = $this->getHandler($default[1], $default[2]);
-                    // 缓存处理器
-                    // $key = $method . '*';
-                    // $this->cacheHandle[$key] = $handler;
-                    // 返回响应类实例
-                    $this->send($handler($this->request()));
-                    return;
-                }
-                throw new RouteException("Route is not found", 404);
-
-                // 不存在路由定义
-            default:
-                throw new RouteException("Route is not found!", 404);
+        $handler = Route::instance()->dispatch($method, $path);
+        if ($handler[0] === Dispatcher::FOUND) {
+            // 执行路由响应
+            $callback = $this->getCallback($handler[1], $handler[2]);
+            // 缓存回调处理器
+            $this->cacheCallback[$key] = $callback;
+            // 返回响应类实例
+            $this->send($callback($this->request()));
+            // 判断清除缓存
+            if (count($this->cacheCallback) > $this->maxCacheCallback) {
+                $this->clearCacheCallback();
+            }
+            return true;
         }
+
+        return false;
     }
 
     /**
-     * 获取处理器
-     *
-     * @param  array  $callback 路由回调
-     * @param  array  $vars     路由参数
-     * @return Closure
-     */
-    protected function getHandler(array $callback, array $vars = [], string $app = ''): Closure
-    {
-        // 整理参数注入
-        $args = array_values($vars);
-        // 获取回调中间件
-        $middlewares = Middleware::instance()->get($app);
-        foreach ($callback['middleware'] as $middleware) {
-            $middlewares[] = [$this->container()->get($middleware), 'process'];
-        }
-        // 获取回调方法
-        $call = $this->getCallback($callback['callback']);
-        // 执行中间件回调控制器方法
-        if ($middlewares) {
-            $callbackFun = array_reduce(array_reverse($middlewares), function ($carry, $pipe) {
-                return function ($request) use ($carry, $pipe) {
-                    return $pipe($request, $carry);
-                };
-            }, function ($request) use ($call, $args) {
-                // 执行回调
-                try {
-                    $result = $call($request, ...$args);
-                } catch (Throwable $e) {
-                    return $this->handlerException($e, $request);
-                }
-                return $this->response($result);
-            });
-        } else {
-            $callbackFun = function ($request) use ($call, $args) {
-                // 没有中间件，直接执行控制器
-                try {
-                    $result = $call($request, ...$args);
-                } catch (Throwable $e) {
-                    return $this->handlerException($e, $request);
-                }
-                return $this->response($result);
-            };
-        }
-
-        return $callbackFun;
-    }
-
-    /**
-     * 处理异常
+     * 处理异常响应
      *
      * @param Throwable $e  异常错误
      * @param Request $request  当前操作请求类
@@ -377,12 +402,8 @@ class App
 
         try {
             // 自定义异常处理
-            $handler = ErrorHandler::class;
-            $params = [];
-            /** @var \mon\worker\interfaces\ExceptionHandler */
-            $callback = $this->container()->make($handler, $params, true);
-            $callback->report($e);
-            $response = $callback->render($request, $e);
+            $this->exceptionHandler()->report($e);
+            $response = $this->exceptionHandler()->render($request, $e);
             $response->exception($e);
             return $response;
         } catch (Throwable $err) {
@@ -394,13 +415,80 @@ class App
     }
 
     /**
+     * 获取错误回调
+     *
+     * @param string $method 请求类型
+     * @return Closure
+     */
+    protected function getFallback(string $method = ''): Closure
+    {
+        $method = $method ?: $this->request()->method();
+        $handler = Route::instance()->dispatch($method, '*');
+        if ($handler[0] === Dispatcher::FOUND) {
+            return $this->getCallback($handler[1], $handler[2]);
+        }
+
+        return function () {
+            return new Response(404, [], '<html><head><title>404 Not Found</title></head><body><center><h1>404 Not Found</h1></center></body></html>');
+        };
+    }
+
+    /**
+     * 获取回调处理器
+     *
+     * @param  array  $handler 路由回调
+     * @param  array  $vars     路由参数
+     * @return Closure
+     */
+    protected function getCallback(array $handler, array $vars = [], string $app = ''): Closure
+    {
+        // 整理参数注入
+        $args = array_values($vars);
+        // 获取回调中间件
+        $middlewares = Middleware::instance()->get($app);
+        foreach ($handler['middleware'] as $middleware) {
+            $middlewares[] = [$this->container()->get($middleware), 'process'];
+        }
+        // 获取回调方法
+        $call = $this->getCall($handler['callback']);
+        // 执行中间件回调控制器方法
+        if ($middlewares) {
+            $callback = array_reduce(array_reverse($middlewares), function ($carry, $pipe) {
+                return function ($request) use ($carry, $pipe) {
+                    return $pipe($request, $carry);
+                };
+            }, function ($request) use ($call, $args) {
+                // 执行回调
+                try {
+                    $result = $call($request, ...$args);
+                } catch (Throwable $e) {
+                    return $this->handlerException($e, $request);
+                }
+                return $this->response($result);
+            });
+        } else {
+            $callback = function ($request) use ($call, $args) {
+                // 没有中间件，直接执行控制器
+                try {
+                    $result = $call($request, ...$args);
+                } catch (Throwable $e) {
+                    return $this->handlerException($e, $request);
+                }
+                return $this->response($result);
+            };
+        }
+
+        return $callback;
+    }
+
+    /**
      * 获取回调方法
      *
      * @param mixed $callback
      * @throws RouteException
-     * @return mixed
+     * @return Closure
      */
-    protected function getCallback($callback)
+    protected function getCall($callback): Closure
     {
         if ($callback instanceof Closure) {
             return $callback;
@@ -410,12 +498,20 @@ class App
             // 分割字符串获取对象和方法
             $call = explode('@', $callback);
             if (isset($call[0]) && isset($call[1])) {
-                return [$this->container()->get($call[0]), $call[1]];
+                return function (...$args) use ($call) {
+                    $controller = $this->newController ? $this->container()->make($call[0]) :  $this->container()->get($call[0]);
+                    $handler = [$controller, $call[1]];
+                    return $handler(...$args);
+                };
             }
         }
         // 数组
         if (is_array($callback) && isset($callback[0]) && isset($callback[1])) {
-            return [$this->container()->get($callback[0]), $callback[1]];
+            return function (...$args) use ($callback) {
+                $controller = $this->newController ? $this->container()->make($callback[0]) :  $this->container()->get($callback[0]);
+                $handler = [$controller, $callback[1]];
+                return $handler(...$args);
+            };
         }
 
         throw new RouteException('Callback is faild!', 500);
@@ -438,25 +534,7 @@ class App
     }
 
     /**
-     * 发送响应内容
-     *
-     * @param string|Response $response
-     * @return void
-     */
-    public function send($response): void
-    {
-        $keep_alive = $this->request()->header('connection');
-        if (($keep_alive === null && $this->request()->protocolVersion() === '1.1') || strtolower($keep_alive) === 'keep-alive') {
-            $this->connection->send($response);
-            $this->clearAction();
-            return;
-        }
-        $this->connection()->close($response);
-        $this->clearAction();
-    }
-
-    /**
-     * 请求响应
+     * 清除响应
      *
      * @return void
      */

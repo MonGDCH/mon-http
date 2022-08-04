@@ -2,11 +2,13 @@
 
 use mon\worker\App;
 use mon\worker\interfaces\Middleware;
+use mon\worker\Jump;
 use mon\worker\support\Container;
 use mon\worker\support\Log;
 use mon\worker\Request;
 use mon\worker\Response;
 use mon\worker\Route;
+use mon\worker\support\ErrorHandler;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http;
 use Workerman\Worker;
@@ -75,13 +77,16 @@ if (property_exists(Worker::class, 'stopTimeout')) {
     Worker::$stopTimeout = $config['stop_timeout'] ?? 2;
 }
 
+$i = 100;
 
 // 注册路由
 // Route::instance()->get('/', [A::class, 'test']);
 Route::instance()->get('/test[/{id:\d+}]', 'A@demo');
-Route::instance()->get('/demo', function () {
+Route::instance()->get('/demo', function () use ($i) {
     // return new Response(200, [], 'demo');
-    return 123;
+
+    $i--;
+    return $i;
 });
 Route::instance()->get(['path' => '/', 'befor' => [B::class, C::class]], [A::class, 'test']);
 
@@ -119,8 +124,9 @@ if ($config['listen']) {
         }, time());
 
         $container = Container::instance();
-        $logger = Log::instance()->setConfig($logConfig);
-        $app = App::instance()->init($worker, $container, $logger);
+        // $logger = Log::instance()->setConfig($logConfig);
+        $errorHandler = Container::instance()->get(ErrorHandler::class);
+        $app = App::instance()->init($worker, $container, $errorHandler, true, true)->supportStaticFile(true, __DIR__, ['ico']);
         Http::requestClass(Request::class);
         $worker->onMessage = [$app, 'onMessage'];
     };
@@ -129,14 +135,22 @@ if ($config['listen']) {
 
 class A
 {
-    protected $a = 1;
+    protected $a = 0;
+
+    public function __construct(C $c)
+    {
+        debug(get_class($c));
+    }
 
     public function test(Request $req)
     {
+        $dd = debug($req->session(), false);
+        // Jump::instance()->result(123, 'tttt');
+        // throw new Exception(11);
         // debug($id);
         // debug($req);
         // return $res->withBody('test!!!');
-        return $req->path();
+        return $dd;
     }
 
     public function demo(Request $request, $id = 456)
@@ -180,8 +194,9 @@ class D implements Middleware
     public function process(Request $request, callable $callback): Response
     {
         $request->test = 123;
+        $response = $callback($request);
         var_dump(__CLASS__);
-        return $callback($request);
+        return $response;
     }
 }
 

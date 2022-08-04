@@ -26,8 +26,7 @@ class ErrorHandler implements ExceptionHandler
      */
     public function report(Throwable $e): void
     {
-        $log = 'file: ' . $e->getFile() . ' line: ' . $e->getLine() . ' message: ' . $e->getMessage();
-        App::instance()->logger()->error($log);
+        // TODO 记录日志
     }
 
     /**
