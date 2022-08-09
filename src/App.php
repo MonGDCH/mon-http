@@ -141,9 +141,12 @@ class App
     /**
      * 初始化
      *
-     * @param Worker $worker
-     * @param Container $container
-     * @param boolean $debug
+     * @param Worker $worker            worker实例
+     * @param Container $container      容器实例psr-11
+     * @param ExceptionHandler $handler 异常处理实例
+     * @param boolean $debug            是否为调试模块
+     * @param boolean $newController    是否每次重新new控制器类
+     * @param integer $maxCacheCallback 最大缓存回调数，一般不需要修改
      * @return App
      */
     public function init(Worker $worker, Container $container, ExceptionHandler $handler, bool $debug = true, bool $newController = true, int $maxCacheCallback = 1024): App

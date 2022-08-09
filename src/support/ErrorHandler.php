@@ -56,7 +56,7 @@ class ErrorHandler implements ExceptionHandler
         $file = $e->getFile();
         $line = $e->getLine();
         $msg = $e->getMessage();
-        $trace   = $e->getTrace();
+        $trace = $e->getTrace();
         $source = $this->getSourceCode($e);
         $tables = [
             'GET Data'  => $request->get(),

@@ -135,21 +135,27 @@ class A
 
     public function __construct(C $c)
     {
-        debug(get_class($c));
+        // debug(get_class($c));
     }
 
     public function test(Request $req)
     {
         // $dd = debug($req->session(), false);
 
-        $req->session()->set('sess', 123);
+        // $req->session()->set('sess', 123);
 
         // Jump::instance()->result(123, 'tttt');
         // throw new Exception(11);
         // debug($id);
         // debug($req);
         // return $res->withBody('test!!!');
-        return 'Test Session';
+        // return 'Test Session';
+
+        ob_start();
+        phpinfo();
+        $info = ob_get_clean();
+
+        return $info;
     }
 
     public function demo(Request $request, $id = 456)

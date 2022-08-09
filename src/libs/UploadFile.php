@@ -37,10 +37,10 @@ class UploadFile extends File
     /**
      * 重载SplFileInfo构造方法
      *
-     * @param string $file_name
-     * @param string $upload_name
-     * @param string $upload_mime_type
-     * @param integer $upload_error_code
+     * @param string $file_name 文件名
+     * @param string $upload_name   上传文件名
+     * @param string $upload_mime_type  上传文件类型
+     * @param integer $upload_error_code    错误码
      */
     public function __construct(string $file_name, string $upload_name, string $upload_mime_type, int $upload_error_code)
     {
