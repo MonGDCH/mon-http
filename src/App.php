@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\worker;
+namespace mon\http;
 
 use Closure;
 use Throwable;
@@ -10,11 +10,12 @@ use ErrorException;
 use Workerman\Worker;
 use mon\util\Instance;
 use FastRoute\Dispatcher;
-use mon\worker\interfaces\Container;
+use mon\http\interfaces\Container;
+use mon\http\exception\JumpException;
+use mon\http\exception\RouteException;
 use Workerman\Connection\TcpConnection;
-use mon\worker\exception\JumpException;
-use mon\worker\exception\RouteException;
-use mon\worker\interfaces\ExceptionHandler;
+use mon\http\interfaces\ExceptionHandler;
+use Workerman\Protocols\Http\Session as SessionBase;
 
 /**
  * 应用驱动
@@ -38,7 +39,14 @@ class App
      *
      * @var string
      */
-    protected $name = 'mon-worker';
+    protected $app_name = 'http';
+
+    /**
+     * 静态模块名
+     *
+     * @var string
+     */
+    protected $static_name = '__static__';
 
     /**
      * 初始化标志
@@ -111,11 +119,11 @@ class App
     protected $support_file_type = [];
 
     /**
-     * 缓存的回调处理器
+     * 是否重新创建回调控制器
      *
-     * @var array
+     * @var boolean
      */
-    protected $cacheCallback = [];
+    protected $newController = true;
 
     /**
      * 最大缓存回调处理器数
@@ -125,11 +133,11 @@ class App
     protected $maxCacheCallback = 1024;
 
     /**
-     * 是否重新创建回调控制器
+     * 缓存的回调处理器
      *
-     * @var boolean
+     * @var array
      */
-    protected $newController = true;
+    protected $cacheCallback = [];
 
     /**
      * 私有初始化
@@ -146,10 +154,11 @@ class App
      * @param ExceptionHandler $handler 异常处理实例
      * @param boolean $debug            是否为调试模块
      * @param boolean $newController    是否每次重新new控制器类
+     * @param string  $name             应用名称，也是HTTP全局中间件名
      * @param integer $maxCacheCallback 最大缓存回调数，一般不需要修改
      * @return App
      */
-    public function init(Worker $worker, Container $container, ExceptionHandler $handler, bool $debug = true, bool $newController = true, int $maxCacheCallback = 1024): App
+    public function init(Worker $worker, Container $container, ExceptionHandler $handler, bool $debug = true, bool $newController = true, string $name = 'http', int $maxCacheCallback = 1024): App
     {
         // 绑定变量
         $this->worker = $worker;
@@ -158,6 +167,8 @@ class App
         $this->debug = $debug;
         $this->newController = $newController;
         $this->maxCacheCallback = $maxCacheCallback;
+        $this->app_name = $name;
+        Middleware::instance()->setGlobalApp($name);
 
         $this->init = true;
         return $this;
@@ -169,13 +180,56 @@ class App
      * @param boolean $supportSatic 是否开启静态文件支持
      * @param string $staticPath    静态文件目录
      * @param array $supportType    支持的文件类型，空则表示所有
+     * @param string $name          静态全局中间件名
      * @return App
      */
-    public function supportStaticFile(bool $supportSatic, string $staticPath, array $supportType = []): App
+    public function supportStaticFile(bool $supportSatic, string $staticPath, array $supportType = [], string $name = '__static__'): App
     {
         $this->support_static_files = $supportSatic;
         $this->static_path = $staticPath;
         $this->support_file_type = $supportType;
+        $this->static_name = $name;
+        return $this;
+    }
+
+    /**
+     * Session扩展支持
+     *
+     * @param string $handler   驱动引擎，支持workerman内置驱动、或自定义驱动，需要实现\Workerman\Protocols\Http\Session\SessionHandlerInterface接口
+     * @param array $setting    驱动引擎构造方法传参
+     * @param array $config     Session公共配置
+     * @return App
+     */
+    public function supportSession(string $handler, array $setting = [], array $config = []): App
+    {
+        SessionBase::handlerClass($handler, $setting);
+        $map = [
+            // session名称，默认：PHPSID
+            'session_name'          => 'name',
+            // 自动更新时间，默认：false
+            'auto_update_timestamp' => 'autoUpdateTimestamp',
+            // cookie有效期，默认：1440
+            'cookie_lifetime'       => 'cookieLifetime',
+            // cookie路径，默认：/
+            'cookie_path'           => 'cookiePath',
+            // 同站点cookie，默认：''
+            'same_site'             => 'sameSite',
+            // cookie的domain，默认：''
+            'domain'                => 'domain',
+            // 是否仅适用https的cookie，默认：false
+            'secure'                => 'secure',
+            // session有效期，默认：1440
+            'lifetime'              => 'lifetime',
+            // 是否开启http_only，默认：true
+            'http_only'             => 'httpOnly',
+            // gc的概率，默认：[1, 1000]
+            'gc_probability'        => 'gcProbability',
+        ];
+        foreach ($map as $key => $name) {
+            if (isset($config[$key]) && property_exists(SessionBase::class, $name)) {
+                SessionBase::${$name} = $config[$key];
+            }
+        }
         return $this;
     }
 
@@ -196,7 +250,7 @@ class App
      */
     public function name(): string
     {
-        return $this->name;
+        return $this->app_name;
     }
 
     /**
@@ -363,7 +417,7 @@ class App
                 return $failback($request);
             }
             return (new Response())->file($file);
-        }, 'middleware' => []], [], '__static__');
+        }, 'middleware' => []], [], $this->static_name);
         $this->cacheCallback[$key] = $callback;
         $this->send($callback($this->request()));
         // 判断清除缓存
@@ -388,7 +442,7 @@ class App
         $handler = Route::instance()->dispatch($method, $path);
         if ($handler[0] === Dispatcher::FOUND) {
             // 执行路由响应
-            $callback = $this->getCallback($handler[1], $handler[2]);
+            $callback = $this->getCallback($handler[1], $handler[2], $this->app_name);
             // 缓存回调处理器
             $this->cacheCallback[$key] = $callback;
             // 返回响应类实例
@@ -442,7 +496,7 @@ class App
         $method = $method ?: $this->request()->method();
         $handler = Route::instance()->dispatch($method, '*');
         if ($handler[0] === Dispatcher::FOUND) {
-            return $this->getCallback($handler[1], $handler[2]);
+            return $this->getCallback($handler[1], $handler[2], $this->app_name);
         }
 
         return function () {
@@ -453,8 +507,9 @@ class App
     /**
      * 获取回调处理器
      *
-     * @param  array  $handler 路由回调
-     * @param  array  $vars     路由参数
+     * @param array $handler 路由回调
+     * @param array $vars    路由参数
+     * @param string $app    全局中间件模块名
      * @return Closure
      */
     protected function getCallback(array $handler, array $vars = [], string $app = ''): Closure

@@ -1,17 +1,18 @@
 <?php
 
-use mon\worker\App;
-use mon\worker\interfaces\Middleware;
-use mon\worker\Jump;
-use mon\worker\support\Container;
-use mon\worker\support\Log;
-use mon\worker\Request;
-use mon\worker\Response;
-use mon\worker\Route;
-use mon\worker\support\ErrorHandler;
-use Workerman\Connection\TcpConnection;
-use Workerman\Protocols\Http;
+use mon\http\App;
+use mon\http\Jump;
+use mon\http\Route;
 use Workerman\Worker;
+use mon\http\Request;
+use mon\http\Session;
+use mon\http\Response;
+use Workerman\Protocols\Http;
+use mon\http\support\Container;
+use mon\http\support\ErrorHandler;
+use mon\http\interfaces\Middleware;
+use Workerman\Connection\TcpConnection;
+use Workerman\Protocols\Http\Session\FileSessionHandler;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -35,22 +36,6 @@ $config = [
     'log_file' => './workerman.log',
     'max_package_size' => 10 * 1024 * 1024
 ];
-
-$logConfig = [
-    // 日志文件大小
-    'maxSize'   => 20480000,
-    // 日志目录
-    'logPath'   => __DIR__,
-    // 日志滚动卷数   
-    'rollNum'   => 3,
-    // 日志名称，空则使用当前日期作为名称       
-    'logName'   => '',
-    // 日志分割符
-    'splitLine' => '====================================================================================',
-    // 是否自动执行save方法保存日志
-    'save'      => false,
-];
-
 
 Worker::$onMasterReload = function () {
     if (function_exists('opcache_get_status')) {
@@ -87,7 +72,7 @@ if ($config['listen']) {
     }
 
     // 监听事件
-    $worker->onWorkerStart = function ($worker) use ($logConfig) {
+    $worker->onWorkerStart = function ($worker) {
         // require_once base_path() . '/support/bootstrap.php';
 
         // 绑定错误处理
@@ -103,10 +88,16 @@ if ($config['listen']) {
         }, time());
 
         $container = Container::instance();
-        // $logger = Log::instance()->setConfig($logConfig);
         $errorHandler = Container::instance()->get(ErrorHandler::class);
-        $app = App::instance()->init($worker, $container, $errorHandler, true, true)->supportStaticFile(true, __DIR__, ['ico']);
+        // 初始化HTTP服务器
+        $app = App::instance()->init($worker, $container, $errorHandler, true, true);
+        // 静态文件支持
+        $app->supportStaticFile(true, __DIR__, ['ico']);
+        // session扩展支持
+        $app->supportSession(FileSessionHandler::class, ['save_path' => __DIR__ . '/sess/']);
+        // 绑定请求对象
         Http::requestClass(Request::class);
+        // 绑定响应请求
         $worker->onMessage = [$app, 'onMessage'];
     };
 }
@@ -119,7 +110,7 @@ if ($config['listen']) {
 // Route::instance()->get('/', [A::class, 'test']);
 Route::instance()->get('/test[/{id:\d+}]', 'A@demo');
 Route::instance()->get('/demo', function (Request $request) {
-    return $request->session()->get('sess');
+    return $request->build('gdmon.com', ['v' => 123]);
 });
 Route::instance()->get(['path' => '/', 'befor' => [B::class, C::class]], [A::class, 'test']);
 
@@ -140,22 +131,16 @@ class A
 
     public function test(Request $req)
     {
-        // $dd = debug($req->session(), false);
+        // $session = $req->session();
+        // debug($session);
+        // $session->set('bb', '1234');
 
-        // $req->session()->set('sess', 123);
+        // debug(Session::instance()->handler());
+        // Session::instance()->set('aab', '1112');
 
-        // Jump::instance()->result(123, 'tttt');
-        // throw new Exception(11);
-        // debug($id);
-        // debug($req);
-        // return $res->withBody('test!!!');
-        // return 'Test Session';
+        // Session::instance()->set('a.b', '1->2');
 
-        ob_start();
-        phpinfo();
-        $info = ob_get_clean();
-
-        return $info;
+        return Session::instance()->get('aab', []);
     }
 
     public function demo(Request $request, $id = 456)
@@ -176,7 +161,7 @@ class A
 
 class B implements Middleware
 {
-    public function process(Request $request, callable $callback): Response
+    public function process(Request $request, Closure $callback): Response
     {
         var_dump(__CLASS__);
         // return new Response(200, [], '1123');
@@ -186,7 +171,7 @@ class B implements Middleware
 
 class C implements Middleware
 {
-    public function process(Request $request, callable $callback): Response
+    public function process(Request $request, Closure $callback): Response
     {
         var_dump(__CLASS__);
         return $callback($request);
@@ -196,7 +181,7 @@ class C implements Middleware
 
 class D implements Middleware
 {
-    public function process(Request $request, callable $callback): Response
+    public function process(Request $request, Closure $callback): Response
     {
         $request->test = 123;
         $response = $callback($request);

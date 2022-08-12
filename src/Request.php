@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace mon\worker;
+namespace mon\http;
 
-use mon\worker\libs\UploadFile;
+use mon\http\libs\UploadFile;
 use Workerman\Protocols\Http\Request as HttpRequest;
 
 /**
@@ -30,19 +30,19 @@ class Request extends HttpRequest
         }
 
         // 判断是否包含域名,解析URL和传参
-        if (false === strpos($url, '://') && 0 !== strpos($url, '/')) {
+        if (strpos($url, '://') === false && 0 !== strpos($url, '/')) {
             $info = parse_url($url);
-            $url  = empty($info['path']) ?: '';
+            $url  = $info['path'] ?: '';
             // 判断是否存在锚点,解析请求串
             if (isset($info['fragment'])) {
                 // 解析锚点
                 $anchor = $info['fragment'];
-                if (false !== strpos($anchor, '?')) {
+                if (strpos($anchor, '?') !== false) {
                     // 解析参数
                     list($anchor, $info['query']) = explode('?', $anchor, 2);
                 }
             }
-        } elseif (false !== strpos($url, '://')) {
+        } elseif (strpos($url, '://') !== false) {
             // 存在协议头，自带domain
             $info = parse_url($url);
             $url  = $info['host'];
@@ -51,7 +51,7 @@ class Request extends HttpRequest
             if (isset($info['fragment'])) {
                 // 解析锚点
                 $anchor = $info['fragment'];
-                if (false !== strpos($anchor, '?')) {
+                if (strpos($anchor, '?') !== false) {
                     // 解析参数
                     list($anchor, $info['query']) = explode('?', $anchor, 2);
                 }
@@ -322,7 +322,7 @@ class Request extends HttpRequest
     }
 
     /**
-     * 判断是否为内容IP
+     * 判断是否为内网IP
      *
      * @param string $ip
      * @return boolean

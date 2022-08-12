@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace mon\worker\libs;
+namespace mon\http\libs;
 
 use SplFileInfo;
-use mon\worker\exception\FileException;
+use mon\http\exception\FileException;
 
 /**
  * 文件对象

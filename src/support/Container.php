@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace mon\worker\support;
+namespace mon\http\support;
 
 use mon\util\Container as UtilContainer;
-use mon\worker\interfaces\Container as InterfacesContainer;
+use mon\http\interfaces\Container as InterfacesContainer;
 
 /**
  * 容器服务

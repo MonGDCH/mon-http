@@ -6,7 +6,7 @@
     "homepage": "https://gdmon.com/",
     "autoload": {
         "psr-4": {
-            "mon\\worker\\": "src/"
+            "mon\\http\\": "src/"
         }
     },
     "authors": [

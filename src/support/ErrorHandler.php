@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace mon\worker\support;
+namespace mon\http\support;
 
 use Throwable;
-use mon\worker\App;
-use mon\worker\Request;
-use mon\worker\Response;
-use mon\worker\interfaces\ExceptionHandler;
+use mon\http\App;
+use mon\http\Request;
+use mon\http\Response;
+use mon\http\interfaces\ExceptionHandler;
 
 /**
  * 异常错误处理

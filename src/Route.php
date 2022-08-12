@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\worker;
+namespace mon\http;
 
 use Closure;
 use mon\util\Instance;

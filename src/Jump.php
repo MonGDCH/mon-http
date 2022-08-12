@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace mon\worker;
+namespace mon\http;
 
 use mon\util\Common;
 use mon\util\Instance;
-use mon\worker\exception\JumpException;
+use mon\http\exception\JumpException;
 
 /**
  * 业务跳转
@@ -71,7 +71,7 @@ class Jump
         switch ($type) {
             case 'xml':
                 $header['Content-Type'] = 'text/xml;charset=' . $charset;
-                $root = App::instance()->name();
+                $root = App::instance()->name() ?: 'mon';
                 $data  = "<?xml version=\"1.0\" encoding=\"{$charset}\"?>";
                 $data .= "<{$root}>";
                 $data .= Common::instance()->arrToXML($result);

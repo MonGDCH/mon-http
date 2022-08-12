@@ -1,6 +1,6 @@
 <?php
 
-namespace mon\worker;
+namespace mon\http;
 
 use RuntimeException;
 use mon\util\Instance;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\worker;
+namespace mon\http;
 
 use Throwable;
 use Workerman\Protocols\Http\Response as HttpResponse;

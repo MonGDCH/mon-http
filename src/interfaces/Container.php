@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\worker\interfaces;
+namespace mon\http\interfaces;
 
 use Psr\Container\ContainerInterface;
 

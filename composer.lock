@@ -52,7 +52,7 @@
             "version": "v1.3.0",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/nikic/fast-route/v1.3.0/nikic-fast-route-v1.3.0.zip",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/nikic/fast-route/v1.3.0/nikic-fast-route-v1.3.0.zip",
                 "reference": "181d480e08d9476e61381e04a71b34dc0432e812",
                 "shasum": ""
             },
@@ -135,7 +135,7 @@
             "version": "1.1.4",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/psr/log/1.1.4/psr-log-1.1.4.zip",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/psr/log/1.1.4/psr-log-1.1.4.zip",
                 "reference": "d49695b909c3b7628b6289db5479a1c204601f11",
                 "shasum": ""
             },
@@ -176,7 +176,7 @@
             "version": "v4.0.42",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/workerman/workerman/v4.0.42/workerman-workerman-v4.0.42.zip",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/workerman/workerman/v4.0.42/workerman-workerman-v4.0.42.zip",
                 "reference": "83f09b50eaf7412504604030daa9e1f9c767e6c3",
                 "shasum": ""
             },

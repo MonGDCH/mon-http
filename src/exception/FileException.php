@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\worker\exception;
+namespace mon\http\exception;
 
 use RuntimeException;
 

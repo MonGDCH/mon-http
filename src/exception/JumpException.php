@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace mon\worker\exception;
+namespace mon\http\exception;
 
 use Exception;
-use mon\worker\Response;
+use mon\http\Response;
 
 /**
  * 路由跳转

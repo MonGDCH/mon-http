@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace mon\worker\interfaces;
+namespace mon\http\interfaces;
 
 use Throwable;
-use mon\worker\Request;
-use mon\worker\Response;
+use mon\http\Request;
+use mon\http\Response;
 
 /**
  * 异常处理接口
