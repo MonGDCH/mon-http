@@ -10,6 +10,7 @@ use ErrorException;
 use Workerman\Worker;
 use mon\util\Instance;
 use FastRoute\Dispatcher;
+use Workerman\Protocols\Http;
 use mon\http\interfaces\Container;
 use mon\http\exception\JumpException;
 use mon\http\exception\RouteException;
@@ -39,7 +40,7 @@ class App
      *
      * @var string
      */
-    protected $app_name = 'http';
+    protected $app_name = '__app__';
 
     /**
      * 静态模块名
@@ -47,6 +48,13 @@ class App
      * @var string
      */
     protected $static_name = '__static__';
+
+    /**
+     * HTTP请求响应的request类对象名
+     *
+     * @var string
+     */
+    protected $request_class = Request::class;
 
     /**
      * 初始化标志
@@ -152,30 +160,47 @@ class App
      * @param Worker $worker            worker实例
      * @param Container $container      容器实例psr-11
      * @param ExceptionHandler $handler 异常处理实例
-     * @param boolean $debug            是否为调试模块
-     * @param boolean $newController    是否每次重新new控制器类
-     * @param string  $name             应用名称，也是HTTP全局中间件名
-     * @param integer $maxCacheCallback 最大缓存回调数，一般不需要修改
+     * @param boolean $debug            是否为调试模式
+     * @param string  $name             应用名称，也是默认全局中间件名
      * @return App
      */
-    public function init(Worker $worker, Container $container, ExceptionHandler $handler, bool $debug = true, bool $newController = true, string $name = 'http', int $maxCacheCallback = 1024): App
+    public function init(Worker $worker, Container $container, ExceptionHandler $handler, bool $debug = true, string $name = '__app__'): App
     {
         // 绑定变量
         $this->worker = $worker;
         $this->container = $container;
         $this->exceptionHandler = $handler;
         $this->debug = $debug;
-        $this->newController = $newController;
-        $this->maxCacheCallback = $maxCacheCallback;
         $this->app_name = $name;
-        Middleware::instance()->setGlobalApp($name);
+
+        Http::requestClass($this->request_class);
+        Middleware::instance()->setGlobalApp($this->app_name);
 
         $this->init = true;
         return $this;
     }
 
     /**
-     * 开启关闭静态文件支持
+     * 回调扩展支持
+     *
+     * @param boolean $newController    是否每次重新new控制器类
+     * @param string  $request          HTTP请求响应的request类对象名
+     * @param integer $maxCacheCallback 最大缓存回调数，一般不需要修改
+     * @return App
+     */
+    public function suppertCallback(bool $newController = true, string $request = Request::class, int $maxCacheCallback = 1024): App
+    {
+        $this->newController = $newController;
+        $this->request_class = $request;
+        $this->maxCacheCallback = $maxCacheCallback;
+
+        Http::requestClass($request);
+
+        return $this;
+    }
+
+    /**
+     * 静态文件支持
      *
      * @param boolean $supportSatic 是否开启静态文件支持
      * @param string $staticPath    静态文件目录
@@ -244,16 +269,6 @@ class App
     }
 
     /**
-     * 获取应用名
-     *
-     * @return string
-     */
-    public function name(): string
-    {
-        return $this->app_name;
-    }
-
-    /**
      * 获取woker实例
      *
      * @return Worker
@@ -304,10 +319,21 @@ class App
     }
 
     /**
+     * 清除回调处理器缓存
+     *
+     * @return App
+     */
+    public function clearCacheCallback(): App
+    {
+        $this->cacheCallback = [];
+        return $this;
+    }
+
+    /**
      * 请求回调
      *
-     * @param TcpConnection $connection
-     * @param Request $request
+     * @param TcpConnection $connection 链接实例
+     * @param Request $request          请求实例
      * @return void
      */
     public function onMessage(TcpConnection $connection, Request $request)
@@ -320,76 +346,53 @@ class App
             // 绑定对象容器
             $this->connection = $connection;
             $this->request = $request;
+            Session::instance()->request($request);
             // 请求路径
             $path = $request->path();
             // 请求方式
             $method = $request->method();
             // 验证请求路径安全
-            if (strpos($path, '..') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false) {
+            if (strpos($path, '..') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false || strpos($path, '//') !== false || !$path) {
                 $failback = $this->getFallback($method);
-                $this->send($failback($request));
+                $this->send($connection, $request, $failback($request));
                 return;
             }
             // 判断是否存在缓存处理器，执行缓存处理器
             $key = $method . $path;
             if (isset($this->cacheCallback[$key])) {
-                $callback = $this->cacheCallback[$key];
-                $this->send($callback($request));
+                [$callback, $request->controller, $request->action] = $this->cacheCallback[$key];
+                $this->send($connection, $request, $callback($request));
                 return;
             }
             // 处理文件响应
-            if ($this->handlerFile($path, $key)) {
+            if ($this->handlerFile($connection, $request, $method, $path, $key)) {
                 return;
             }
             // 处理路由响应
-            if ($this->handlerRoute($method, $path, $key)) {
+            if ($this->handlerRoute($connection, $request, $method, $path, $key)) {
                 return;
             }
 
             // 错误回调响应
             $failback = $this->getFallback($method);
-            $this->send($failback($request));
+            $this->send($connection, $request, $failback($request));
         } catch (Throwable $e) {
-            $this->send($this->handlerException($e, $request));
+            $this->send($connection, $request, $this->handlerException($e, $request));
         }
         return;
     }
 
     /**
-     * 发送响应内容
-     *
-     * @param string|Response $response
-     * @return void
-     */
-    public function send($response)
-    {
-        $keep_alive = $this->request()->header('connection');
-        if (($keep_alive === null && $this->request()->protocolVersion() === '1.1') || strtolower($keep_alive) === 'keep-alive') {
-            $this->connection->send($response);
-            $this->clearAction();
-            return;
-        }
-        $this->connection()->close($response);
-        $this->clearAction();
-    }
-
-    /**
-     * 清除回调处理器缓存
-     *
-     * @return void
-     */
-    public function clearCacheCallback()
-    {
-        $this->cacheCallback = [];
-    }
-
-    /**
      * 处理静态文件资源响应
      *
-     * @param string $path
+     * @param TcpConnection $connection 链接实例
+     * @param Request $request          请求实例
+     * @param string $method            请求方式
+     * @param string $path              请求路径
+     * @param string $key               缓存回调名称
      * @return boolean
      */
-    protected function handlerFile(string $path, string $key): bool
+    protected function handlerFile(TcpConnection $connection, Request $request, string $method, string $path, string $key): bool
     {
         // 是否开启静态文件支持
         if (!$this->support_static_files || empty($this->static_path)) {
@@ -410,16 +413,20 @@ class App
         }
 
         // 生成处理器
-        $callback = $this->getCallback(['callback' => function ($request) use ($file) {
+        $callback = $this->getCallback(['callback' => function ($req) use ($method, $file) {
             clearstatcache(true, $file);
             if (!is_file($file)) {
-                $failback = $this->getFallback();
-                return $failback($request);
+                $failback = $this->getFallback($method);
+                return $failback($req);
             }
             return (new Response())->file($file);
         }, 'middleware' => []], [], $this->static_name);
-        $this->cacheCallback[$key] = $callback;
-        $this->send($callback($this->request()));
+        // 缓存处理器
+        $request->controller = '';
+        $request->action = '';
+        $this->cacheCallback[$key] = [$callback, '', ''];
+        // 执行回调
+        $this->send($connection, $request, $callback($request));
         // 判断清除缓存
         if (count($this->cacheCallback) > $this->maxCacheCallback) {
             $this->clearCacheCallback();
@@ -430,23 +437,28 @@ class App
     /**
      * 处理路由响应
      *
-     * @param string $method    请求方式
-     * @param string $path      请求路径
-     * @param string $key       缓存键名
-     * @throws RouteException
+     * @param TcpConnection $connection 链接实例
+     * @param Request $request          请求实例
+     * @param string $method            请求方式
+     * @param string $path              请求路径
+     * @param string $key               缓存回调名称
      * @return boolean
      */
-    protected function handlerRoute(string $method, string $path, string $key): bool
+    protected function handlerRoute(TcpConnection $connection, Request $request, string $method, string $path, string $key): bool
     {
         // 执行路由
         $handler = Route::instance()->dispatch($method, $path);
         if ($handler[0] === Dispatcher::FOUND) {
-            // 执行路由响应
+            // 获取路由回调处理器
             $callback = $this->getCallback($handler[1], $handler[2], $this->app_name);
+            // 获取路由回调处理器信息
+            $callbackInfo = $this->getCallbackInfo($handler[1]['callback']);
+            $request->controller = $callbackInfo['controller'];
+            $request->action = $callbackInfo['action'];
             // 缓存回调处理器
-            $this->cacheCallback[$key] = $callback;
+            $this->cacheCallback[$key] = [$callback, $callbackInfo['controller'], $callbackInfo['action']];
             // 返回响应类实例
-            $this->send($callback($this->request()));
+            $this->send($connection, $request, $callback($request));
             // 判断清除缓存
             if (count($this->cacheCallback) > $this->maxCacheCallback) {
                 $this->clearCacheCallback();
@@ -461,7 +473,7 @@ class App
      * 处理异常响应
      *
      * @param Throwable $e  异常错误
-     * @param Request $request  当前操作请求类
+     * @param Request $request  当前操作请求实例
      * @return Response
      */
     protected function handlerException(Throwable $e, Request $request): Response
@@ -486,14 +498,32 @@ class App
     }
 
     /**
+     * 发送响应内容
+     *
+     * @param TcpConnection $connection 链接实例
+     * @param Request $request          请求实例
+     * @param string|Response $response 响应对象
+     * @return void
+     */
+    protected function send(TcpConnection $connection, Request $request, $response)
+    {
+        $this->clearAction();
+        $keep_alive = $request->header('connection');
+        if (($keep_alive === null && $request->protocolVersion() === '1.1') || $keep_alive === 'keep-alive' || $keep_alive === 'Keep-Alive') {
+            $connection->send($response);
+            return;
+        }
+        $connection->close($response);
+    }
+
+    /**
      * 获取错误回调
      *
      * @param string $method 请求类型
      * @return Closure
      */
-    protected function getFallback(string $method = ''): Closure
+    protected function getFallback(string $method): Closure
     {
-        $method = $method ?: $this->request()->method();
         $handler = Route::instance()->dispatch($method, '*');
         if ($handler[0] === Dispatcher::FOUND) {
             return $this->getCallback($handler[1], $handler[2], $this->app_name);
@@ -512,7 +542,7 @@ class App
      * @param string $app    全局中间件模块名
      * @return Closure
      */
-    protected function getCallback(array $handler, array $vars = [], string $app = ''): Closure
+    protected function getCallback(array $handler, array $vars = [], string $app = '__app__'): Closure
     {
         // 整理参数注入
         $args = array_values($vars);
@@ -571,7 +601,7 @@ class App
             $call = explode('@', $callback);
             if (isset($call[0]) && isset($call[1])) {
                 return function (...$args) use ($call) {
-                    $controller = $this->newController ? $this->container()->make($call[0]) :  $this->container()->get($call[0]);
+                    $controller = $this->newController ? $this->container()->make($call[0]) : $this->container()->get($call[0]);
                     $handler = [$controller, $call[1]];
                     return $handler(...$args);
                 };
@@ -580,13 +610,36 @@ class App
         // 数组
         if (is_array($callback) && isset($callback[0]) && isset($callback[1])) {
             return function (...$args) use ($callback) {
-                $controller = $this->newController ? $this->container()->make($callback[0]) :  $this->container()->get($callback[0]);
+                $controller = $this->newController ? $this->container()->make($callback[0]) : $this->container()->get($callback[0]);
                 $handler = [$controller, $callback[1]];
                 return $handler(...$args);
             };
         }
 
         throw new RouteException('Callback is faild!', 500);
+    }
+
+    /**
+     * 获取回调信息
+     *
+     * @param mixed $callback
+     * @return array
+     */
+    protected function getCallbackInfo($callback): array
+    {
+        // 字符串
+        if (is_string($callback)) {
+            // 分割字符串获取对象和方法
+            $call = explode('@', $callback);
+            if (isset($call[0]) && isset($call[1])) {
+                return ['controller' => $call[0], 'action' => $call[1]];
+            }
+        }
+        // 数组
+        if (is_array($callback) && isset($callback[0]) && isset($callback[1])) {
+            return ['controller' => $callback[0], 'action' => $callback[1]];
+        }
+        return ['controller' => '', 'action' => ''];
     }
 
     /**
@@ -614,5 +667,6 @@ class App
     {
         $this->request = null;
         $this->connection = null;
+        Session::instance()->request(null);
     }
 }

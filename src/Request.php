@@ -16,6 +16,40 @@ use Workerman\Protocols\Http\Request as HttpRequest;
 class Request extends HttpRequest
 {
     /**
+     * 控制器
+     *
+     * @var string
+     */
+    public $controller = '';
+
+    /**
+     * 控制器回调方法
+     *
+     * @var string
+     */
+    public $action = '';
+
+    /**
+     * 获取控制器名称
+     *
+     * @return string
+     */
+    public function controller(): string
+    {
+        return $this->controller;
+    }
+
+    /**
+     * 获取控制器回调方法名称
+     *
+     * @return string
+     */
+    public function action(): string
+    {
+        return $this->action;
+    }
+
+    /**
      * 构建生成URL
      *
      * @param string $url URL路径

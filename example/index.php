@@ -90,19 +90,30 @@ if ($config['listen']) {
         $container = Container::instance();
         $errorHandler = Container::instance()->get(ErrorHandler::class);
         // 初始化HTTP服务器
-        $app = App::instance()->init($worker, $container, $errorHandler, true, true);
+        $app = App::instance()->init($worker, $container, $errorHandler, true);
+        // 应用扩展支持
+        // $app->suppertCallback(true, TTD::class);
         // 静态文件支持
         $app->supportStaticFile(true, __DIR__, ['ico']);
         // session扩展支持
         $app->supportSession(FileSessionHandler::class, ['save_path' => __DIR__ . '/sess/']);
-        // 绑定请求对象
-        Http::requestClass(Request::class);
         // 绑定响应请求
         $worker->onMessage = [$app, 'onMessage'];
+
+        // $worker->onClose = function () {
+        //     var_dump(1);
+        // };
     };
 }
 
 
+class TTD extends Request
+{
+    public function __construct($buffer)
+    {
+        parent::__construct($buffer);
+    }
+}
 
 
 
@@ -112,22 +123,25 @@ Route::instance()->get('/test[/{id:\d+}]', 'A@demo');
 Route::instance()->get('/demo', function (Request $request) {
     return $request->build('gdmon.com', ['v' => 123]);
 });
-Route::instance()->get(['path' => '/', 'befor' => [B::class, C::class]], [A::class, 'test']);
+Route::instance()->get(['path' => '/', 'middleware' => [B::class, C::class]], [A::class, 'test']);
+// Route::instance()->get('/s', [(new A), 'test']);
 
 
 Route::instance()->group(['middleware' => D::class], function ($route) {
     Route::instance()->get(['path' => '/xxx', 'middleware' => [B::class, C::class]], [A::class, 'xxx']);
 });
 
+Route::instance()->get('/file', function (Request $request) {
+    $response = new Response();
+    $file = __DIR__ . '/test.zip';
+    // return $response->download($file, 'test.zip');
+    return $response->file($file);
+});
+
 
 class A
 {
     protected $a = 0;
-
-    public function __construct(C $c)
-    {
-        // debug(get_class($c));
-    }
 
     public function test(Request $req)
     {
@@ -137,10 +151,11 @@ class A
 
         // debug(Session::instance()->handler());
         // Session::instance()->set('aab', '1112');
+        // Session::instance()->clear();
 
         // Session::instance()->set('a.b', '1->2');
 
-        return Session::instance()->get('aab', []);
+        return 123;
     }
 
     public function demo(Request $request, $id = 456)
@@ -152,7 +167,10 @@ class A
     {
 
         // throw new Exception(123987);
-        $this->a++;
+        // $this->a++;
+        // $this->a = $this->a + 1;
+        // return new Response(200, [], $this->a);
+        $this->a = 123;
         return $this->a;
         // var_dump($request->test);
         // return __METHOD__;
@@ -163,7 +181,7 @@ class B implements Middleware
 {
     public function process(Request $request, Closure $callback): Response
     {
-        var_dump(__CLASS__);
+        // var_dump(__CLASS__);
         // return new Response(200, [], '1123');
         return $callback($request);
     }
@@ -173,7 +191,7 @@ class C implements Middleware
 {
     public function process(Request $request, Closure $callback): Response
     {
-        var_dump(__CLASS__);
+        // var_dump(__CLASS__);
         return $callback($request);
     }
 }
@@ -183,9 +201,10 @@ class D implements Middleware
 {
     public function process(Request $request, Closure $callback): Response
     {
-        $request->test = 123;
+        // $request->test = 123;
+        // var_dump($request->controller());
         $response = $callback($request);
-        var_dump(__CLASS__);
+        // var_dump(__CLASS__);
         return $response;
     }
 }

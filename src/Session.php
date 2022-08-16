@@ -18,13 +18,32 @@ class Session
     use Instance;
 
     /**
+     * 请求实例
+     *
+     * @var Request
+     */
+    protected $request = null;
+
+    /**
+     * 绑定Request请求实例
+     *
+     * @param Request $request
+     * @return Session
+     */
+    public function request(Request $request = null): Session
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
      * 获取驱动实例
      *
      * @return SessionBase
      */
     public function handler(): SessionBase
     {
-        return App::instance()->request()->session();
+        return $this->request->session();
     }
 
     /**
@@ -88,5 +107,26 @@ class Session
     public function has(string $name): bool
     {
         return $this->handler()->has($name);
+    }
+
+    /**
+     * 删除某个key
+     *
+     * @param string $name
+     * @return void
+     */
+    public function delete(string $name)
+    {
+        $this->handler()->delete($name);
+    }
+
+    /**
+     * 清空session
+     *
+     * @return void
+     */
+    public function clear()
+    {
+        $this->handler()->flush();
     }
 }

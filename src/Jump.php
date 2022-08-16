@@ -71,7 +71,7 @@ class Jump
         switch ($type) {
             case 'xml':
                 $header['Content-Type'] = 'text/xml;charset=' . $charset;
-                $root = App::instance()->name() ?: 'mon';
+                $root = 'mon';
                 $data  = "<?xml version=\"1.0\" encoding=\"{$charset}\"?>";
                 $data .= "<{$root}>";
                 $data .= Common::instance()->arrToXML($result);

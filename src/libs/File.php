@@ -19,7 +19,7 @@ class File extends SplFileInfo
     /**
      * 移动文件
      *
-     * @param string $destination
+     * @param string $destination   移动目标
      * @return File
      */
     public function move(string $destination): File

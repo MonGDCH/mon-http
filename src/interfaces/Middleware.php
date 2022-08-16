@@ -19,8 +19,8 @@ interface Middleware
     /**
      * 中间件实现接口
      *
-     * @param Request $request      请求实例
-     * @param Closure $callback    执行下一个中间件回调方法
+     * @param Request $request  请求实例
+     * @param Closure $callback 执行下一个中间件回调方法
      * @return Response
      */
     public function process(Request $request, Closure $callback): Response;
