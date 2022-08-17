@@ -1,9 +1,12 @@
 {
-    "name": "mongdch/mon-worker",
+    "name": "mongdch/mon-http",
     "description": "The Workerman HTTP Server",
-    "keywords": [],
+    "keywords": [
+        "http server",
+        "workerman"
+    ],
     "license": "MIT",
-    "homepage": "https://gdmon.com/",
+    "homepage": "http://gdmon.com/",
     "autoload": {
         "psr-4": {
             "mon\\http\\": "src/"
