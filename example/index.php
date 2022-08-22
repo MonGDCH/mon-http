@@ -7,8 +7,8 @@ use Workerman\Worker;
 use mon\http\Request;
 use mon\http\Session;
 use mon\http\Response;
+use mon\util\Container;
 use Workerman\Protocols\Http;
-use mon\http\support\Container;
 use mon\http\support\ErrorHandler;
 use mon\http\interfaces\Middleware;
 use Workerman\Connection\TcpConnection;
@@ -87,10 +87,9 @@ if ($config['listen']) {
             }
         }, time());
 
-        $container = Container::instance();
         $errorHandler = Container::instance()->get(ErrorHandler::class);
         // 初始化HTTP服务器
-        $app = App::instance()->init($worker, $container, $errorHandler, true);
+        $app = App::instance()->init($worker, $errorHandler, true);
         // 应用扩展支持
         // $app->suppertCallback(true, TTD::class);
         // 静态文件支持

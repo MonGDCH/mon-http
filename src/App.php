@@ -9,9 +9,9 @@ use Throwable;
 use ErrorException;
 use Workerman\Worker;
 use mon\util\Instance;
+use mon\util\Container;
 use FastRoute\Dispatcher;
 use Workerman\Protocols\Http;
-use mon\http\interfaces\Container;
 use mon\http\exception\JumpException;
 use mon\http\exception\RouteException;
 use Workerman\Connection\TcpConnection;
@@ -158,20 +158,19 @@ class App
      * 初始化
      *
      * @param Worker $worker            worker实例
-     * @param Container $container      容器实例psr-11
      * @param ExceptionHandler $handler 异常处理实例
      * @param boolean $debug            是否为调试模式
      * @param string  $name             应用名称，也是默认全局中间件名
      * @return App
      */
-    public function init(Worker $worker, Container $container, ExceptionHandler $handler, bool $debug = true, string $name = '__app__'): App
+    public function init(Worker $worker, ExceptionHandler $handler, bool $debug = true, string $name = '__app__'): App
     {
         // 绑定变量
         $this->worker = $worker;
-        $this->container = $container;
         $this->exceptionHandler = $handler;
         $this->debug = $debug;
         $this->app_name = $name;
+        $this->container = Container::instance();
 
         Http::requestClass($this->request_class);
         Middleware::instance()->setGlobalApp($this->app_name);
@@ -296,16 +295,6 @@ class App
     public function request(): Request
     {
         return $this->request;
-    }
-
-    /**
-     * 获取容器实例
-     *
-     * @return Container
-     */
-    public function container(): Container
-    {
-        return $this->container;
     }
 
     /**
@@ -549,7 +538,7 @@ class App
         // 获取回调中间件
         $middlewares = Middleware::instance()->get($app);
         foreach ($handler['middleware'] as $middleware) {
-            $middlewares[] = [$this->container()->get($middleware), 'process'];
+            $middlewares[] = [Container::instance()->get($middleware), 'process'];
         }
         // 获取回调方法
         $call = $this->getCall($handler['callback']);
@@ -601,7 +590,7 @@ class App
             $call = explode('@', $callback);
             if (isset($call[0]) && isset($call[1])) {
                 return function (...$args) use ($call) {
-                    $controller = $this->newController ? $this->container()->make($call[0]) : $this->container()->get($call[0]);
+                    $controller = $this->newController ? Container::instance()->make($call[0], [], true) : Container::instance()->get($call[0]);
                     $handler = [$controller, $call[1]];
                     return $handler(...$args);
                 };
@@ -610,7 +599,7 @@ class App
         // 数组
         if (is_array($callback) && isset($callback[0]) && isset($callback[1])) {
             return function (...$args) use ($callback) {
-                $controller = $this->newController ? $this->container()->make($callback[0]) : $this->container()->get($callback[0]);
+                $controller = $this->newController ? Container::instance()->make($callback[0], [], true) : Container::instance()->get($callback[0]);
                 $handler = [$controller, $callback[1]];
                 return $handler(...$args);
             };

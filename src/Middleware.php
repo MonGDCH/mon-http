@@ -4,6 +4,7 @@ namespace mon\http;
 
 use RuntimeException;
 use mon\util\Instance;
+use mon\util\Container;
 
 /**
  * 全局中间件
@@ -76,7 +77,7 @@ class Middleware
                     throw new RuntimeException("middleware {$class}::process not exsits");
                 }
                 // 生成实例进行存储
-                $this->middlewares[$app][] = [App::instance()->container()->get($class), 'process'];
+                $this->middlewares[$app][] = [Container::instance()->get($class), 'process'];
             }
         }
 
@@ -97,7 +98,7 @@ class Middleware
                 throw new RuntimeException("middleware {$class}::process not exsits");
             }
             // 生成实例进行存储
-            $this->middlewares[$app][] = [App::instance()->container()->get($class), 'process'];
+            $this->middlewares[$app][] = [Container::instance()->get($class), 'process'];
         }
 
         return $this;
