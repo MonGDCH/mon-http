@@ -160,7 +160,7 @@ class App
      * @param Worker $worker            worker实例
      * @param ExceptionHandler $handler 异常处理实例
      * @param boolean $debug            是否为调试模式
-     * @param string  $name             应用名称，也是默认全局中间件名
+     * @param string  $name             应用名称，也是中间件名
      * @return App
      */
     public function init(Worker $worker, ExceptionHandler $handler, bool $debug = true, string $name = '__app__'): App
@@ -173,7 +173,7 @@ class App
         $this->container = Container::instance();
 
         Http::requestClass($this->request_class);
-        Middleware::instance()->setGlobalApp($this->app_name);
+        // Middleware::instance()->setGlobalApp($this->app_name);
 
         $this->init = true;
         return $this;
