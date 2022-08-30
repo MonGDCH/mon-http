@@ -12,27 +12,18 @@
 
 ### 使用
 
-1. 直接作为HTTP服务器使用
+##### 直接作为HTTP服务器使用
 
 请参考`example\example.php`文件实现
 
 
-2. 作为`mongdch\gaia`框架的HTTP服务
+##### 作为`mongdch\gaia`框架的HTTP服务
 
-执行在`mongdch\gaia`框架下，使用`composer`安装，并修改`config\process.php`文件，增加如下配置
+1. 按需修改安装完成后创建的`process\Http`进程控制文件
 
-```php
+2. 按需修改安装完成后创建的`config\http`目录下的配置文件
 
-'http'  => [
-    'listen'        => 'http://0.0.0.0:8686',
-    'transport'     => 'tcp',
-    'context'       => [],
-    'count'         =>  2,
-    'user'          => '',
-    'group'         => '',
-    'reusePort'     => false,
-    'handler'       => \mon\http\support\Http::class,
-],
+3. 可结合`config\autoload.php`加载自定义路由定义文件，或在`process\Http`进程控制文件定义路由
 
-```
+4. 重启`Gaia`服务，访问定义的路由
 
