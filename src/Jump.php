@@ -22,6 +22,7 @@ class Jump
      * 页面跳转
      * 
      * @param  string  $url    跳转URL
+     * @param  array   $vars   URl参数
      * @param  integer $code   跳转状态码，默认302
      * @param  array   $header 响应头
      * @throws JumpException
@@ -55,7 +56,7 @@ class Jump
      * @param integer   $code       数据集code值
      * @param string    $msg        数据集提示信息
      * @param array     $data       数据集结果集
-     * @param array     $extend     或者数据集数据
+     * @param array     $extend     扩展数据集数据
      * @param string    $type       返回数据类型，默认Json，支持json、xml类型
      * @param integer   $http_code  响应状态码
      * @param array     $header     响应头
