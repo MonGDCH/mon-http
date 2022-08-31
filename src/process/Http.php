@@ -11,6 +11,12 @@ use Workerman\Worker;
 use mon\util\Container;
 use mon\http\Middleware;
 
+/**
+ * HTTP进程服务
+ * 
+ * @author Mon <985558837@qq.com>
+ * @version 1.0.0
+ */
 class Http extends Process
 {
     /**
