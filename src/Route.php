@@ -64,13 +64,6 @@ class Route
     protected $middleware = [];
 
     /**
-     * 私有化构造方法
-     */
-    private function __construct()
-    {
-    }
-
-    /**
      * 设置路由数据
      *
      * @param array $data 路由数据

@@ -22,7 +22,7 @@ interface ExceptionHandler
      * @param Throwable $e  错误实例
      * @return mixed
      */
-    public function report(Throwable $e);
+    public function report(Throwable $e, Request $request);
 
     /**
      * 处理错误信息
@@ -31,5 +31,5 @@ interface ExceptionHandler
      * @param Throwable $e      错误实例
      * @return Response
      */
-    public function render(Request $request, Throwable $e): Response;
+    public function render(Throwable $e, Request $request): Response;
 }

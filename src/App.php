@@ -99,6 +99,13 @@ class App
     protected $container;
 
     /**
+     * 路由对象
+     *
+     * @var Route
+     */
+    protected $route;
+
+    /**
      * 异常错误处理对象
      *
      * @var ExceptionHandler
@@ -148,10 +155,14 @@ class App
     protected $cacheCallback = [];
 
     /**
-     * 私有初始化
+     * 构造方法
      */
-    protected function __construct()
+    public function __construct()
     {
+        // 绑定对象
+        $this->route = Route::instance();
+        $this->container = Container::instance();
+        Http::requestClass($this->request_class);
     }
 
     /**
@@ -170,9 +181,6 @@ class App
         $this->exceptionHandler = $handler;
         $this->debug = $debug;
         $this->app_name = $name;
-        $this->container = Container::instance();
-
-        Http::requestClass($this->request_class);
 
         $this->init = true;
         return $this;
@@ -257,6 +265,18 @@ class App
     }
 
     /**
+     * 绑定路由器
+     *
+     * @param Route $route 路由实例
+     * @return App
+     */
+    public function bindRoute(Route $route): App
+    {
+        $this->route = $route;
+        return $this;
+    }
+
+    /**
      * 获取运行模式
      *
      * @return boolean
@@ -304,6 +324,16 @@ class App
     public function exceptionHandler(): ExceptionHandler
     {
         return $this->exceptionHandler;
+    }
+
+    /**
+     * 获取路由实例
+     *
+     * @return Route
+     */
+    public function route(): Route
+    {
+        return $this->route;
     }
 
     /**
@@ -435,7 +465,7 @@ class App
     protected function handlerRoute(TcpConnection $connection, Request $request, string $method, string $path, string $key): bool
     {
         // 执行路由
-        $handler = Route::instance()->dispatch($method, $path);
+        $handler = $this->route()->dispatch($method, $path);
         if ($handler[0] === Dispatcher::FOUND) {
             // 获取路由回调处理器
             $callback = $this->getCallback($handler[1], $handler[2], $this->app_name);
@@ -473,8 +503,8 @@ class App
 
         try {
             // 自定义异常处理
-            $this->exceptionHandler()->report($e);
-            $response = $this->exceptionHandler()->render($request, $e);
+            $this->exceptionHandler()->report($e, $request);
+            $response = $this->exceptionHandler()->render($e, $request);
             $response->exception($e);
             return $response;
         } catch (Throwable $err) {
@@ -512,7 +542,7 @@ class App
      */
     protected function getFallback(string $method): Closure
     {
-        $handler = Route::instance()->dispatch($method, '*');
+        $handler = $this->route()->dispatch($method, '*');
         if ($handler[0] === Dispatcher::FOUND) {
             return $this->getCallback($handler[1], $handler[2], $this->app_name);
         }
@@ -589,7 +619,7 @@ class App
             $call = explode('@', $callback);
             if (isset($call[0]) && isset($call[1])) {
                 return function (...$args) use ($call) {
-                    $controller = $this->newController ? Container::instance()->make($call[0], [], true) : Container::instance()->get($call[0]);
+                    $controller = $this->newController ? Container::instance()->make($call[0]) : Container::instance()->get($call[0]);
                     $handler = [$controller, $call[1]];
                     return $handler(...$args);
                 };
@@ -598,7 +628,7 @@ class App
         // 数组
         if (is_array($callback) && isset($callback[0]) && isset($callback[1])) {
             return function (...$args) use ($callback) {
-                $controller = $this->newController ? Container::instance()->make($callback[0], [], true) : Container::instance()->get($callback[0]);
+                $controller = $this->newController ? Container::instance()->make($callback[0]) : Container::instance()->get($callback[0]);
                 $handler = [$controller, $callback[1]];
                 return $handler(...$args);
             };

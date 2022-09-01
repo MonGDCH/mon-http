@@ -22,9 +22,10 @@ class ErrorHandler implements ExceptionHandler
      * 上报异常信息
      *
      * @param Throwable $e  错误实例
+     * @param Request $request  请求实例
      * @return mixed
      */
-    public function report(Throwable $e)
+    public function report(Throwable $e, Request $request)
     {
         // TODO 记录日志
     }
@@ -32,11 +33,11 @@ class ErrorHandler implements ExceptionHandler
     /**
      * 处理错误信息
      *
-     * @param Request $request  请求实例
      * @param Throwable $e      错误实例
+     * @param Request $request  请求实例
      * @return Response
      */
-    public function render(Request $request, Throwable $e): Response
+    public function render(Throwable $e, Request $request): Response
     {
         $content = App::instance()->debug() ? $this->buildHTML($request, $e) : 'Server internal error';
         return new Response(500, [], $content);
