@@ -173,7 +173,6 @@ class App
         $this->container = Container::instance();
 
         Http::requestClass($this->request_class);
-        // Middleware::instance()->setGlobalApp($this->app_name);
 
         $this->init = true;
         return $this;
