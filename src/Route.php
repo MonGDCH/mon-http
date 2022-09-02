@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace mon\http;
 
 use Closure;
-use mon\util\Instance;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
@@ -19,8 +18,6 @@ use FastRoute\Dispatcher\GroupCountBased as Dispatcher;
  */
 class Route
 {
-    use Instance;
-
     /**
      * fast-route路由容器
      *
@@ -243,7 +240,7 @@ class Route
         $method = array_map('strtoupper', $method);
 
         $result = [
-            'middleware'=> $parse['middleware'],
+            'middleware' => $parse['middleware'],
             'callback'  => $callback,
         ];
         // 注册fast-route路由表
@@ -266,7 +263,7 @@ class Route
             // 命名空间
             'namespace' => $this->prefix,
             // 中间件
-            'middleware'=> $this->middleware,
+            'middleware' => $this->middleware,
         ];
         if (is_string($pattern)) {
             // 字符串，标示请求路径

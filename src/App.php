@@ -160,7 +160,7 @@ class App
     public function __construct()
     {
         // 绑定对象
-        $this->route = Route::instance();
+        $this->route = new Route;
         $this->container = Container::instance();
         Http::requestClass($this->request_class);
     }
@@ -362,6 +362,7 @@ class App
 
         try {
             // 绑定对象容器
+            $request->connection($connection);
             $this->connection = $connection;
             $this->request = $request;
             Session::instance()->request($request);

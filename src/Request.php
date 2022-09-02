@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace mon\http;
 
 use mon\http\libs\UploadFile;
+use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request as HttpRequest;
 
 /**
@@ -15,6 +16,13 @@ use Workerman\Protocols\Http\Request as HttpRequest;
  */
 class Request extends HttpRequest
 {
+    /**
+     * 当前链接
+     *
+     * @var TcpConnection
+     */
+    protected $connection;
+
     /**
      * 控制器
      *
@@ -47,6 +55,20 @@ class Request extends HttpRequest
     public function action(): string
     {
         return $this->action;
+    }
+
+    /**
+     * 设置获取链接
+     *
+     * @param TcpConnection|null $connection
+     * @return TcpConnection
+     */
+    public function connection(TcpConnection $connection = null): TcpConnection
+    {
+        if (!is_null($connection)) {
+            $this->connection = $connection;
+        }
+        return $this->connection;
     }
 
     /**
@@ -301,7 +323,7 @@ class Request extends HttpRequest
      */
     public function getRemoteIp(): string
     {
-        return App::instance()->connection()->getRemoteIp();
+        return $this->connection()->getRemoteIp();
     }
 
     /**
@@ -311,7 +333,7 @@ class Request extends HttpRequest
      */
     public function getRemotePort(): int
     {
-        return App::instance()->connection()->getRemotePort();
+        return $this->connection()->getRemotePort();
     }
 
     /**
@@ -321,7 +343,7 @@ class Request extends HttpRequest
      */
     public function getLocalIp(): string
     {
-        return App::instance()->connection()->getLocalIp();
+        return $this->connection()->getLocalIp();
     }
 
     /**
@@ -331,7 +353,7 @@ class Request extends HttpRequest
      */
     public function getLocalPort(): int
     {
-        return App::instance()->connection()->getLocalPort();
+        return $this->connection()->getLocalPort();
     }
 
     /**
