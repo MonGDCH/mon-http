@@ -21,7 +21,7 @@ class Request extends HttpRequest
      *
      * @var TcpConnection
      */
-    protected $connection;
+    public $connection;
 
     /**
      * 控制器
@@ -36,6 +36,17 @@ class Request extends HttpRequest
      * @var string
      */
     public $action = '';
+
+    /**
+     * 获取链接
+     *
+     * @param TcpConnection|null $connection
+     * @return TcpConnection
+     */
+    public function connection(): TcpConnection
+    {
+        return $this->connection;
+    }
 
     /**
      * 获取控制器名称
@@ -55,20 +66,6 @@ class Request extends HttpRequest
     public function action(): string
     {
         return $this->action;
-    }
-
-    /**
-     * 设置获取链接
-     *
-     * @param TcpConnection|null $connection
-     * @return TcpConnection
-     */
-    public function connection(TcpConnection $connection = null): TcpConnection
-    {
-        if (!is_null($connection)) {
-            $this->connection = $connection;
-        }
-        return $this->connection;
     }
 
     /**

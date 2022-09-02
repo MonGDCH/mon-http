@@ -362,7 +362,7 @@ class App
 
         try {
             // 绑定对象容器
-            $request->connection($connection);
+            $request->connection = $connection;
             $this->connection = $connection;
             $this->request = $request;
             Session::instance()->request($request);
