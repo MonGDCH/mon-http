@@ -27,7 +27,7 @@
 
 2. 按需修改安装完成后创建的`config\http`目录下的配置文件
 
-3. 可结合`config\autoload.php`加载自定义路由定义文件，或在`process\Http`进程控制文件定义路由
+3. 在`process\Http`进程控制文件定义路由
 
 4. 重启`Gaia`服务，访问定义的路由
 
