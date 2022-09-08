@@ -20,6 +20,13 @@ use mon\http\Middleware;
 class Http extends Process
 {
     /**
+     * 启用进程
+     *
+     * @var boolean
+     */
+    protected static $enable = true;
+
+    /**
      * 进程配置
      *
      * @var array
@@ -51,7 +58,7 @@ class Http extends Process
     {
         // 运行模式
         $debug = Config::instance()->get('app.debug', true);
-
+        // 获取配置
         $httpConfig = Config::instance()->get('http');
         $appConfig = $httpConfig['app'];
         $errorHandler = Container::instance()->get($appConfig['exception']);
