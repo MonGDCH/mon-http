@@ -66,7 +66,7 @@ class Route
      * @param array $data 路由数据
      * @return Route
      */
-    public function setData(array $data)
+    public function setData(array $data): Route
     {
         $this->data = $data;
         return $this;
@@ -201,7 +201,7 @@ class Route
      * @param  Closure $callback 路由回调
      * @return void
      */
-    public function group($pattern, Closure $callback)
+    public function group($pattern, Closure $callback): void
     {
         $groupPrefix = $this->groupPrefix;
         $prefix = $this->prefix;
@@ -257,7 +257,7 @@ class Route
      */
     protected function parsePattern($pattern): array
     {
-        $res = [
+        $result = [
             // 路由路径或者路由前缀
             'path'      => '',
             // 命名空间
@@ -267,21 +267,21 @@ class Route
         ];
         if (is_string($pattern)) {
             // 字符串，标示请求路径
-            $res['path'] = $pattern;
+            $result['path'] = $pattern;
         } elseif (is_array($pattern)) {
             // 数组，解析配置
             if (isset($pattern['path']) && !empty($pattern['path'])) {
-                $res['path'] = $pattern['path'];
+                $result['path'] = $pattern['path'];
             }
             if (isset($pattern['namespace']) && !empty($pattern['namespace'])) {
-                $res['namespace'] = $pattern['namespace'];
+                $result['namespace'] = $pattern['namespace'];
             }
             if (isset($pattern['middleware']) && !empty($pattern['middleware'])) {
-                $res['middleware'] = array_merge($this->middleware, (array) $pattern['middleware']);
+                $result['middleware'] = array_merge($this->middleware, (array) $pattern['middleware']);
             }
         }
 
-        return $res;
+        return $result;
     }
 
     /**

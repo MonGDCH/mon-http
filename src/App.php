@@ -220,6 +220,7 @@ class App
         $this->static_path = $staticPath;
         $this->support_file_type = $supportType;
         $this->static_name = $name;
+
         return $this;
     }
 
@@ -261,6 +262,7 @@ class App
                 SessionBase::${$name} = $config[$key];
             }
         }
+
         return $this;
     }
 
@@ -291,7 +293,7 @@ class App
      *
      * @return Worker
      */
-    public function worker(): Worker
+    public function worker(): ?Worker
     {
         return $this->worker;
     }
@@ -301,7 +303,7 @@ class App
      *
      * @return TcpConnection
      */
-    public function connection(): TcpConnection
+    public function connection(): ?TcpConnection
     {
         return $this->connection;
     }
@@ -311,7 +313,7 @@ class App
      *
      * @return Request
      */
-    public function request(): Request
+    public function request(): ?Request
     {
         return $this->request;
     }
@@ -321,7 +323,7 @@ class App
      *
      * @return ExceptionHandler
      */
-    public function exceptionHandler(): ExceptionHandler
+    public function exceptionHandler(): ?ExceptionHandler
     {
         return $this->exceptionHandler;
     }
@@ -354,7 +356,7 @@ class App
      * @param Request $request          请求实例
      * @return void
      */
-    public function onMessage(TcpConnection $connection, Request $request)
+    public function onMessage(TcpConnection $connection, Request $request): void
     {
         if (!$this->init) {
             throw new ErrorException('Please init the app');
@@ -524,7 +526,7 @@ class App
      * @param string|Response $response 响应对象
      * @return void
      */
-    protected function send(TcpConnection $connection, Request $request, $response)
+    protected function send(TcpConnection $connection, Request $request, $response): void
     {
         $this->clearAction();
         $keep_alive = $request->header('connection');
@@ -682,7 +684,7 @@ class App
      *
      * @return void
      */
-    protected function clearAction()
+    protected function clearAction(): void
     {
         $this->request = null;
         $this->connection = null;

@@ -115,7 +115,7 @@ class Session
      * @param string $name
      * @return void
      */
-    public function delete(string $name)
+    public function delete(string $name): void
     {
         $this->handler()->delete($name);
     }
@@ -125,7 +125,7 @@ class Session
      *
      * @return void
      */
-    public function clear()
+    public function clear(): void
     {
         $this->handler()->flush();
     }

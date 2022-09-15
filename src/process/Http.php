@@ -54,7 +54,7 @@ class Http extends Process
      * @param Worker $worker
      * @return void
      */
-    public function onWorkerStart(Worker $worker)
+    public function onWorkerStart(Worker $worker): void
     {
         // 运行模式
         $debug = Config::instance()->get('app.debug', true);
@@ -94,7 +94,7 @@ class Http extends Process
      * @param Route $route
      * @return void
      */
-    protected function registerRoute(\mon\http\Route $route)
+    protected function registerRoute(\mon\http\Route $route): void
     {
         // 注册路由
         $route->get('/', function (\mon\http\Request $request) {

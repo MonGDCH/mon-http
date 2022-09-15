@@ -59,7 +59,7 @@ class Response extends HttpResponse
      * @param Throwable|null $exception
      * @return Throwable
      */
-    public function exception(Throwable $exception = null): Throwable
+    public function exception(Throwable $exception = null): ?Throwable
     {
         if ($exception) {
             $this->_exception = $exception;

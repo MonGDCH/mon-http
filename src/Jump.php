@@ -28,7 +28,7 @@ class Jump
      * @throws JumpException
      * @return void
      */
-    public function redirect(string $url = '', array $vars = [], int $code = 302, array $header = [])
+    public function redirect(string $url = '', array $vars = [], int $code = 302, array $header = []): void
     {
         $header['Location'] = App::instance()->request()->build($url, $vars);
         $response = new Response($code, $header);
@@ -44,7 +44,7 @@ class Jump
      * @throws JumpException
      * @return void
      */
-    public function abort(int $code, string $msg = null, array $header = [])
+    public function abort(int $code, string $msg = null, array $header = []): void
     {
         $response = new Response($code, $header, $msg);
         throw new JumpException($response);
@@ -63,7 +63,7 @@ class Jump
      * @throws JumpException
      * @return void
      */
-    public function result(int $code = 0, string $msg = '', array $data = [], array $extend = [], string $type = 'json', int $http_code = 200, array $header = [])
+    public function result(int $code = 0, string $msg = '', array $data = [], array $extend = [], string $type = 'json', int $http_code = 200, array $header = []): void
     {
         // 响应数据
         $result = ['code' => $code, 'msg' => $msg, 'data' => $data];
