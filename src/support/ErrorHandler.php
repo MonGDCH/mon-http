@@ -8,7 +8,6 @@ use Throwable;
 use mon\http\App;
 use mon\http\Request;
 use mon\http\Response;
-use mon\http\interfaces\ExceptionHandler;
 
 /**
  * 异常错误处理
@@ -16,7 +15,7 @@ use mon\http\interfaces\ExceptionHandler;
  * @author  Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class ErrorHandler implements ExceptionHandler
+class ErrorHandler implements \mon\http\interfaces\ExceptionHandlerInterface
 {
     /**
      * 上报异常信息

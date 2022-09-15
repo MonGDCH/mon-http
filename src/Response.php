@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace mon\http;
 
 use Throwable;
-use Workerman\Protocols\Http\Response as HttpResponse;
 
 /**
  * 响应处理
@@ -14,7 +13,7 @@ use Workerman\Protocols\Http\Response as HttpResponse;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Response extends HttpResponse
+class Response extends \Workerman\Protocols\Http\Response
 {
     /**
      * 异常实体

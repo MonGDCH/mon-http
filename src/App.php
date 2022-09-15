@@ -15,7 +15,7 @@ use Workerman\Protocols\Http;
 use mon\http\exception\JumpException;
 use mon\http\exception\RouteException;
 use Workerman\Connection\TcpConnection;
-use mon\http\interfaces\ExceptionHandler;
+use mon\http\interfaces\ExceptionHandlerInterface;
 use Workerman\Protocols\Http\Session as SessionBase;
 
 /**
@@ -108,7 +108,7 @@ class App
     /**
      * 异常错误处理对象
      *
-     * @var ExceptionHandler
+     * @var ExceptionHandlerInterface
      */
     protected $exceptionHandler;
 
@@ -169,12 +169,12 @@ class App
      * 初始化
      *
      * @param Worker $worker            worker实例
-     * @param ExceptionHandler $handler 异常处理实例
+     * @param ExceptionHandlerInterface $handler 异常处理实例
      * @param boolean $debug            是否为调试模式
      * @param string  $name             应用名称，也是中间件名
      * @return App
      */
-    public function init(Worker $worker, ExceptionHandler $handler, bool $debug = true, string $name = '__app__'): App
+    public function init(Worker $worker, ExceptionHandlerInterface $handler, bool $debug = true, string $name = '__app__'): App
     {
         // 绑定变量
         $this->worker = $worker;
@@ -321,9 +321,9 @@ class App
     /**
      * 获取错误处理服务实例
      *
-     * @return ExceptionHandler
+     * @return ExceptionHandlerInterface
      */
-    public function exceptionHandler(): ?ExceptionHandler
+    public function exceptionHandler(): ?ExceptionHandlerInterface
     {
         return $this->exceptionHandler;
     }

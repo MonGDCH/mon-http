@@ -4,10 +4,10 @@
 
 // 定义路由
 
-use mon\http\interfaces\Middleware;
+use mon\http\Route;
 use mon\http\Request;
 use mon\http\Response;
-use mon\http\Route;
+use mon\http\interfaces\MiddlewareInterface;
 
 $app->route()->get('/', function (Request $request) {
     return 'Hello World!';
@@ -30,7 +30,7 @@ $app->route()->any('*', function ($request) {
 
 
 // 定义中间件
-class MyMiddleware implements Middleware
+class MyMiddleware implements MiddlewareInterface
 {
     public function process(Request $request, Closure $callback): Response
     {
@@ -39,7 +39,7 @@ class MyMiddleware implements Middleware
         return $callback($request);
     }
 }
-class MyMiddlewareTwo implements Middleware
+class MyMiddlewareTwo implements MiddlewareInterface
 {
     public function process(Request $request, Closure $callback): Response
     {

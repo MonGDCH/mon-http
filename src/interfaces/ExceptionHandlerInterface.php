@@ -14,7 +14,7 @@ use mon\http\Response;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-interface ExceptionHandler
+interface ExceptionHandlerInterface
 {
     /**
      * 上报异常信息

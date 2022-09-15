@@ -14,7 +14,7 @@ use mon\http\Response;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-interface Middleware
+interface MiddlewareInterface
 {
     /**
      * 中间件实现接口

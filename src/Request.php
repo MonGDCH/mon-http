@@ -6,7 +6,6 @@ namespace mon\http;
 
 use mon\http\libs\UploadFile;
 use Workerman\Connection\TcpConnection;
-use Workerman\Protocols\Http\Request as HttpRequest;
 
 /**
  * 请求处理
@@ -14,7 +13,7 @@ use Workerman\Protocols\Http\Request as HttpRequest;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Request extends HttpRequest
+class Request extends \Workerman\Protocols\Http\Request
 {
     /**
      * 当前链接
