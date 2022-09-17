@@ -26,7 +26,7 @@ register_shutdown_function(function ($start_time) {
 
 $config = [
     // workerman监听IP断开
-    'listen' => 'http://0.0.0.0:8787',
+    'listen' => 'http://0.0.0.0:8080',
     // workerman传输层协议
     'transport' => 'tcp',
     // workerman额外参数

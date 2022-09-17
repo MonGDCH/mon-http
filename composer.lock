@@ -4,21 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d427c3b68380929529d76adf83cd9754",
+    "content-hash": "3cbfcd62399dc9da95b9a6bc47c97191",
     "packages": [
         {
             "name": "mongdch/mon-util",
-            "version": "1.3.17",
+            "version": "1.4.0",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/mongdch/mon-util/1.3.17/mongdch-mon-util-1.3.17.zip",
-                "reference": "1c1c52dc1cbb04933814369de656a026622c0b12",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/mongdch/mon-util/1.4.0/mongdch-mon-util-1.4.0.zip",
+                "reference": "6acc382ece05f05f64363f283fa2aeac1ef9e8e2",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.6.0",
-                "psr/container": "1.0.0",
-                "psr/log": "^1.1"
+                "psr/container": "1.0.0"
             },
             "type": "library",
             "autoload": {
@@ -38,14 +37,14 @@
                     "email": "985558837@qq.com"
                 }
             ],
-            "description": "常用的PHP工具类库，包含了各种各式各样的工具，如：容器、时间、验证器、多语言、图片、二维码、IP地址、文件上传、文件操作、加解密、数据字典、各种算法等等等等。。。",
+            "description": "常用的PHP工具类库，包含了各种各式各样的工具，如：容器、时间、验证器、多语言、图片处理、二维码生成、IP地址解析、文文件操作、数据安全、数据字典等等等等。。。",
             "homepage": "http://www.gdmon.com",
             "keywords": [
                 "mon",
                 "tool",
                 "util"
             ],
-            "time": "2022-09-02T08:51:21+00:00"
+            "time": "2022-09-16T10:02:02+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -131,47 +130,6 @@
             "time": "2017-02-14T16:28:37+00:00"
         },
         {
-            "name": "psr/log",
-            "version": "1.1.4",
-            "dist": {
-                "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/psr/log/1.1.4/psr-log-1.1.4.zip",
-                "reference": "d49695b909c3b7628b6289db5479a1c204601f11",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Psr\\Log\\": "Psr/Log/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PHP-FIG",
-                    "homepage": "https://www.php-fig.org/"
-                }
-            ],
-            "description": "Common interface for logging libraries",
-            "homepage": "https://github.com/php-fig/log",
-            "keywords": [
-                "log",
-                "psr",
-                "psr-3"
-            ],
-            "time": "2021-05-03T11:20:27+00:00"
-        },
-        {
             "name": "workerman/workerman",
             "version": "v4.1.0",
             "dist": {
@@ -219,8 +177,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.4.0"
+        "php": ">=7.2.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

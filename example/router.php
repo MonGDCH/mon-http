@@ -9,6 +9,7 @@ use mon\http\Request;
 use mon\http\Response;
 use mon\http\interfaces\MiddlewareInterface;
 
+/** @var \mon\http\App $app */
 $app->route()->get('/', function (Request $request) {
     return 'Hello World!';
 });
@@ -17,7 +18,7 @@ $app->route()->get(['path' => '/midd', 'middleware' => [MyMiddleware::class]], [
 // 定义组别路由
 $app->route()->group(['path' => '/group', 'middleware' => [MyMiddleware::class, MyMiddlewareTwo::class]], function (Route $route) {
     // 基于fast-route，支持路由参数输入
-    $route->get('/test[/{id:\d+}]', function ($request, $id = 1) {
+    $route->get('/test[/{id:\d+}]', function ($request, int $id = 1) {
         return $id;
     });
     // 字符串方式定义控制器

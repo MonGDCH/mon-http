@@ -141,6 +141,13 @@ class App
     protected $newController = true;
 
     /**
+     * 参数注入是否转换标量
+     *
+     * @var boolean
+     */
+    protected $scalar = true;
+
+    /**
      * 最大缓存回调处理器数
      *
      * @var integer
@@ -192,12 +199,14 @@ class App
      * @param boolean $newController    是否每次重新new控制器类
      * @param string  $request          HTTP请求响应的request类对象名
      * @param integer $maxCacheCallback 最大缓存回调数，一般不需要修改
+     * @param boolean $scalar           参数注入是否转换标量
      * @return App
      */
-    public function suppertCallback(bool $newController = true, string $request = Request::class, int $maxCacheCallback = 1024): App
+    public function suppertCallback(bool $newController = true, string $request = Request::class, bool $scalar = true, int $maxCacheCallback = 1024): App
     {
         $this->newController = $newController;
         $this->request_class = $request;
+        $this->scalar = $scalar;
         $this->maxCacheCallback = $maxCacheCallback;
 
         Http::requestClass($request);
@@ -566,7 +575,7 @@ class App
     protected function getCallback(array $handler, array $vars = [], string $app = '__app__'): Closure
     {
         // 整理参数注入
-        $args = array_values($vars);
+        $args = $this->getCallArgs($vars);
         // 获取回调中间件
         $middlewares = Middleware::instance()->get($app);
         foreach ($handler['middleware'] as $middleware) {
@@ -638,6 +647,34 @@ class App
         }
 
         throw new RouteException('Callback is faild!', 500);
+    }
+
+    /**
+     * 获取回调注入参数
+     *
+     * @param array $vars   路由传参
+     * @return array
+     */
+    protected function getCallArgs(array $vars): array
+    {
+        $value = array_values($vars);
+        if ($this->scalar) {
+            foreach ($value as &$v) {
+                if (is_scalar($v)) {
+                    if (is_numeric($v)) {
+                        if (is_int($v - 0)) {
+                            // 整数
+                            $v = intval($v);
+                        } elseif (is_float($v - 0)) {
+                            // 浮点数
+                            $v = floatval($v);
+                        }
+                    }
+                }
+            }
+        }
+
+        return $value;
     }
 
     /**
