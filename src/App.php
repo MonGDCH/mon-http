@@ -449,7 +449,7 @@ class App
                 $failback = $this->getFallback($method);
                 return $failback($req);
             }
-            return (new Response())->file($file);
+            return (new Response())->file($file, $req);
         }, 'middleware' => []], [], $this->static_name);
         // 缓存处理器
         $request->controller = '';

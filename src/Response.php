@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace mon\http;
 
 use Throwable;
+use Workerman\Protocols\Http\Request;
 
 /**
  * 响应处理
@@ -26,11 +27,12 @@ class Response extends \Workerman\Protocols\Http\Response
      * 输出文件流
      *
      * @param string $file 文件地址
+     * @param Request $request 请求实例或者null
      * @return Response
      */
-    public function file(string $file): Response
+    public function file(string $file, Request $request = null): Response
     {
-        if ($this->notModifiedSince($file)) {
+        if ($request && $this->notModifiedSince($file, $request)) {
             return $this->withStatus(304);
         }
         return $this->withFile($file);
@@ -45,11 +47,10 @@ class Response extends \Workerman\Protocols\Http\Response
      */
     public function download(string $file, string $name = ''): Response
     {
-        $this->withFile($file);
         if ($name) {
             $this->header('Content-Disposition', "attachment; filename=\"$name\"");
         }
-        return $this;
+        return $this->withFile($file);
     }
 
     /**
@@ -70,11 +71,12 @@ class Response extends \Workerman\Protocols\Http\Response
      * 文件是否已修改
      *
      * @param string $file  文件地址
+     * @param Request $request 请求实例
      * @return boolean
      */
-    protected function notModifiedSince(string $file): bool
+    protected function notModifiedSince(string $file, Request $request): bool
     {
-        $if_modified_since = App::instance()->request()->header('if-modified-since');
+        $if_modified_since = $request->header('if-modified-since');
         if ($if_modified_since === null || !($mtime = filemtime($file))) {
             return false;
         }
