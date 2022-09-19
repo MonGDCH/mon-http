@@ -7,14 +7,18 @@ namespace mon\http;
 use Closure;
 use Throwable;
 use ErrorException;
+use ReflectionMethod;
 use Workerman\Worker;
 use mon\util\Instance;
 use mon\util\Container;
+use ReflectionFunction;
 use FastRoute\Dispatcher;
 use Workerman\Protocols\Http;
+use ReflectionFunctionAbstract;
 use mon\http\exception\JumpException;
 use mon\http\exception\RouteException;
 use Workerman\Connection\TcpConnection;
+use mon\http\exception\CallbackParamsException;
 use mon\http\interfaces\ExceptionHandlerInterface;
 use Workerman\Protocols\Http\Session as SessionBase;
 
@@ -198,8 +202,8 @@ class App
      *
      * @param boolean $newController    是否每次重新new控制器类
      * @param string  $request          HTTP请求响应的request类对象名
-     * @param integer $maxCacheCallback 最大缓存回调数，一般不需要修改
      * @param boolean $scalar           参数注入是否转换标量
+     * @param integer $maxCacheCallback 最大缓存回调数，一般不需要修改
      * @return App
      */
     public function suppertCallback(bool $newController = true, string $request = Request::class, bool $scalar = true, int $maxCacheCallback = 1024): App
@@ -568,14 +572,12 @@ class App
      * 获取回调处理器
      *
      * @param array $handler 路由回调
-     * @param array $vars    路由参数
+     * @param array $params  路由参数
      * @param string $app    全局中间件模块名
      * @return Closure
      */
-    protected function getCallback(array $handler, array $vars = [], string $app = '__app__'): Closure
+    protected function getCallback(array $handler, array $params = [], string $app = '__app__'): Closure
     {
-        // 整理参数注入
-        $args = $this->getCallArgs($vars);
         // 获取回调中间件
         $middlewares = Middleware::instance()->get($app);
         foreach ($handler['middleware'] as $middleware) {
@@ -589,20 +591,20 @@ class App
                 return function ($request) use ($carry, $pipe) {
                     return $pipe($request, $carry);
                 };
-            }, function ($request) use ($call, $args) {
+            }, function ($request) use ($call, $params) {
                 // 执行回调
                 try {
-                    $result = $call($request, ...$args);
+                    $result = $call($request, $params);
                 } catch (Throwable $e) {
                     return $this->handlerException($e, $request);
                 }
                 return $this->response($result);
             });
         } else {
-            $callback = function ($request) use ($call, $args) {
+            $callback = function ($request) use ($call, $params) {
                 // 没有中间件，直接执行控制器
                 try {
-                    $result = $call($request, ...$args);
+                    $result = $call($request, $params);
                 } catch (Throwable $e) {
                     return $this->handlerException($e, $request);
                 }
@@ -616,65 +618,125 @@ class App
     /**
      * 获取回调方法
      *
-     * @param mixed $callback
+     * @param mixed $callback   路由回调
      * @throws RouteException
      * @return Closure
      */
     protected function getCall($callback): Closure
     {
-        if ($callback instanceof Closure) {
-            return $callback;
-        }
-        // 字符串
+        // 分割字符串获取对象和方法
         if (is_string($callback)) {
-            // 分割字符串获取对象和方法
-            $call = explode('@', $callback);
-            if (isset($call[0]) && isset($call[1])) {
-                return function (...$args) use ($call) {
-                    $controller = $this->newController ? Container::instance()->make($call[0]) : Container::instance()->get($call[0]);
-                    $handler = [$controller, $call[1]];
-                    return $handler(...$args);
-                };
-            }
+            $callback = explode('@', $callback, 2);
         }
-        // 数组
-        if (is_array($callback) && isset($callback[0]) && isset($callback[1])) {
-            return function (...$args) use ($callback) {
-                $controller = $this->newController ? Container::instance()->make($callback[0]) : Container::instance()->get($callback[0]);
-                $handler = [$controller, $callback[1]];
-                return $handler(...$args);
-            };
+        // 验证回调类型，获取回调反射
+        $isClosure = false;
+        if ($callback instanceof Closure) {
+            $isClosure = true;
+            $refreflection = new ReflectionFunction($callback);
+        } elseif (is_array($callback) && isset($callback[0]) && isset($callback[1])) {
+            $refreflection = new ReflectionMethod($callback[0], $callback[1]);
+        } else {
+            throw new RouteException('Callback is faild!', 500);
         }
 
-        throw new RouteException('Callback is faild!', 500);
+        return function ($request, $args) use ($callback, $isClosure, $refreflection) {
+            // 获取回调参数
+            $params = $this->getCallParams($request, $args, $refreflection);
+            if (!$isClosure) {
+                $controller = $this->newController ? Container::instance()->make($callback[0]) : Container::instance()->get($callback[0]);
+                $callback = [$controller, $callback[1]];
+            }
+
+            return $callback(...$params);
+        };
     }
 
     /**
-     * 获取回调注入参数
+     * 解析获取回调方法依赖参数
      *
-     * @param array $vars   路由传参
+     * @param Request $request  请求实例
+     * @param array $params  路由注入参数
+     * @param ReflectionFunctionAbstract $reflection  回调反射
+     * @throws CallbackParamsException
      * @return array
      */
-    protected function getCallArgs(array $vars): array
+    protected function getCallParams(Request $request, array $params, ReflectionFunctionAbstract $reflection): array
     {
-        $value = array_values($vars);
-        if ($this->scalar) {
-            foreach ($value as &$v) {
-                if (is_scalar($v)) {
-                    if (is_numeric($v)) {
-                        if (is_int($v - 0)) {
-                            // 整数
-                            $v = intval($v);
-                        } elseif (is_float($v - 0)) {
-                            // 浮点数
-                            $v = floatval($v);
-                        }
+        // PHP内置常规类型
+        $adapters = ['int', 'float', 'string', 'bool', 'array', 'object', 'mixed', 'resource'];
+        // 获取路由参数
+        $params = $this->getRouteParams($params);
+        // 解析获取依赖参数
+        $parameters = [];
+        foreach ($reflection->getParameters() as $parameter) {
+            // 参数名称
+            $paramsName = $parameter->getName();
+            if ($parameter->hasType()) {
+                // 指定类型，获取类型名称注入参数
+                $typeName = $parameter->getType()->getName();
+                if (in_array($typeName, $adapters)) {
+                    // 内置类型
+                    if (isset($params[$paramsName])) {
+                        // 从路由参数中取值
+                        $parameters[] = $params[$paramsName];
+                    } elseif ($parameter->isDefaultValueAvailable()) {
+                        // 取默认值
+                        $parameters[] = $parameter->getDefaultValue();
+                    } else {
+                        // 不存在，抛出异常
+                        throw new CallbackParamsException("bind parameters '{$paramsName}' were not found");
                     }
+                } else {
+                    // 自定义对象类型
+                    if (strtolower($typeName) == strtolower($this->request_class)) {
+                        // 请求类
+                        $parameters[] = $request;
+                    } else {
+                        // 其他类
+                        $parameters[] = Container::instance()->make($typeName);
+                    }
+                }
+            } else {
+                // 未指定类型，从路由参数中取值，不存在则取默认值
+                if (isset($params[$paramsName])) {
+                    // 从路由参数中取值
+                    $parameters[] = $params[$paramsName];
+                } elseif ($parameter->isDefaultValueAvailable()) {
+                    // 取默认值
+                    $parameters[] = $parameter->getDefaultValue();
+                } else {
+                    // 不存在，抛出异常
+                    throw new CallbackParamsException("bind parameters '{$paramsName}' were not found!");
                 }
             }
         }
 
-        return $value;
+        return $parameters;
+    }
+
+    /**
+     * 获取路由注入参数
+     *
+     * @param array $values   路由传参
+     * @return array
+     */
+    protected function getRouteParams(array $values): array
+    {
+        $params = [];
+        foreach ($values as $key => $val) {
+            if (!is_numeric($val)) {
+                $params[$key] = $val;
+            }
+            if (is_int($val - 0)) {
+                // 整数
+                $params[$key] = intval($val);
+            } elseif (is_float($val - 0)) {
+                // 浮点数
+                $params[$key] = floatval($val);
+            }
+        }
+
+        return $params;
     }
 
     /**

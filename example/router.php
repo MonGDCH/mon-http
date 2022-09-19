@@ -10,22 +10,22 @@ use mon\http\Response;
 use mon\http\interfaces\MiddlewareInterface;
 
 /** @var \mon\http\App $app */
-$app->route()->get('/', function (Request $request) {
-    return 'Hello World!';
+$app->route()->get('/', function (Request $request, A $aa) {
+    return 'Hello World!' . $aa->getName();
 });
 // 中间件、控制器定义
 $app->route()->get(['path' => '/midd', 'middleware' => [MyMiddleware::class]], [MyController::class, 'index']);
 // 定义组别路由
 $app->route()->group(['path' => '/group', 'middleware' => [MyMiddleware::class, MyMiddlewareTwo::class]], function (Route $route) {
     // 基于fast-route，支持路由参数输入
-    $route->get('/test[/{id:\d+}]', function ($request, int $id = 1) {
+    $route->get('/test[/{id:\d+}]', function (int $id = 1, Request $request) {
         return $id;
     });
     // 字符串方式定义控制器
     $route->get('/ctrl', 'MyController@json');
 });
 // 定义错误路由
-$app->route()->any('*', function ($request) {
+$app->route()->any('*', function (Request $request) {
     return 'error';
 });
 
@@ -57,22 +57,30 @@ class MyMiddlewareTwo implements MiddlewareInterface
 // 定义控制器
 class MyController
 {
-    public function index(Request $request)
+    public function index(Request $request, Response $response)
     {
         // 返回response对象
-        $response = new Response(200, [], 'response');
-        return $response;
+        // $response = new Response(200, [], 'response');
+        return $response->withBody($request->host() . ' send response');
     }
 
-    public function json(Request $request)
+    public function json(Request $request, A $a)
     {
         // 返回数组，自动转Json
-        return ['code'  => 200];
+        return ['code'  => 200, 'class' => $a->getName(), 'path' => $request->path()];
     }
 
     public function text(Request $request)
     {
         // 直接返回字符串
         return 'HTML';
+    }
+}
+
+class A
+{
+    public function getName()
+    {
+        return __CLASS__;
     }
 }

@@ -8,18 +8,18 @@
 <?php
 
 // 控制器调用演示
-$app->route()->group(['path' => '/controller','middleware' => MiddlewareC::class], function($r){
-    $r->get('', [Controller::class, 'action']);
+$app->route()->group(['path' => '/controller','middleware' => MiddlewareC::class], function($route){
+    $route->get('', [Controller::class, 'action']);
 });
 
 // 控制器调用演示
-$app->route()->group(['path' => '/class', 'namespace' => '\App\Controller\\'], function($r){
-    $r->get('', 'Index@action');
+$app->route()->group(['path' => '/class', 'namespace' => '\App\Controller\\'], function($route){
+    $route->get('', 'Index@action');
 });
 
 // 匿名方法调用
 $app->route()->post(['path' => '/test', 'middleware' => [MiddlewareA::class, MiddlewareB::class]], function($request){
-    return 'This is Middleware and after demo!';
+    return 'This is Middleware and after demo! ' . $request->host();
 });
 
 // 多种请求方式
@@ -28,9 +28,8 @@ $app->route()->map(['GET', 'POST'], '/', function(Request $request){
 });
 
 // 文件下载
-$app->route()->get('/download', function(Request $request){
+$app->route()->get('/download', function(Request $request, Response $response){
     $file = 'test.txt';
-    $response = new Response();
     $response->download($file);
     return $response;
 });

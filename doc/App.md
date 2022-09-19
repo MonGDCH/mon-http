@@ -23,7 +23,7 @@ init(Worker $worker, ExceptionHandler $handler, bool $debug = true, string $name
 > 设置请求回调相关
 
 ```php
-suppertCallback(bool $newController = true, string $request = Request::class, int $maxCacheCallback = 1024): App
+suppertCallback(bool $newController = true, string $request = Request::class, bool $scalar = true, int $maxCacheCallback = 1024): App
 ```
 
 #### 参数说明
@@ -32,6 +32,7 @@ suppertCallback(bool $newController = true, string $request = Request::class, in
 | ------------ | ------------ | ------------ | ------------ | ------------ |
 | newController | boolean | 否  | 是否每次重新new控制器类 | true |
 | request | string | 否  | HTTP请求响应的request类对象名 | Request::class |
+| scalar | bool | 否 | 参数注入是否转换标量 | true |
 | maxCacheCallback | integer | 否 | 最大缓存回调数，一般不需要修改 | 1024 |
 
 
@@ -71,6 +72,23 @@ supportSession(string $handler, array $setting = [], array $config = []): App
 | config | array | 否 | Session公共配置 |  |
 
 
+
+### 绑定路由实例
+
+> 绑定应用响应路由实例
+
+```php
+bindRoute(Route $route): App
+```
+
+#### 参数说明
+
+| 参数名 | 类型 | 是否必须 | 描述 | 默认值 |
+| ------------ | ------------ | ------------ | ------------ | ------------ |
+| route | Route | 是  | 路由对象实例 |  |
+
+
+
 #### 清除回调处理器缓存
 
 ```php
@@ -84,11 +102,13 @@ clearCacheCallback(): App
 debug(): bool
 ```
 
+
 ### 获取woker实例
 
 ```php
 worker(): Worker
 ```
+
 
 ### 获取TCP链接实例
 
@@ -96,12 +116,19 @@ worker(): Worker
 connection(): TcpConnection
 ```
 
+
 ### 获取请求实例
 
 ```php
 request(): Request
 ```
 
+
+### 获取路由实例
+
+```php
+route(): Request
+```
 
 
 

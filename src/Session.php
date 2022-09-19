@@ -25,6 +25,13 @@ class Session
     protected $request = null;
 
     /**
+     * 私有化构造方法
+     */
+    protected function __construct()
+    {
+    }
+
+    /**
      * 绑定Request请求实例
      *
      * @param Request $request
