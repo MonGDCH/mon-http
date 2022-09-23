@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace mon\http\support;
 
 use Throwable;
-use mon\http\App;
 use mon\http\Response;
 use Workerman\Protocols\Http\Session;
 use mon\http\interfaces\RequestInterface;
@@ -35,11 +34,12 @@ class ErrorHandler implements \mon\http\interfaces\ExceptionHandlerInterface
      *
      * @param Throwable $e      错误实例
      * @param RequestInterface $request  请求实例
+     * @param boolean $debug 是否调试模式     
      * @return Response
      */
-    public function render(Throwable $e, RequestInterface $request): Response
+    public function render(Throwable $e, RequestInterface $request, bool $debug = false): Response
     {
-        $content = App::instance()->debug() ? $this->buildHTML($request, $e) : 'Server internal error';
+        $content = $debug ? $this->buildHTML($request, $e) : 'Server internal error';
         return new Response(500, [], $content);
     }
 
@@ -71,7 +71,7 @@ class ErrorHandler implements \mon\http\interfaces\ExceptionHandlerInterface
             'POST Data' => $request->post(),
             'Files'     => $request->file(),
             'Cookies'   => $request->cookie(),
-            'Session'   => $session
+            'Session'   => $session,
         ];
 
         $headerTmp = $this->buildHead();

@@ -519,12 +519,12 @@ class App
         try {
             // 自定义异常处理
             $this->exceptionHandler()->report($e, $request);
-            $response = $this->exceptionHandler()->render($e, $request);
+            $response = $this->exceptionHandler()->render($e, $request, $this->debug());
             $response->exception($e);
             return $response;
         } catch (Throwable $err) {
             // 抛出异常
-            $response = new Response(500, [], $this->debug ? (string)$err : $err->getMessage());
+            $response = new Response(500, [], $this->debug() ? (string)$err : $err->getMessage());
             $response->exception($err);
             return $response;
         }

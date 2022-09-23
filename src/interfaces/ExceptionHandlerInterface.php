@@ -29,7 +29,8 @@ interface ExceptionHandlerInterface
      *
      * @param Throwable $e  错误实例
      * @param RequestInterface $request 请求实例     
+     * @param boolean $debug 是否调试模式     
      * @return Response
      */
-    public function render(Throwable $e, RequestInterface $request): Response;
+    public function render(Throwable $e, RequestInterface $request, bool $debug = false): Response;
 }

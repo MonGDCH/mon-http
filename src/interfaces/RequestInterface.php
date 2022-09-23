@@ -68,6 +68,20 @@ interface RequestInterface
     public function server($name = null, $default = null);
 
     /**
+     * 获取请求Session
+     *
+     * @return mixed
+     */
+    public function session();
+
+    /**
+     * 获取请求Cookie
+     *
+     * @return mixed
+     */
+    public function cookie();
+
+    /**
      * 获取上传文件
      *
      * @param mixed $name 文件参数名
