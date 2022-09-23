@@ -2,23 +2,25 @@
 
 declare(strict_types=1);
 
-namespace mon\http;
+namespace mon\http\workerman;
 
 use Closure;
 use Throwable;
 use ErrorException;
+use mon\http\Route;
 use ReflectionMethod;
 use Workerman\Worker;
+use mon\http\Response;
 use mon\util\Instance;
 use mon\util\Container;
 use ReflectionFunction;
+use mon\http\Middleware;
 use FastRoute\Dispatcher;
 use Workerman\Protocols\Http;
 use ReflectionFunctionAbstract;
 use mon\http\exception\JumpException;
 use mon\http\exception\RouteException;
 use Workerman\Connection\TcpConnection;
-use mon\http\interfaces\RequestInterface;
 use mon\http\exception\CallbackParamsException;
 use mon\http\interfaces\ExceptionHandlerInterface;
 use Workerman\Protocols\Http\Session as SessionBase;
@@ -45,7 +47,7 @@ class App
      *
      * @var string
      */
-    protected $app_name = '__app__';
+    protected $app_name = '__worker__';
 
     /**
      * 静态模块名
@@ -146,13 +148,6 @@ class App
     protected $newController = true;
 
     /**
-     * 参数注入是否转换标量
-     *
-     * @var boolean
-     */
-    protected $scalar = true;
-
-    /**
      * 最大缓存回调处理器数
      *
      * @var integer
@@ -186,7 +181,7 @@ class App
      * @param string  $name             应用名称，也是中间件名
      * @return App
      */
-    public function init(Worker $worker, ExceptionHandlerInterface $handler, bool $debug = true, string $name = '__app__'): App
+    public function init(Worker $worker, ExceptionHandlerInterface $handler, bool $debug = true, string $name = '__worker__'): App
     {
         // 绑定变量
         $this->worker = $worker;
@@ -203,21 +198,19 @@ class App
      *
      * @param boolean $newController    是否每次重新new控制器类
      * @param string  $request          HTTP请求响应的request类对象名
-     * @param boolean $scalar           参数注入是否转换标量
      * @param integer $maxCacheCallback 最大缓存回调数，一般不需要修改
      * @throws ErrorException
      * @return App
      */
-    public function suppertCallback(bool $newController = true, string $request = Request::class, bool $scalar = true, int $maxCacheCallback = 1024): App
+    public function suppertCallback(bool $newController = true, string $request = Request::class, int $maxCacheCallback = 1024): App
     {
         $this->newController = $newController;
         $this->request_class = $request;
-        $this->scalar = $scalar;
         $this->maxCacheCallback = $maxCacheCallback;
 
         // 绑定请求对象
-        if (!is_subclass_of($request, RequestInterface::class)) {
-            throw new ErrorException('The Request object must implement ' . RequestInterface::class);
+        if (!is_subclass_of($request, \mon\http\interfaces\RequestInterface::class)) {
+            throw new ErrorException('The Request object must implement ' . \mon\http\interfaces\RequestInterface::class);
         }
         Http::requestClass($request);
 
@@ -372,10 +365,10 @@ class App
      * 请求回调
      *
      * @param TcpConnection $connection 链接实例
-     * @param RequestInterface $request 请求实例
+     * @param Request $request 请求实例
      * @return void
      */
-    public function onMessage(TcpConnection $connection, RequestInterface $request): void
+    public function onMessage(TcpConnection $connection, Request $request): void
     {
         if (!$this->init) {
             throw new ErrorException('Please init the app');
@@ -386,7 +379,7 @@ class App
             $request->connection = $connection;
             $this->connection = $connection;
             $this->request = $request;
-            Session::instance()->request($request);
+            Session::instance()->handler($request->session());
             // 请求路径
             $path = $request->path();
             // 请求方式
@@ -426,13 +419,13 @@ class App
      * 处理静态文件资源响应
      *
      * @param TcpConnection $connection 链接实例
-     * @param RequestInterface $request 请求实例
+     * @param Request $request 请求实例
      * @param string $method            请求方式
      * @param string $path              请求路径
      * @param string $key               缓存回调名称
      * @return boolean
      */
-    protected function handlerFile(TcpConnection $connection, RequestInterface $request, string $method, string $path, string $key): bool
+    protected function handlerFile(TcpConnection $connection, Request $request, string $method, string $path, string $key): bool
     {
         // 是否开启静态文件支持
         if (!$this->support_static_files || empty($this->static_path)) {
@@ -478,13 +471,13 @@ class App
      * 处理路由响应
      *
      * @param TcpConnection $connection 链接实例
-     * @param RequestInterface $request 请求实例
+     * @param Request $request 请求实例
      * @param string $method            请求方式
      * @param string $path              请求路径
      * @param string $key               缓存回调名称
      * @return boolean
      */
-    protected function handlerRoute(TcpConnection $connection, RequestInterface $request, string $method, string $path, string $key): bool
+    protected function handlerRoute(TcpConnection $connection, Request $request, string $method, string $path, string $key): bool
     {
         // 执行路由
         $handler = $this->route()->dispatch($method, $path);
@@ -513,10 +506,10 @@ class App
      * 处理异常响应
      *
      * @param Throwable $e  异常错误
-     * @param RequestInterface $request  当前操作请求实例
+     * @param Request $request  当前操作请求实例
      * @return Response
      */
-    protected function handlerException(Throwable $e, RequestInterface $request): Response
+    protected function handlerException(Throwable $e, Request $request): Response
     {
         // 路由跳转
         if ($e instanceof JumpException) {
@@ -541,11 +534,11 @@ class App
      * 发送响应内容
      *
      * @param TcpConnection $connection 链接实例
-     * @param RequestInterface $request 请求实例
+     * @param Request $request 请求实例
      * @param string|Response $response 响应对象
      * @return void
      */
-    protected function send(TcpConnection $connection, RequestInterface $request, $response): void
+    protected function send(TcpConnection $connection, Request $request, $response): void
     {
         $this->clearAction();
         $keep_alive = $request->header('connection');
@@ -582,7 +575,7 @@ class App
      * @param string $app    全局中间件模块名
      * @return Closure
      */
-    protected function getCallback(array $handler, array $params = [], string $app = '__app__'): Closure
+    protected function getCallback(array $handler, array $params = [], string $app = '__worker__'): Closure
     {
         // 获取回调中间件
         $middlewares = Middleware::instance()->get($app);
@@ -660,13 +653,13 @@ class App
     /**
      * 解析获取回调方法依赖参数
      *
-     * @param RequestInterface $request  请求实例
+     * @param Request $request  请求实例
      * @param array $params  路由注入参数
      * @param ReflectionFunctionAbstract $reflection  回调反射
      * @throws CallbackParamsException
      * @return array
      */
-    protected function getCallParams(RequestInterface $request, array $params, ReflectionFunctionAbstract $reflection): array
+    protected function getCallParams(Request $request, array $params, ReflectionFunctionAbstract $reflection): array
     {
         // PHP内置常规类型
         $adapters = ['int', 'float', 'string', 'bool', 'array', 'object', 'mixed', 'resource'];
@@ -793,6 +786,6 @@ class App
     {
         $this->request = null;
         $this->connection = null;
-        Session::instance()->request(null);
+        Session::instance()->clearHandler();
     }
 }

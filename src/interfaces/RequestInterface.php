@@ -68,20 +68,6 @@ interface RequestInterface
     public function server($name = null, $default = null);
 
     /**
-     * 获取请求Session
-     *
-     * @return mixed
-     */
-    public function session();
-
-    /**
-     * 获取请求Cookie
-     *
-     * @return mixed
-     */
-    public function cookie();
-
-    /**
      * 获取上传文件
      *
      * @param mixed $name 文件参数名
@@ -104,18 +90,18 @@ interface RequestInterface
     public function host(): string;
 
     /**
-     * 获取请求URI
-     *
-     * @return string
-     */
-    public function uri(): string;
-
-    /**
      * 获取请求pathinfo路径
      *
      * @return string
      */
     public function path(): string;
+
+    /**
+     * 获取请求URI
+     *
+     * @return string
+     */
+    public function uri(): string;
 
     /**
      * 获取当前请求的域名

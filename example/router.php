@@ -5,12 +5,15 @@
 // 定义路由
 
 use mon\http\Route;
-use mon\http\Request;
 use mon\http\Response;
+use mon\http\workerman\Request;
+use mon\http\interfaces\RequestInterface;
 use mon\http\interfaces\MiddlewareInterface;
+use mon\http\workerman\Session;
 
 /** @var \mon\http\App $app */
 $app->route()->get('/', function (Request $request, A $aa) {
+    Session::instance()->set('test', 123456);
     return 'Hello World!' . $aa->getName();
 });
 // 中间件、控制器定义
@@ -33,7 +36,7 @@ $app->route()->any('*', function (Request $request) {
 // 定义中间件
 class MyMiddleware implements MiddlewareInterface
 {
-    public function process(Request $request, Closure $callback): Response
+    public function process(RequestInterface $request, Closure $callback): Response
     {
         // 执行前置逻辑...
 
@@ -42,7 +45,7 @@ class MyMiddleware implements MiddlewareInterface
 }
 class MyMiddlewareTwo implements MiddlewareInterface
 {
-    public function process(Request $request, Closure $callback): Response
+    public function process(RequestInterface $request, Closure $callback): Response
     {
         // 执行前置逻辑...
 

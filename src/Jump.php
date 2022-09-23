@@ -28,9 +28,9 @@ class Jump
      * @throws JumpException
      * @return void
      */
-    public function redirect(string $url = '', array $vars = [], int $code = 302, array $header = []): void
+    public function redirect(string $url, int $code = 302, array $header = []): void
     {
-        $header['Location'] = App::instance()->request()->build($url, $vars);
+        $header['Location'] = $url;
         $response = new Response($code, $header);
         throw new JumpException($response);
     }

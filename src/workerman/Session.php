@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\http;
+namespace mon\http\workerman;
 
 use mon\util\Instance;
 use Workerman\Protocols\Http\Session as SessionBase;
@@ -20,9 +20,9 @@ class Session
     /**
      * 请求实例
      *
-     * @var Request
+     * @var SessionBase
      */
-    protected $request = null;
+    protected $handler = null;
 
     /**
      * 私有化构造方法
@@ -32,25 +32,27 @@ class Session
     }
 
     /**
-     * 绑定Request请求实例
-     *
-     * @param Request $request
-     * @return Session
-     */
-    public function request(Request $request = null): Session
-    {
-        $this->request = $request;
-        return $this;
-    }
-
-    /**
      * 获取驱动实例
      *
      * @return SessionBase
      */
-    public function handler(): SessionBase
+    public function handler(SessionBase $handler = null): SessionBase
     {
-        return $this->request->session();
+        if (!is_null($handler)) {
+            $this->handler = $handler;
+        }
+
+        return $this->handler;
+    }
+
+    /**
+     * 移除驱动
+     *
+     * @return void
+     */
+    public function clearHandler(): void
+    {
+        $this->handler = null;
     }
 
     /**

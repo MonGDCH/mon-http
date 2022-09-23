@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\http;
+namespace mon\http\workerman;
 
 use mon\http\libs\UploadFile;
 use Workerman\Connection\TcpConnection;
@@ -222,7 +222,58 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
                 $upload_files[$name] = $this->parseFile($file);
             }
         }
+
         return $upload_files;
+    }
+
+    /**
+     * 获取请求类型
+     *
+     * @return string
+     */
+    public function method(): string
+    {
+        return parent::method();
+    }
+
+    /**
+     * 获取请求host
+     *
+     * @return string
+     */
+    public function host($without_port = false): string
+    {
+        return parent::host($without_port);
+    }
+
+    /**
+     * 获取请求pathinfo路径
+     *
+     * @return string
+     */
+    public function path(): string
+    {
+        return parent::path();
+    }
+
+    /**
+     * 获取请求URI
+     *
+     * @return string
+     */
+    public function uri(): string
+    {
+        return parent::uri();
+    }
+
+    /**
+     * 获取HTTP协议版本号
+     *
+     * @return string
+     */
+    public function protocolVersion(): string
+    {
+        return parent::protocolVersion();
     }
 
     /**
