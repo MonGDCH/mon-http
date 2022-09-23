@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace mon\http;
 
 use Throwable;
-use Workerman\Protocols\Http\Request;
+use mon\http\interfaces\RequestInterface;
 
 /**
  * 响应处理
@@ -27,10 +27,10 @@ class Response extends \Workerman\Protocols\Http\Response
      * 输出文件流
      *
      * @param string $file 文件地址
-     * @param Request $request 请求实例或者null
+     * @param RequestInterface $request 请求实例或者null
      * @return Response
      */
-    public function file(string $file, Request $request = null): Response
+    public function file(string $file, RequestInterface $request = null): Response
     {
         if ($request && $this->notModifiedSince($file, $request)) {
             return $this->withStatus(304);
@@ -71,10 +71,10 @@ class Response extends \Workerman\Protocols\Http\Response
      * 文件是否已修改
      *
      * @param string $file  文件地址
-     * @param Request $request 请求实例
+     * @param RequestInterface $request 请求实例
      * @return boolean
      */
-    protected function notModifiedSince(string $file, Request $request): bool
+    protected function notModifiedSince(string $file, RequestInterface $request): bool
     {
         $if_modified_since = $request->header('if-modified-since');
         if ($if_modified_since === null || !($mtime = filemtime($file))) {

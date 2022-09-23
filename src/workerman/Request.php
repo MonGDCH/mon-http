@@ -498,7 +498,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    protected function getData(array $data, $name, $default = null)
+    protected function getData(array $data, string $name, $default = null)
     {
         foreach (explode('.', $name) as $val) {
             if (isset($data[$val])) {

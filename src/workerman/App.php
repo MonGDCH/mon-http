@@ -99,13 +99,6 @@ class App
     protected $request;
 
     /**
-     * 容器对象
-     *
-     * @var Container
-     */
-    protected $container;
-
-    /**
      * 路由对象
      *
      * @var Route
@@ -168,7 +161,6 @@ class App
     {
         // 绑定对象
         $this->route = new Route;
-        $this->container = Container::instance();
         Http::requestClass($this->request_class);
     }
 
