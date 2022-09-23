@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace mon\http\interfaces;
 
 use Closure;
-use mon\http\Request;
 use mon\http\Response;
 
 /**
@@ -19,9 +18,9 @@ interface MiddlewareInterface
     /**
      * 中间件实现接口
      *
-     * @param Request $request  请求实例
+     * @param RequestInterface $request  请求实例
      * @param Closure $callback 执行下一个中间件回调方法
      * @return Response
      */
-    public function process(Request $request, Closure $callback): Response;
+    public function process(RequestInterface $request, Closure $callback): Response;
 }

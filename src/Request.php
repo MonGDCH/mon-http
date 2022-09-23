@@ -6,6 +6,7 @@ namespace mon\http;
 
 use mon\http\libs\UploadFile;
 use Workerman\Connection\TcpConnection;
+use mon\http\interfaces\RequestInterface;
 
 /**
  * 请求处理
@@ -13,7 +14,7 @@ use Workerman\Connection\TcpConnection;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Request extends \Workerman\Protocols\Http\Request
+class Request extends \Workerman\Protocols\Http\Request implements RequestInterface
 {
     /**
      * 当前链接
@@ -74,7 +75,7 @@ class Request extends \Workerman\Protocols\Http\Request
      * @param array $vars 传参
      * @return string
      */
-    public function build(string $url = '', array $vars = []): string
+    public function buildURL(string $url = '', array $vars = []): string
     {
         // $url为空是，采用当前pathinfo
         if (empty($url)) {
@@ -179,6 +180,18 @@ class Request extends \Workerman\Protocols\Http\Request
         $result = is_null($name) ? $data : $this->getData($data, $name, $default);
 
         return $filter && $data ? $this->filter($result) : $result;
+    }
+
+    /**
+     * 获取$_SERVER数据
+     *
+     * @param  mixed $name    参数键名
+     * @param  mixed $default 默认值
+     * @return mixed
+     */
+    public function server($name = null, $default = null)
+    {
+        return is_null($name) ? $_SERVER : $this->getData($_SERVER, $name, $default);
     }
 
     /**
@@ -313,6 +326,39 @@ class Request extends \Workerman\Protocols\Http\Request
     }
 
     /**
+     * 获取真实IP
+     *
+     * @param boolean $safe_mode 是否安全模式
+     * @return string
+     */
+    public function ip(bool $safe_mode = true): string
+    {
+        $remote_ip = $this->getRemoteIp();
+        if ($safe_mode && !$this->isIntranetIp($remote_ip)) {
+            return $remote_ip;
+        }
+        return $this->header('client-ip', $this->header(
+            'x-forwarded-for',
+            $this->header('x-real-ip', $this->header('x-client-ip', $this->header('via', $remote_ip)))
+        ));
+    }
+
+    /**
+     * 数据安全过滤，采用htmlspecialchars函数
+     * 
+     * @param  string|array $input 过滤的数据
+     * @return mixed
+     */
+    public function filter($input)
+    {
+        if (is_array($input)) {
+            return array_map('htmlspecialchars', (array)$input);
+        }
+
+        return htmlspecialchars($input);
+    }
+
+    /**
      * 获得连接的客户端ip
      *
      * @return string
@@ -353,34 +399,14 @@ class Request extends \Workerman\Protocols\Http\Request
     }
 
     /**
-     * 获取真实IP
-     *
-     * @param boolean $safe_mode 是否安全模式
-     * @return string
-     */
-    public function getRealIp($safe_mode = true): string
-    {
-        $remote_ip = $this->getRemoteIp();
-        if ($safe_mode && !$this->isIntranetIp($remote_ip)) {
-            return $remote_ip;
-        }
-        return $this->header('client-ip', $this->header(
-            'x-forwarded-for',
-            $this->header('x-real-ip', $this->header(
-                'x-client-ip',
-                $this->header('via', $remote_ip)
-            ))
-        ));
-    }
-
-    /**
      * 判断是否为内网IP
      *
      * @param string $ip
      * @return boolean
      */
-    public function isIntranetIp($ip): bool
+    public function isIntranetIp(string $ip = ''): bool
     {
+        $ip = $ip ?: $this->getRemoteIp();
         // Not validate ip .
         if (!filter_var($ip, FILTER_VALIDATE_IP)) {
             return false;
@@ -411,21 +437,6 @@ class Request extends \Workerman\Protocols\Http\Request
             }
         }
         return false;
-    }
-
-    /**
-     * 数据安全过滤，采用htmlspecialchars函数
-     * 
-     * @param  string|array $input 过滤的数据
-     * @return mixed
-     */
-    public function filter($input)
-    {
-        if (is_array($input)) {
-            return array_map('htmlspecialchars', (array)$input);
-        }
-
-        return htmlspecialchars($input);
     }
 
     /**

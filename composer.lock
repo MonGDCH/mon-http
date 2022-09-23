@@ -8,11 +8,11 @@
     "packages": [
         {
             "name": "mongdch/mon-util",
-            "version": "1.4.0",
+            "version": "1.4.1",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/mongdch/mon-util/1.4.0/mongdch-mon-util-1.4.0.zip",
-                "reference": "6acc382ece05f05f64363f283fa2aeac1ef9e8e2",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/mongdch/mon-util/1.4.1/mongdch-mon-util-1.4.1.zip",
+                "reference": "17a2d9c489f8335bebeaf46ccf02e8c42d4988e6",
                 "shasum": ""
             },
             "require": {
@@ -44,7 +44,7 @@
                 "tool",
                 "util"
             ],
-            "time": "2022-09-16T10:02:02+00:00"
+            "time": "2022-09-21T07:04:54+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -131,11 +131,11 @@
         },
         {
             "name": "workerman/workerman",
-            "version": "v4.1.0",
+            "version": "v4.1.1",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/workerman/workerman/v4.1.0/workerman-workerman-v4.1.0.zip",
-                "reference": "88ddf517e5c35bee072b2e453c4fcca0c6f1e59a",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/workerman/workerman/v4.1.1/workerman-workerman-v4.1.1.zip",
+                "reference": "e535daf8c5778dd05ab75bcc0ba9e1959b1a4ce5",
                 "shasum": ""
             },
             "require": {
@@ -167,7 +167,7 @@
                 "asynchronous",
                 "event-loop"
             ],
-            "time": "2022-08-20T10:16:22+00:00"
+            "time": "2022-09-19T04:08:49+00:00"
         }
     ],
     "packages-dev": [],
@@ -180,5 +180,5 @@
         "php": ">=7.2.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.2.0"
 }

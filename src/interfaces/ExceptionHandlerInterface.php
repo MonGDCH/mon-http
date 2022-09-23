@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace mon\http\interfaces;
 
 use Throwable;
-use mon\http\Request;
 use mon\http\Response;
 
 /**
@@ -20,16 +19,17 @@ interface ExceptionHandlerInterface
      * 上报异常信息
      *
      * @param Throwable $e  错误实例
+     * @param RequestInterface $request 请求实例
      * @return mixed
      */
-    public function report(Throwable $e, Request $request);
+    public function report(Throwable $e, RequestInterface $request);
 
     /**
      * 处理错误信息
      *
-     * @param Request $request  请求实例
-     * @param Throwable $e      错误实例
+     * @param Throwable $e  错误实例
+     * @param RequestInterface $request 请求实例     
      * @return Response
      */
-    public function render(Throwable $e, Request $request): Response;
+    public function render(Throwable $e, RequestInterface $request): Response;
 }

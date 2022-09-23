@@ -6,8 +6,9 @@ namespace mon\http\support;
 
 use Throwable;
 use mon\http\App;
-use mon\http\Request;
 use mon\http\Response;
+use Workerman\Protocols\Http\Session;
+use mon\http\interfaces\RequestInterface;
 
 /**
  * 异常错误处理
@@ -21,10 +22,10 @@ class ErrorHandler implements \mon\http\interfaces\ExceptionHandlerInterface
      * 上报异常信息
      *
      * @param Throwable $e  错误实例
-     * @param Request $request  请求实例
+     * @param RequestInterface $request  请求实例
      * @return mixed
      */
-    public function report(Throwable $e, Request $request)
+    public function report(Throwable $e, RequestInterface $request)
     {
         // TODO 记录日志
     }
@@ -33,10 +34,10 @@ class ErrorHandler implements \mon\http\interfaces\ExceptionHandlerInterface
      * 处理错误信息
      *
      * @param Throwable $e      错误实例
-     * @param Request $request  请求实例
+     * @param RequestInterface $request  请求实例
      * @return Response
      */
-    public function render(Throwable $e, Request $request): Response
+    public function render(Throwable $e, RequestInterface $request): Response
     {
         $content = App::instance()->debug() ? $this->buildHTML($request, $e) : 'Server internal error';
         return new Response(500, [], $content);
@@ -45,11 +46,11 @@ class ErrorHandler implements \mon\http\interfaces\ExceptionHandlerInterface
     /**
      * 生成错误展示页面
      *
-     * @param Request $request
+     * @param RequestInterface $request
      * @param Throwable $e
      * @return string
      */
-    protected function buildHTML(Request $request, Throwable $e): string
+    protected function buildHTML(RequestInterface $request, Throwable $e): string
     {
         $code = $e->getCode();
         $name = get_class($e);
@@ -58,12 +59,19 @@ class ErrorHandler implements \mon\http\interfaces\ExceptionHandlerInterface
         $msg = $e->getMessage();
         $trace = $e->getTrace();
         $source = $this->getSourceCode($e);
+
+        // workerman特殊处理session
+        $session = $request->session();
+        if ($session instanceof Session) {
+            $session->all();
+        }
+
         $tables = [
             'GET Data'  => $request->get(),
             'POST Data' => $request->post(),
             'Files'     => $request->file(),
             'Cookies'   => $request->cookie(),
-            'Session'   => $request->session(),
+            'Session'   => $session
         ];
 
         $headerTmp = $this->buildHead();
