@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace mon\http\fpm;
 
+use mon\util\Instance;
 use mon\http\interfaces\RequestInterface;
 
 /**
@@ -14,6 +15,8 @@ use mon\http\interfaces\RequestInterface;
  */
 class Request implements RequestInterface
 {
+    use Instance;
+
     /**
      * HTTP请求头
      *
@@ -27,6 +30,20 @@ class Request implements RequestInterface
      * @var string
      */
     protected $input = null;
+
+    /**
+     * 控制器
+     *
+     * @var string
+     */
+    public $controller = '';
+
+    /**
+     * 控制器回调方法
+     *
+     * @var string
+     */
+    public $action = '';
 
     /**
      * 构造方法
@@ -53,6 +70,26 @@ class Request implements RequestInterface
 
         $this->header = array_change_key_case($header);
         $this->input = file_get_contents('php://input');
+    }
+
+    /**
+     * 获取控制器名称
+     *
+     * @return string
+     */
+    public function controller(): string
+    {
+        return $this->controller;
+    }
+
+    /**
+     * 获取控制器回调方法名称
+     *
+     * @return string
+     */
+    public function action(): string
+    {
+        return $this->action;
     }
 
     /**
@@ -207,7 +244,8 @@ class Request implements RequestInterface
      */
     public function session($name = null, $default = null)
     {
-        return is_null($name) ? $_SESSION : $this->getData($_SESSION, $name, $default);
+        $value = session_status() == PHP_SESSION_ACTIVE ? $_SESSION : [];
+        return is_null($name) ? $value : $this->getData($value, $name, $default);
     }
 
     /**
@@ -537,7 +575,7 @@ class Request implements RequestInterface
             $basename = basename($fileName);
             if ($basename) {
                 $path     = ($phpSelf ? trim($phpSelf, '/') : '');
-                $baseUrl .= substr($path, 0, strpos($path, $basename)) . $basename;
+                $baseUrl .= substr($path, 0, (int)strpos($path, $basename)) . $basename;
             }
         }
 

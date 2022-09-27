@@ -1,0 +1,29 @@
+2022-09-27 11:35:18 pid:1 Worker process terminated with ERROR: E_COMPILE_ERROR "mon\http\WorkerMan and mon\http\libs\App define the same property ($app_name) in the composition of mon\http\WorkerMan. However, the definition differs and is considered incompatible. Class was composed in C:\Users\Administrator\Desktop\mon-http\src\WorkerMan.php on line 26"
+2022-09-27 11:36:23 pid:1 Error: Call to undefined method mon\http\WorkerMan::suppertCallback() in C:\Users\Administrator\Desktop\mon-http\example\workerman.php:89
+Stack trace:
+#0 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(2441): {closure}(Object(Workerman\Worker))
+#1 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(1440): Workerman\Worker->run()
+#2 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(1383): Workerman\Worker::forkWorkersForWindows()
+#3 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(559): Workerman\Worker::forkWorkers()
+#4 C:\Users\Administrator\Desktop\mon-http\example\workerman.php(102): Workerman\Worker::runAll()
+#5 {main}
+2022-09-27 11:36:49 pid:1 ErrorException: call_user_func() expects parameter 1 to be a valid callback, class 'mon\http\WorkerMan' does not have a method 'onMessage' in C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Connection\TcpConnection.php:638
+Stack trace:
+#0 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Connection\TcpConnection.php(638): mon\http\WorkerMan->appError(2, 'call_user_func(...', 'C:\\Users\\Admini...', 638, Array)
+#1 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Events\Select.php(311): Workerman\Connection\TcpConnection->baseRead(Resource id #43)
+#2 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(2454): Workerman\Events\Select->loop()
+#3 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(1440): Workerman\Worker->run()
+#4 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(1383): Workerman\Worker::forkWorkersForWindows()
+#5 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(559): Workerman\Worker::forkWorkers()
+#6 C:\Users\Administrator\Desktop\mon-http\example\workerman.php(100): Workerman\Worker::runAll()
+#7 {main}
+2022-09-27 11:37:36 pid:1 ErrorException: call_user_func() expects parameter 1 to be a valid callback, first array member is not a valid class name or object in C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Connection\TcpConnection.php:638
+Stack trace:
+#0 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Connection\TcpConnection.php(638): mon\http\WorkerMan->appError(2, 'call_user_func(...', 'C:\\Users\\Admini...', 638, Array)
+#1 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Events\Select.php(311): Workerman\Connection\TcpConnection->baseRead(Resource id #43)
+#2 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(2454): Workerman\Events\Select->loop()
+#3 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(1440): Workerman\Worker->run()
+#4 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(1383): Workerman\Worker::forkWorkersForWindows()
+#5 C:\Users\Administrator\Desktop\mon-http\vendor\workerman\workerman\Worker.php(559): Workerman\Worker::forkWorkers()
+#6 C:\Users\Administrator\Desktop\mon-http\example\workerman.php(100): Workerman\Worker::runAll()
+#7 {main}

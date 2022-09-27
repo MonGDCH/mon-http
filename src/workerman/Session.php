@@ -108,20 +108,30 @@ class Session
     }
 
     /**
-     * 是否存在某个key
+     * 是否存在某个key，支持.无限级判断
      *
      * @param string $name  键名
      * @return boolean
      */
     public function has(string $name): bool
     {
-        return $this->handler()->has($name);
+        $keys = explode('.', $name);
+        $value = $this->handler()->all();
+        foreach ($keys as $val) {
+            if (!isset($value[$val])) {
+                return false;
+            } else {
+                $value = $value[$val];
+            }
+        }
+
+        return true;
     }
 
     /**
      * 删除某个key
      *
-     * @param string $name
+     * @param string $key 键名
      * @return void
      */
     public function delete(string $name): void

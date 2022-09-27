@@ -11,6 +11,20 @@ namespace mon\http\interfaces;
 interface RequestInterface
 {
     /**
+     * 获取控制器名称
+     *
+     * @return string
+     */
+    public function controller(): string;
+
+    /**
+     * 获取控制器回调方法名称
+     *
+     * @return string
+     */
+    public function action(): string;
+
+    /**
      * 构建生成URL
      *
      * @param string $url URL路径
