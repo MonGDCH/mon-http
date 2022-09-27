@@ -55,14 +55,14 @@ trait App
      *
      * @var boolean
      */
-    protected $newController = true;
+    protected $new_ctrl = true;
 
     /**
      * 异常错误处理对象
      *
      * @var ExceptionHandlerInterface
      */
-    protected $exceptionHandler;
+    protected $exception_handler;
 
     /**
      * 请求对象
@@ -115,7 +115,7 @@ trait App
      */
     public function exceptionHandler(): ?ExceptionHandlerInterface
     {
-        return $this->exceptionHandler;
+        return $this->exception_handler;
     }
 
     /**
@@ -262,7 +262,7 @@ trait App
             // 获取回调参数
             $params = $this->getCallParams($request, $args, $refreflection);
             if (!$isClosure) {
-                $controller = $this->newController ? Container::instance()->make($callback[0]) : Container::instance()->get($callback[0]);
+                $controller = $this->new_ctrl ? Container::instance()->make($callback[0]) : Container::instance()->get($callback[0]);
                 $callback = [$controller, $callback[1]];
             }
 

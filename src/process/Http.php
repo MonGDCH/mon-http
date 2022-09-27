@@ -6,10 +6,11 @@ namespace process;
 
 use gaia\Process;
 use mon\env\Config;
+use mon\http\Route;
 use Workerman\Worker;
 use mon\util\Container;
+use mon\http\WorkerMan;
 use mon\http\Middleware;
-use mon\http\workerman\App;
 
 /**
  * HTTP进程服务
@@ -61,13 +62,10 @@ class Http extends Process
         // 获取配置
         $httpConfig = Config::instance()->get('http');
         $appConfig = $httpConfig['app'];
+        // 异常处理实例
         $errorHandler = Container::instance()->get($appConfig['exception']);
         // 初始化HTTP服务器
-        $app = new App;
-        $app->init($worker, $errorHandler, $debug);
-
-        // 应用扩展支持
-        $app->suppertCallback($appConfig['reusecall'], $appConfig['request'], $appConfig['max_cache']);
+        $app = new WorkerMan($errorHandler, $debug, $appConfig['newCtrl']);
 
         // 静态文件支持
         $staticConfig = $httpConfig['static'];
@@ -85,7 +83,7 @@ class Http extends Process
         $this->registerRoute($app->route());
 
         // 绑定响应请求
-        $worker->onMessage = [$app, 'onMessage'];
+        $worker->onMessage = [$app, 'run'];
     }
 
     /**
@@ -94,7 +92,7 @@ class Http extends Process
      * @param Route $route
      * @return void
      */
-    protected function registerRoute(\mon\http\Route $route): void
+    protected function registerRoute(Route $route): void
     {
         // 注册路由
         $route->get('/', function () {

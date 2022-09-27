@@ -90,24 +90,43 @@ class WorkerMan
      * @param string  $request  HTTP请求响应的request类对象名
      * @param boolean $debug    是否为调试模式
      * @param string  $name     应用名称，也是中间件名
-     * @param boolean $newController    每次回调重新实例化控制器
+     * @param boolean $newCtrl  每次回调重新实例化控制器
      */
-    public function __construct(ExceptionHandlerInterface $handler, string $request = Request::class, bool $debug = true, string $name = '__worker__', bool $newController = true)
+    public function __construct(ExceptionHandlerInterface $handler, bool $debug = true, bool $newCtrl = true, string $name = '__worker__')
     {
         // 绑定参数
-        $this->exceptionHandler = $handler;
-        $this->request_class = $request;
+        $this->exception_handler = $handler;
         $this->debug = $debug;
+        $this->new_ctrl = $newCtrl;
         $this->app_name = $name;
-        $this->newController = $newController;
 
         $this->route = new Route;
-        Http::requestClass($request);
+        $this->request_class = Request::class;
+        Http::requestClass($this->request_class);
 
         // 错误
         set_error_handler([$this, 'appError']);
         // 致命错误|结束运行
         register_shutdown_function([$this, 'fatalError'], time());
+    }
+
+    /**
+     * 请求类更换支持
+     *
+     * @param string $request_class 请求类名
+     * @return WorkerMan
+     */
+    public function supportRequest(string $request_class): WorkerMan
+    {
+        // 绑定请求对象
+        if (!is_subclass_of($request_class, \mon\http\interfaces\RequestInterface::class)) {
+            throw new ErrorException('The Request object must implement ' . \mon\http\interfaces\RequestInterface::class);
+        }
+
+        $this->request_class = $request_class;
+        Http::requestClass($this->request_class);
+
+        return $this;
     }
 
     /**

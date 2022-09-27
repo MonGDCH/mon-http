@@ -7,6 +7,7 @@ namespace mon\http;
 use Throwable;
 use ErrorException;
 use mon\http\libs\App;
+use mon\util\Container;
 use FastRoute\Dispatcher;
 use mon\http\fpm\Request;
 use mon\http\fpm\Session;
@@ -35,17 +36,15 @@ class Fpm
      * @param ExceptionHandlerInterface $handler 错误处理对象实例
      * @param boolean $debug    是否为调试模式
      * @param string  $name     应用名称，也是中间件名
-     * @param boolean $newController    每次回调重新实例化控制器
      */
-    public function __construct(ExceptionHandlerInterface $handler, bool $debug = true, string $name = '__fpm__', bool $newController = true)
+    public function __construct(ExceptionHandlerInterface $handler, bool $debug = true, string $name = '__fpm__')
     {
         // 绑定应用驱动
-        $this->exceptionHandler = $handler;
+        $this->exception_handler = $handler;
         $this->debug = $debug;
         $this->app_name = $name;
-        $this->newController = $newController;
 
-        $this->request = new Request();
+        $this->request = Container::instance()->get(Request::class);
         $this->request_class = Request::class;
         $this->route = new Route;
 

@@ -25,7 +25,7 @@ class Install
      * @var array
      */
     protected static $file_relation = [
-        'process/Http.php' => 'process/Http.php'
+        'process/Http.php' => 'process/Http.php',
     ];
 
     /**
@@ -34,7 +34,8 @@ class Install
      * @var array
      */
     protected static $dir_relation = [
-        'process/http' => 'config/http'
+        'process/config' => 'config/http',
+        'process/support' => 'support/http'
     ];
 
     /**
