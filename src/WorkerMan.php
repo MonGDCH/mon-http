@@ -89,8 +89,8 @@ class WorkerMan
      * @param ExceptionHandlerInterface $handler 错误处理对象实例
      * @param string  $request  HTTP请求响应的request类对象名
      * @param boolean $debug    是否为调试模式
-     * @param string  $name     应用名称，也是中间件名
      * @param boolean $newCtrl  每次回调重新实例化控制器
+     * @param string  $name     应用名称，也是中间件名
      */
     public function __construct(ExceptionHandlerInterface $handler, bool $debug = true, bool $newCtrl = true, string $name = '__worker__')
     {

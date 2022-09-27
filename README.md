@@ -1,14 +1,15 @@
 ## mon-http
 
-本项目为深度学习`webman`框架的基于`workerman`框架的衍生项目
+支持`workerman`、`fpm`多种请求方式的http服务
 
 ### 实现功能
 
 - 基于`workerman`的http服务器
-- 路由`Route`快速定义支持
+- 基于`fast-route`的路由支持
 - 中间件`Middleware`支持
-- Session支持
-- 依赖注入支持
+- `Session`支持
+- `fpm`访问支持
+- 支持依赖注入
 
 ### 文档
 
@@ -19,7 +20,7 @@
 
 ##### 直接作为HTTP服务器使用
 
-请参考`example\example.php`文件实现
+请参考`example\workerman.php`文件实现
 
 
 ##### 作为`mongdch\gaia`框架的HTTP服务
@@ -33,6 +34,4 @@
 4. 重启`Gaia`服务，访问定义的路由
 
 
-### 细节注意
-
-1. `\mon\http\Request`对象注入只能在路由回调中使用，其他地方需要使用，最好从控制器进行传参
+更多请查看`example`目录相关demo
