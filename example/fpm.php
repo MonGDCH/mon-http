@@ -3,6 +3,7 @@
 use mon\http\Fpm;
 use mon\http\fpm\Request;
 use mon\http\fpm\Session;
+use mon\http\Response;
 use mon\http\support\ErrorHandler;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -16,7 +17,10 @@ $app = new Fpm($errorHandler);
 $app->supportSession();
 // require __DIR__ . '/router.php';
 
-$app->route()->get('/', function (Request $request) {
+$app->route()->get('/', function (Request $request, Response $response) {
+    // $file = __DIR__ . '/router.php';
+    // return $response->download($file);
+    // return $response->file($file);
     return 'Hello Fpm';
 });
 

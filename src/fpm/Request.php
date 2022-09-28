@@ -316,11 +316,12 @@ class Request implements RequestInterface
         if (!empty($_SERVER['PATH_INFO'])) {
             return $_SERVER['PATH_INFO'];
         }
-        if ('/' === ($requestUri = $this->uri())) {
+        if (($requestUri = $this->uri()) == '/') {
             return '';
         }
 
-        $baseUrlEncoded = rtrim($this->detectBaseUrl(), '/');
+        $baseUrl = $this->detectBaseUrl();
+        $baseUrlEncoded = rtrim($baseUrl, '/');
 
         if ($pos = strpos($requestUri, '?')) {
             $requestUri = substr($requestUri, 0, $pos);

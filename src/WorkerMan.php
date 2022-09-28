@@ -212,15 +212,13 @@ class WorkerMan
             // 验证请求路径安全
             if (strpos($path, '..') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false || strpos($path, '//') !== false || !$path) {
                 $failback = $this->getFallback($method);
-                $this->send($connection, $request, $failback($request));
-                return;
+                return $this->send($connection, $request, $failback($request));
             }
             // 判断是否存在缓存处理器，执行缓存处理器
             $key = $method . $path;
             if (isset($this->cacheCallback[$key])) {
                 [$callback, $request->controller, $request->action] = $this->cacheCallback[$key];
-                $this->send($connection, $request, $callback($request));
-                return;
+                return $this->send($connection, $request, $callback($request));
             }
             // 处理文件响应
             if ($this->handlerFile($connection, $request, $method, $path, $key)) {
@@ -233,12 +231,11 @@ class WorkerMan
 
             // 错误回调响应
             $failback = $this->getFallback($method);
-            $this->send($connection, $request, $failback($request));
+            return $this->send($connection, $request, $failback($request));
         } catch (Throwable $e) {
             // 异常响应
-            $this->send($connection, $request, $this->handlerException($e, $request));
+            return $this->send($connection, $request, $this->handlerException($e, $request));
         }
-        return;
     }
 
     /**

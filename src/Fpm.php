@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace mon\http;
 
 use Throwable;
+use mon\util\File;
 use ErrorException;
 use mon\http\libs\App;
 use mon\util\Container;
@@ -97,7 +98,7 @@ class Fpm
             $failback = $this->getFallback($method);
             return $this->send($failback($this->request()), $exit);
         } catch (Throwable $e) {
-            return $this->handlerException($e, $this->request());
+            return $this->send($this->handlerException($e, $this->request()), $exit);
         }
     }
 
@@ -109,7 +110,11 @@ class Fpm
      */
     public function send(Response $response, bool $exit = true): void
     {
-        // 输出头
+        if (isset($response->file)) {
+            $this->sendFile($response);
+            return;
+        }
+        // 输出响应头
         if (!headers_sent()) {
             // 发送状态码
             http_response_code($response->getStatusCode());
@@ -131,6 +136,51 @@ class Fpm
         if ($exit) {
             exit;
         }
+    }
+
+    /**
+     * 发送文件
+     *
+     * @param array $file
+     * @return void
+     */
+    protected function sendFile(Response $response): void
+    {
+        // 文件路径
+        $file = $response->file['file'];
+        // 输出响应头
+        if (!headers_sent()) {
+            // 发送状态码
+            http_response_code($response->getStatusCode());
+            // 发送头部信息
+            $headers = $response->getHeaders();
+            if (!isset($headers['Content-Type'])) {
+                $mimeType = File::instance()->getMimeType($file);
+                $headers['Content-Type'] = $mimeType ?: 'application/octet-stream';
+            }
+            if (!isset($headers['Content-Disposition'])) {
+                $headers['Content-Disposition'] = 'attachment; filename=' . File::instance()->getBaseName($file);
+            }
+            if (!isset($headers['Last-Modified'])) {
+                if ($mtime = filemtime($file)) {
+                    $headers['Last-Modified'] = gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
+                }
+            }
+            // 输出响应头
+            foreach ($headers as $name => $val) {
+                if (is_null($val)) {
+                    header($name);
+                } else {
+                    header($name . ':' . $val);
+                }
+            }
+        }
+
+        // 刷新缓冲区 
+        ob_clean();
+        flush();
+        // 输出文件
+        readfile($file);
     }
 
     /**

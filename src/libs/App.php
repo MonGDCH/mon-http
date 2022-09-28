@@ -145,20 +145,20 @@ trait App
                 // 执行回调
                 try {
                     $result = $call($request, $params);
+                    return $this->response($result);
                 } catch (Throwable $e) {
                     return $this->handlerException($e, $request);
                 }
-                return $this->response($result);
             });
         } else {
             $callback = function ($request) use ($call, $params) {
                 // 没有中间件，直接执行控制器
                 try {
                     $result = $call($request, $params);
+                    return $this->response($result);
                 } catch (Throwable $e) {
                     return $this->handlerException($e, $request);
                 }
-                return $this->response($result);
             };
         }
 
