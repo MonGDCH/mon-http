@@ -8,7 +8,6 @@ use gaia\Process;
 use mon\env\Config;
 use mon\http\Route;
 use Workerman\Worker;
-use mon\util\Container;
 use mon\http\WorkerMan;
 use mon\http\Middleware;
 
@@ -62,11 +61,12 @@ class Http extends Process
         // 获取配置
         $httpConfig = Config::instance()->get('http');
         $appConfig = $httpConfig['app'];
-        // 异常处理实例
-        $errorHandler = Container::instance()->get($appConfig['exception']);
         // 初始化HTTP服务器
-        $app = new WorkerMan($errorHandler, $debug, $appConfig['newCtrl']);
-
+        $app = new WorkerMan($debug, $appConfig['newCtrl']);
+        // 自定义错误处理支持
+        if (isset($appConfig['exception']) && !empty($appConfig['exception'])) {
+            $app->supportError($appConfig['exception']);
+        }
         // 静态文件支持
         $staticConfig = $httpConfig['static'];
         $app->supportStaticFile($staticConfig['enable'], $staticConfig['path'], $staticConfig['ext_type']);

@@ -8,6 +8,8 @@
 */
 
 return [
+    // 全局中间件
+    ''              => [],
     // workerman服务http中间件
     '__worker__'    => [],
     // fpm服务http中间件
