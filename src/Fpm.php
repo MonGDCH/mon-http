@@ -72,10 +72,9 @@ class Fpm
     /**
      * 执行
      *
-     * @param boolean $exit 是否立即结束程序
      * @return void
      */
-    public function run(bool $exit = true)
+    public function run(): void
     {
         try {
             $method = $this->request()->method();
@@ -91,14 +90,17 @@ class Fpm
                 $this->request()->action = $callbackInfo['action'];
                 // 响应输出
                 $response = $callback($this->request());
-                return $this->send($response, $exit);
+                $this->send($response);
+                return;
             }
 
             // 未发现路由
             $failback = $this->getFallback($method);
-            return $this->send($failback($this->request()), $exit);
+            $this->send($failback($this->request()));
+            return;
         } catch (Throwable $e) {
-            return $this->send($this->handlerException($e, $this->request()), $exit);
+            $this->send($this->handlerException($e, $this->request()));
+            return;
         }
     }
 
@@ -108,7 +110,7 @@ class Fpm
      * @param boolean $exit 是否结束程序
      * @return void
      */
-    public function send(Response $response, bool $exit = true): void
+    public function send(Response $response): void
     {
         if (isset($response->file)) {
             $this->sendFile($response);
@@ -132,9 +134,6 @@ class Fpm
         // fastcgi提高页面响应
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
-        }
-        if ($exit) {
-            exit;
         }
     }
 
@@ -208,7 +207,7 @@ class Fpm
     {
         $this->exceptionHandler()->report($e, $this->request());
         $response = $this->exceptionHandler()->render($e, $this->request(), $this->debug());
-        $this->send($response, true);
+        $this->send($response);
     }
 
     /**
