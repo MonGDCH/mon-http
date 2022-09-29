@@ -3,7 +3,7 @@
 ### 构造方法
 
 ```php
-__construct(ExceptionHandlerInterface $handler, bool $debug = true, bool $newCtrl = true, string $name = '__worker__')
+__construct(bool $debug = true, bool $newCtrl = true, string $name = '__worker__')
 ```
 
 #### 参数说明
@@ -14,6 +14,19 @@ __construct(ExceptionHandlerInterface $handler, bool $debug = true, bool $newCtr
 | debug | boolean | 否 | 是否为调试模式 | true |
 | newCtrl | boolean | 否 | 每次回调重新实例化控制器 | true |
 | name | string | 否 | 应用名称，也是中间件名 | '__worker__' |
+
+
+### 自定义错误处理类支持
+
+```php
+function supportError(string $error_class): WorkerMan
+```
+
+#### 参数说明
+
+| 参数名 | 类型 | 是否必须 | 描述 | 默认值 |
+| ------------ | ------------ | ------------ | ------------ | ------------ |
+| error_class | string | 是 | 实现 `ExceptionHandlerInterface` 接口的对象名称 |  |
 
 
 ### 请求类更换支持

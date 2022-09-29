@@ -3,16 +3,29 @@
 ### 构造方法
 
 ```php
-__construct(ExceptionHandlerInterface $handler, bool $debug = true, string $name = '__fpm__')
+__construct(bool $debug = true, string $name = '__fpm__')
 ```
 
 #### 参数说明
 
 | 参数名 | 类型 | 是否必须 | 描述 | 默认值 |
 | ------------ | ------------ | ------------ | ------------ | ------------ |
-| handler | ExceptionHandlerInterface | 是 | 异常处理实例 |  |
 | debug | boolean | 否 | 是否为调试模式 | true |
 | name | string | 否 | 应用名称，也是中间件名 | '__fpm__' |
+
+
+### 自定义错误处理类支持
+
+```php
+function supportError(string $error_class): Fpm
+```
+
+#### 参数说明
+
+| 参数名 | 类型 | 是否必须 | 描述 | 默认值 |
+| ------------ | ------------ | ------------ | ------------ | ------------ |
+| error_class | string | 是 | 实现 `ExceptionHandlerInterface` 接口的对象名称 |  |
+
 
 
 ### Session扩展支持

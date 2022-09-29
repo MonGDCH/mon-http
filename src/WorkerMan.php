@@ -14,7 +14,6 @@ use mon\http\workerman\Request;
 use Workerman\Protocols\Http\Session;
 use Workerman\Connection\TcpConnection;
 use mon\http\interfaces\RequestInterface;
-use mon\http\interfaces\ExceptionHandlerInterface;
 use mon\http\workerman\Session as WorkermanSession;
 
 /**
@@ -86,23 +85,23 @@ class WorkerMan
     /**
      * 构造方法
      *
-     * @param ExceptionHandlerInterface $handler 错误处理对象实例
      * @param string  $request  HTTP请求响应的request类对象名
      * @param boolean $debug    是否为调试模式
      * @param boolean $newCtrl  每次回调重新实例化控制器
      * @param string  $name     应用名称，也是中间件名
      */
-    public function __construct(ExceptionHandlerInterface $handler, bool $debug = true, bool $newCtrl = true, string $name = '__worker__')
+    public function __construct(bool $debug = true, bool $newCtrl = true, string $name = '__worker__')
     {
         // 绑定参数
-        $this->exception_handler = $handler;
         $this->debug = $debug;
         $this->new_ctrl = $newCtrl;
         $this->app_name = $name;
 
-        $this->route = new Route;
         $this->request_class = Request::class;
         Http::requestClass($this->request_class);
+
+        // 定义标志常量
+        defined('IN_HTTP') || define('IN_HTTP', true);
 
         // 错误
         set_error_handler([$this, 'appError']);
@@ -111,7 +110,7 @@ class WorkerMan
     }
 
     /**
-     * 请求类更换支持
+     * 自定义请求类支持
      *
      * @param string $request_class 请求类名
      * @return WorkerMan
@@ -119,8 +118,8 @@ class WorkerMan
     public function supportRequest(string $request_class): WorkerMan
     {
         // 绑定请求对象
-        if (!is_subclass_of($request_class, \mon\http\interfaces\RequestInterface::class)) {
-            throw new ErrorException('The Request object must implement ' . \mon\http\interfaces\RequestInterface::class);
+        if (!is_subclass_of($request_class, RequestInterface::class)) {
+            throw new ErrorException('The Request object must implement ' . RequestInterface::class);
         }
 
         $this->request_class = $request_class;

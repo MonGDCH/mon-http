@@ -1,5 +1,7 @@
 <?php
 
+use mon\http\interfaces\RequestInterface;
+use mon\http\Response;
 use Workerman\Worker;
 use mon\util\Container;
 use mon\http\workerman\App;
@@ -67,6 +69,18 @@ Worker::$onMasterReload = function () {
     }
 };
 
+/**
+ * 自定义错误接管
+ */
+class E extends \mon\http\support\ErrorHandler
+{
+    public function render(Throwable $e, RequestInterface $request, bool $debug = false): Response
+    {
+        return new Response(500, [], 'test');
+    }
+}
+
+
 
 // 开启程序
 $worker = new Worker($config['listen'], (array)$config['context']);
@@ -82,9 +96,10 @@ $worker->onWorkerStart = function ($worker) {
     // 加载公共的worker配置
     // require_once __DIR__ . '/bootstrap.php';
 
-    $errorHandler = Container::instance()->get(ErrorHandler::class);
     // 初始化HTTP服务器
-    $app = new WorkerMan($errorHandler);
+    $app = new WorkerMan();
+    // 异常错误处理
+    $app->supportError(E::class);
     // 静态文件支持
     $app->supportStaticFile(true, __DIR__, ['ico']);
     // session扩展支持

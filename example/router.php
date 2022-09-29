@@ -14,8 +14,8 @@ use mon\http\interfaces\MiddlewareInterface;
 /** @var \mon\http\Route $route */
 $route = $app->route();
 
-$route->get('/', function (Request $request, A $aa) {
-    Session::instance()->set('test', 123456);
+$route->get('/', function (A $aa) {
+    // Session::instance()->set('test', 123456);
     return 'Hello World!' . $aa->getName();
 });
 // 中间件、控制器定义

@@ -6,6 +6,7 @@ namespace mon\http\libs;
 
 use Closure;
 use Throwable;
+use ErrorException;
 use mon\http\Route;
 use ReflectionMethod;
 use mon\http\Response;
@@ -14,12 +15,12 @@ use ReflectionFunction;
 use mon\http\Middleware;
 use FastRoute\Dispatcher;
 use ReflectionFunctionAbstract;
+use mon\http\support\ErrorHandler;
 use mon\http\exception\JumpException;
 use mon\http\exception\RouteException;
 use mon\http\interfaces\RequestInterface;
 use mon\http\exception\CallbackParamsException;
 use mon\http\interfaces\ExceptionHandlerInterface;
-
 
 /**
  * 应用驱动，公共trait
@@ -42,6 +43,13 @@ trait App
      * @var string
      */
     protected $request_class = '';
+
+    /**
+     * 异常处理类对象名
+     *
+     * @var string
+     */
+    protected $error_class = '';
 
     /**
      * 调试模式
@@ -89,16 +97,6 @@ trait App
     }
 
     /**
-     * 获取路由实例
-     *
-     * @return Route
-     */
-    public function route(): ?Route
-    {
-        return $this->route;
-    }
-
-    /**
      * 获取请求实例
      *
      * @return RequestInterface
@@ -109,13 +107,49 @@ trait App
     }
 
     /**
+     * 获取路由实例
+     *
+     * @return Route
+     */
+    public function route(): Route
+    {
+        if (!$this->route) {
+            $this->route = new Route();
+        }
+
+        return $this->route;
+    }
+
+    /**
      * 获取错误处理服务实例
      *
      * @return ExceptionHandlerInterface
      */
-    public function exceptionHandler(): ?ExceptionHandlerInterface
+    public function exceptionHandler(): ExceptionHandlerInterface
     {
+        if (!$this->exception_handler) {
+            $class = $this->error_class ?: ErrorHandler::class;
+            $this->exception_handler = Container::instance()->make($class);
+        }
+
         return $this->exception_handler;
+    }
+
+    /**
+     * 自定义错误处理类支持
+     *
+     * @param string $error_class 错误处理类名
+     * @return static
+     */
+    public function supportError(string $error_class)
+    {
+        // 绑定请求对象
+        if (!is_subclass_of($error_class, ExceptionHandlerInterface::class)) {
+            throw new ErrorException('The ErrorHandler object must implement ' . ExceptionHandlerInterface::class);
+        }
+
+        $this->error_class = $error_class;
+        return $this;
     }
 
     /**
@@ -138,8 +172,13 @@ trait App
         // 执行中间件回调控制器方法
         if ($middlewares) {
             $callback = array_reduce(array_reverse($middlewares), function ($carry, $pipe) {
+                // 执行中间件
                 return function ($request) use ($carry, $pipe) {
-                    return $pipe($request, $carry);
+                    try {
+                        return $pipe($request, $carry);
+                    } catch (Throwable $e) {
+                        return $this->handlerException($e, $request);
+                    }
                 };
             }, function ($request) use ($call, $params) {
                 // 执行回调

@@ -9,10 +9,9 @@ use mon\util\File;
 use ErrorException;
 use mon\http\libs\App;
 use mon\util\Container;
-use FastRoute\Dispatcher;
 use mon\http\fpm\Request;
 use mon\http\fpm\Session;
-use mon\http\interfaces\ExceptionHandlerInterface;
+use FastRoute\Dispatcher;
 
 /**
  * FPM应用
@@ -34,20 +33,20 @@ class Fpm
     /**
      * 构造方法
      *
-     * @param ExceptionHandlerInterface $handler 错误处理对象实例
      * @param boolean $debug    是否为调试模式
      * @param string  $name     应用名称，也是中间件名
      */
-    public function __construct(ExceptionHandlerInterface $handler, bool $debug = true, string $name = '__fpm__')
+    public function __construct(bool $debug = true, string $name = '__fpm__')
     {
         // 绑定应用驱动
-        $this->exception_handler = $handler;
         $this->debug = $debug;
         $this->app_name = $name;
 
-        $this->request = Container::instance()->get(Request::class);
         $this->request_class = Request::class;
-        $this->route = new Route;
+        $this->request = Container::instance()->get(Request::class);
+
+        // 定义标志常量
+        defined('IN_FPM') || define('IN_FPM', true);
 
         // 错误
         set_error_handler([$this, 'appError']);
@@ -208,6 +207,7 @@ class Fpm
         $this->exceptionHandler()->report($e, $this->request());
         $response = $this->exceptionHandler()->render($e, $this->request(), $this->debug());
         $this->send($response);
+        exit();
     }
 
     /**
