@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace mon\http\libs;
 
+use mon\util\Tool;
+
 /**
  * 请求实例，公共trait
  * 
@@ -61,60 +63,7 @@ trait Request
             $url = $this->path();
         }
 
-        // 判断是否包含域名,解析URL和传参
-        if (strpos($url, '://') === false && 0 !== strpos($url, '/')) {
-            $info = parse_url($url);
-            $url  = $info['path'] ?: '';
-            // 判断是否存在锚点,解析请求串
-            if (isset($info['fragment'])) {
-                // 解析锚点
-                $anchor = $info['fragment'];
-                if (strpos($anchor, '?') !== false) {
-                    // 解析参数
-                    list($anchor, $info['query']) = explode('?', $anchor, 2);
-                }
-            }
-        } elseif (strpos($url, '://') !== false) {
-            // 存在协议头，自带domain
-            $info = parse_url($url);
-            $url  = $info['host'];
-            $scheme = isset($info['scheme']) ? $info['scheme'] : 'http';
-            // 判断是否存在锚点,解析请求串
-            if (isset($info['fragment'])) {
-                // 解析锚点
-                $anchor = $info['fragment'];
-                if (strpos($anchor, '?') !== false) {
-                    // 解析参数
-                    list($anchor, $info['query']) = explode('?', $anchor, 2);
-                }
-            }
-        }
-
-        // 判断是否已传入URL,且URl中携带传参, 解析传参到$vars中
-        if ($url && isset($info['query'])) {
-            // 解析地址里面参数 合并到vars
-            parse_str($info['query'], $params);
-            $vars = array_merge($params, $vars);
-            unset($info['query']);
-        }
-
-        // 还原锚点
-        $anchor = !empty($anchor) ? '#' . $anchor : '';
-        // 组装传参
-        if (!empty($vars)) {
-            $vars = http_build_query($vars);
-            $url .= '?' . $vars;
-        }
-        $url .= $anchor;
-
-        if (!isset($scheme)) {
-            // 补全baseUrl
-            $url = '/' . ltrim($url, '/');
-        } else {
-            $url = $scheme . '://' . $url;
-        }
-
-        return $url;
+        return Tool::instance()->buildURL($url, $vars);
     }
 
     /**

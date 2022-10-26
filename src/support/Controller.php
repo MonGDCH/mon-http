@@ -51,6 +51,19 @@ class Controller
     protected $allowHeaders = [];
 
     /**
+     * 输出视图内容
+     *
+     * @param string $content   输出内容
+     * @param array $header     响应头
+     * @param integer $code     状态码
+     * @return Response
+     */
+    protected function view(string $content, array $header = [], int $code = 200): Response
+    {
+        return new Response($code, $header, $content);
+    }
+
+    /**
      * 返回错误信息
      *
      * @param string $msg       描述信息
