@@ -65,6 +65,12 @@ class MyMiddlewareTwo implements MiddlewareInterface
 // 定义控制器
 class MyController
 {
+    public function __construct(Request $request, A $a)
+    {
+        $request->test = '123';
+        dd($request->path());
+    }
+
     public function index(Request $request, Response $response)
     {
         // 返回response对象
@@ -72,8 +78,9 @@ class MyController
         return $response->withBody($request->host() . ' send response');
     }
 
-    public function json(A $a)
+    public function json(A $a, Request $request)
     {
+        dd($request->test);
         // 返回数组，自动转Json
         return ['code'  => 200, 'class' => $a->getName()];
     }

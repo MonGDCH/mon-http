@@ -8,12 +8,14 @@ use Closure;
 use Throwable;
 use ErrorException;
 use mon\http\Route;
+use ReflectionClass;
 use ReflectionMethod;
 use mon\http\Response;
 use mon\util\Container;
 use ReflectionFunction;
 use mon\http\Middleware;
 use FastRoute\Dispatcher;
+use InvalidArgumentException;
 use ReflectionFunctionAbstract;
 use mon\http\support\ErrorHandler;
 use mon\http\exception\JumpException;
@@ -66,6 +68,13 @@ trait App
     protected $new_ctrl = true;
 
     /**
+     * 实例化后的控制器缓存
+     *
+     * @var array
+     */
+    protected $ctrl_cache = [];
+
+    /**
      * 异常错误处理对象
      *
      * @var ExceptionHandlerInterface
@@ -85,6 +94,13 @@ trait App
      * @var Route
      */
     protected $route;
+
+    /**
+     * PHP内置常规类型
+     *
+     * @var array
+     */
+    protected $adapters = ['int', 'float', 'string', 'bool', 'array', 'object', 'mixed', 'resource'];
 
     /**
      * 获取运行模式
@@ -301,7 +317,8 @@ trait App
             // 获取回调参数
             $params = $this->getCallParams($request, $args, $refreflection);
             if (!$isClosure) {
-                $controller = $this->new_ctrl ? Container::instance()->make($callback[0]) : Container::instance()->get($callback[0]);
+                // 获取回调控制器
+                $controller = $this->getCallController($callback[0], $request);
                 $callback = [$controller, $callback[1]];
             }
 
@@ -336,8 +353,6 @@ trait App
      */
     protected function getCallParams(RequestInterface $request, array $params, ReflectionFunctionAbstract $reflection): array
     {
-        // PHP内置常规类型
-        $adapters = ['int', 'float', 'string', 'bool', 'array', 'object', 'mixed', 'resource'];
         // 获取路由参数
         $params = $this->getRouteParams($params);
         // 解析获取依赖参数
@@ -348,7 +363,7 @@ trait App
             if ($parameter->hasType()) {
                 // 指定类型，获取类型名称注入参数
                 $typeName = $parameter->getType()->getName();
-                if (in_array($typeName, $adapters)) {
+                if (in_array($typeName, $this->adapters)) {
                     // 内置类型
                     if (isset($params[$paramsName])) {
                         // 从路由参数中取值
@@ -386,6 +401,62 @@ trait App
         }
 
         return $parameters;
+    }
+
+    /**
+     * 获取回调控制器，实现兼容构造方法参数注入
+     *
+     * @param string $controller    控制器名称
+     * @param RequestInterface $request 请求类实例
+     * @return object
+     */
+    protected function getCallController(string $controller, RequestInterface $request): object
+    {
+        // 从缓存中获取对象实例
+        if (!$this->new_ctrl && isset($this->ctrl_cache[$controller])) {
+            return $this->ctrl_cache[$controller];
+        }
+        // 创建控制器对象实例
+        $reflect = new ReflectionClass($controller);
+        // 获取构造方法
+        $constructor = $reflect->getConstructor();
+        // 参数结果集
+        $args = [];
+        if ($constructor->getNumberOfParameters() > 0) {
+            // 获取类方法需要的参数
+            $parameters = $constructor->getParameters();
+            // 获取参数类型, 绑定参数
+            foreach ($parameters as $param) {
+                // 变量名
+                $name  = $param->getName();
+                // 变量类型
+                $class = $param->getType();
+                // 绑定参数
+                if ($class && !in_array($class->getName(), $this->adapters)) {
+                    // 对象类型，且不是PHP内置常规类型，获取对象实例注入
+                    $className = $class->getName();
+                    if ($className == $this->request_class) {
+                        $args[] = $request;
+                    } else {
+                        $args[] = Container::instance()->make($className);
+                    }
+                } elseif ($param->isDefaultValueAvailable()) {
+                    // 获取默认值
+                    $args[] = $param->getDefaultValue();
+                } else {
+                    throw new InvalidArgumentException('bind parameters were not found![' . $name . ']', 500);
+                }
+            }
+        }
+        // 创建实例
+        $ctrl = $reflect->newInstanceArgs($args);
+        // 是否缓存控制器实例
+        if (!$this->new_ctrl) {
+            $this->ctrl_cache[$controller] = $ctrl;
+            return $this->ctrl_cache[$controller];
+        }
+
+        return $ctrl;
     }
 
     /**

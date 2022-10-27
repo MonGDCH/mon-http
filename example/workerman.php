@@ -74,9 +74,17 @@ Worker::$onMasterReload = function () {
  */
 class E extends \mon\http\support\ErrorHandler
 {
-    public function render(Throwable $e, RequestInterface $request, bool $debug = false): Response
+    /**
+     * 上报异常信息
+     *
+     * @param Throwable $e  错误实例
+     * @param RequestInterface $request  请求实例
+     * @return mixed
+     */
+    public function report(Throwable $e, RequestInterface $request)
     {
-        return new Response(500, [], 'test');
+        // TODO 记录日志
+        dd($e->getMessage());
     }
 }
 
@@ -97,7 +105,7 @@ $worker->onWorkerStart = function ($worker) {
     // require_once __DIR__ . '/bootstrap.php';
 
     // 初始化HTTP服务器
-    $app = new WorkerMan();
+    $app = new WorkerMan(true, true);
     // 异常错误处理
     $app->supportError(E::class);
     // 静态文件支持
