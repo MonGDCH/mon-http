@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace mon\http\libs;
 
-use mon\util\Tool;
-
 /**
  * 请求实例，公共trait
  * 
@@ -46,24 +44,6 @@ trait Request
     public function action(): string
     {
         return $this->action;
-    }
-
-
-    /**
-     * 构建生成URL
-     *
-     * @param string $url URL路径
-     * @param array $vars 传参
-     * @return string
-     */
-    public function buildURL(string $url = '', array $vars = []): string
-    {
-        // $url为空是，采用当前pathinfo
-        if (empty($url)) {
-            $url = $this->path();
-        }
-
-        return Tool::instance()->buildURL($url, $vars);
     }
 
     /**

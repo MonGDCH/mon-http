@@ -25,15 +25,6 @@ interface RequestInterface
     public function action(): string;
 
     /**
-     * 构建生成URL
-     *
-     * @param string $url URL路径
-     * @param array $vars 传参
-     * @return string
-     */
-    public function buildURL(string $url = '', array $vars = []): string;
-
-    /**
      * 获取GET数据
      *
      * @param mixed  $name      参数键名

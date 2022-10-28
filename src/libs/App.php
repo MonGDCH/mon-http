@@ -422,7 +422,7 @@ trait App
         $constructor = $reflect->getConstructor();
         // 参数结果集
         $args = [];
-        if ($constructor->getNumberOfParameters() > 0) {
+        if ($constructor && $constructor->getNumberOfParameters() > 0) {
             // 获取类方法需要的参数
             $parameters = $constructor->getParameters();
             // 获取参数类型, 绑定参数
