@@ -114,7 +114,7 @@ class Request implements RequestInterface
      */
     public function header($name = null, $default = null)
     {
-        if (is_null($$name)) {
+        if (is_null($name)) {
             return $this->header;
         }
 
