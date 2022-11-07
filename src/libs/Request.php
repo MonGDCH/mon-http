@@ -128,7 +128,7 @@ trait Request
             return array_map('htmlspecialchars', (array)$input);
         }
 
-        return htmlspecialchars($input);
+        return htmlspecialchars($input ?: '');
     }
 
     /**
