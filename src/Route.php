@@ -6,7 +6,9 @@ namespace mon\http;
 
 use Closure;
 use mon\util\File;
+use mon\util\Container;
 use ReflectionFunction;
+use InvalidArgumentException;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
@@ -271,6 +273,16 @@ class Route
             // 分割字符串获取对象和方法
             $callback = explode('@', $callback, 2);
         }
+        // 数组
+        if (is_array($callback)) {
+            if (!isset($callback[0]) || empty($callback[0]) || !isset($callback[1]) || empty($callback[1])) {
+                throw new InvalidArgumentException('Register error handler params faild!');
+            }
+
+            $ctrl = Container::instance()->make($callback[0]);
+            $callback = [$ctrl, $callback[1]];
+        }
+
         $this->error = $callback;
     }
 

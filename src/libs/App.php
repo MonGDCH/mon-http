@@ -14,7 +14,6 @@ use mon\http\Response;
 use mon\util\Container;
 use ReflectionFunction;
 use mon\http\Middleware;
-use FastRoute\Dispatcher;
 use InvalidArgumentException;
 use ReflectionFunctionAbstract;
 use mon\http\support\ErrorHandler;

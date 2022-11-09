@@ -7,7 +7,7 @@
 | 加载composer, 处理类文件自动加载
 |
 */
-// require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 
 
@@ -62,7 +62,7 @@ date_default_timezone_set($config->get('app.time_zone', 'PRC'));
 | 这里定义日志服务通道
 |
 */
-\mon\log\Logger::instance()->setDefaultChanneel('');
+\mon\log\Logger::instance()->setDefaultChanneel('default');
 
 
 
