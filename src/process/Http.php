@@ -102,11 +102,6 @@ class Http extends Process
             return 'Hello http process!';
         });
 
-        $route->error(function ($request) {
-            dd($request);
-            return $request->method();
-        });
-
         // 建议require一个路由文件进行定义，支持monitor更新
         // require APP_PATH . '/http/router.php';
     }

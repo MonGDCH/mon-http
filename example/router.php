@@ -33,8 +33,8 @@ $route->group(['path' => '/group', 'middleware' => [MyMiddleware::class, MyMiddl
 $route->get('/text', ['MyController', 'text']);
 
 // 定义错误路由
-$route->any('*', function () {
-    return 'error';
+$route->error(function ($request) {
+    return 'error: ' . $request->path();
 });
 
 

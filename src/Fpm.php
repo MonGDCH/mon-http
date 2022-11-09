@@ -106,15 +106,12 @@ class Fpm
     /**
      * 输出响应结果集
      *
-     * @param boolean $exit 是否结束程序
+     * @param Response|string|array $response   响应结果集
      * @return void
      */
-    public function send(Response $response): void
+    public function send($response): void
     {
-        if (isset($response->file)) {
-            $this->sendFile($response);
-            return;
-        }
+        $response = $this->response($response);
         // 输出响应头
         if (!headers_sent()) {
             // 发送状态码

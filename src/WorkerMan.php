@@ -333,7 +333,7 @@ class WorkerMan
      *
      * @param TcpConnection $connection 链接实例
      * @param Request $request 请求实例
-     * @param string|Response $response 响应对象
+     * @param string|array|Response $response 响应对象
      * @return void
      */
     protected function send(TcpConnection $connection, Request $request, $response): void
@@ -342,6 +342,7 @@ class WorkerMan
         $this->connection = null;
         WorkermanSession::instance()->clearHandler();
 
+        $response = $this->response($response);
         $keep_alive = $request->header('connection');
         if (($keep_alive === null && $request->protocolVersion() === '1.1') || $keep_alive === 'keep-alive' || $keep_alive === 'Keep-Alive') {
             $connection->send($response);

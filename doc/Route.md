@@ -5,6 +5,7 @@
 #### 使用说明
 
 ```php
+
 <?php
 
 // 控制器调用演示
@@ -35,8 +36,8 @@ $app->route()->get('/download', function(Request $request, Response $response){
 });
 
 
-// 默认路由, 没有对应路径的时候，调用 * 回调
-$app->route()->any('*', 'App\Controller\Index@index');
+// 错误处理
+$app->route()->error([App\Controller\Index::class, 'index']);
 
 
 
