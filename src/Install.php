@@ -26,6 +26,7 @@ class Install
      */
     protected static $file_relation = [
         'process/Http.php' => 'process/Http.php',
+        'process/fpm.php'  => 'public/fpm.php'
     ];
 
     /**

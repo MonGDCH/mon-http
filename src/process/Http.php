@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace process;
 
 use gaia\Process;
+use mon\log\Logger;
 use mon\env\Config;
 use mon\http\Route;
 use Workerman\Worker;
@@ -56,6 +57,8 @@ class Http extends Process
      */
     public function onWorkerStart(Worker $worker): void
     {
+        // 定义默认日志通道
+        Logger::instance()->setDefaultChanneel('');
         // 运行模式
         $debug = Config::instance()->get('app.debug', true);
         // 获取配置
@@ -96,7 +99,7 @@ class Http extends Process
     {
         // 注册路由
         $route->get('/', function () {
-            return 'Hello World!';
+            return 'Hello http process!';
         });
 
         // 建议require一个路由文件进行定义，支持monitor更新

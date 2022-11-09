@@ -11,21 +11,21 @@ use mon\http\interfaces\RequestInterface;
 use mon\http\interfaces\MiddlewareInterface;
 
 /**
- * 请求初始化日志中间件
+ * 日志记录中间件
  * 
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class HttpMiddleware implements MiddlewareInterface
+class LoggerMiddleware implements MiddlewareInterface
 {
     /**
      * 中间件实现接口
      *
      * @param RequestInterface $request  请求实例
-     * @param Closure $callback 执行下一个中间件回调方法
+     * @param Closure $next 执行下一个中间件回调方法
      * @return Response
      */
-    public function process(RequestInterface $request, Closure $callback): Response
+    public function process(RequestInterface $request, Closure $next): Response
     {
         // 请求IP
         $ip = $request->ip();
@@ -38,7 +38,7 @@ class HttpMiddleware implements MiddlewareInterface
         // 日志记录
         Logger::instance()->channel()->log('bootstrap', $log);
         // 执行响应
-        $response = $callback($request);
+        $response = $next($request);
         // 记录日志
         Logger::instance()->channel()->log('end', '=====================================', ['save' => true]);
         return $response;

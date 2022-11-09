@@ -63,6 +63,13 @@ class Route
     protected $middleware = [];
 
     /**
+     * 错误处理路由
+     *
+     * @var Closure|array|string
+     */
+    protected $error;
+
+    /**
      * 设置路由数据
      *
      * @param array $data 路由数据
@@ -249,6 +256,32 @@ class Route
         $this->collector()->addRoute($method, $path, $result);
 
         return $this;
+    }
+
+    /**
+     * 设置错误处理器
+     *
+     * @param Closure|array|string $callback
+     * @return void
+     */
+    public function error($callback): void
+    {
+        // 字符串
+        if (is_string($callback)) {
+            // 分割字符串获取对象和方法
+            $callback = explode('@', $callback, 2);
+        }
+        $this->error = $callback;
+    }
+
+    /**
+     * 获取错误处理器
+     *
+     * @return \callable|null
+     */
+    public function getErrorHandler()
+    {
+        return $this->error;
     }
 
     /**

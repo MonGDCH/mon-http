@@ -158,7 +158,7 @@ class Session
         empty($this->init) && $this->bootstrap();
         if (strpos($key, '.')) {
             // 二维数组赋值
-            list($name1, $name2) = explode('.', $key);
+            list($name1, $name2) = explode('.', $key, 2);
             $_SESSION[$name1][$name2] = $value;
         } else {
             $_SESSION[$key] = $value;
@@ -232,7 +232,7 @@ class Session
             }
         } elseif (strpos($key, '.')) {
             // 二维数组赋值
-            list($name1, $name2) = explode('.', $key);
+            list($name1, $name2) = explode('.', $key, 2);
             $_SESSION[$name1][$name2] = null;
             unset($_SESSION[$name1][$name2]);
         } else {

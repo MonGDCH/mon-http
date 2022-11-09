@@ -210,7 +210,7 @@ class WorkerMan
             $method = $request->method();
             // 验证请求路径安全
             if (strpos($path, '..') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false || strpos($path, '//') !== false || !$path) {
-                $failback = $this->getFallback($method);
+                $failback = $this->getFallback();
                 return $this->send($connection, $request, $failback($request));
             }
             // 判断是否存在缓存处理器，执行缓存处理器
@@ -220,7 +220,7 @@ class WorkerMan
                 return $this->send($connection, $request, $callback($request));
             }
             // 处理文件响应
-            if ($this->handlerFile($connection, $request, $method, $path, $key)) {
+            if ($this->handlerFile($connection, $request, $path, $key)) {
                 return;
             }
             // 处理路由响应
@@ -229,7 +229,7 @@ class WorkerMan
             }
 
             // 错误回调响应
-            $failback = $this->getFallback($method);
+            $failback = $this->getFallback();
             return $this->send($connection, $request, $failback($request));
         } catch (Throwable $e) {
             // 异常响应
@@ -247,7 +247,7 @@ class WorkerMan
      * @param string $key               缓存回调名称
      * @return boolean
      */
-    protected function handlerFile(TcpConnection $connection, RequestInterface $request, string $method, string $path, string $key): bool
+    protected function handlerFile(TcpConnection $connection, RequestInterface $request, string $path, string $key): bool
     {
         // 是否开启静态文件支持
         if (!$this->support_static_files || empty($this->static_path)) {
@@ -268,10 +268,10 @@ class WorkerMan
         }
 
         // 生成处理器
-        $callback = $this->getCallback(['callback' => function ($req) use ($method, $file) {
+        $callback = $this->getCallback(['callback' => function ($req) use ($file) {
             clearstatcache(true, $file);
             if (!is_file($file)) {
-                $failback = $this->getFallback($method);
+                $failback = $this->getFallback();
                 return $failback($req);
             }
 

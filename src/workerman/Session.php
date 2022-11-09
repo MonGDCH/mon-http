@@ -65,7 +65,7 @@ class Session
     public function set(string $key, $value = null): Session
     {
         if (strpos($key, '.')) {
-            list($name1, $name2) = explode('.', $key);
+            list($name1, $name2) = explode('.', $key, 2);
             $origin_value = $this->handler()->get($name1, []);
             if (is_array($origin_value)) {
                 $origin_value[$name2] = $value;

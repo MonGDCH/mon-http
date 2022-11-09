@@ -94,7 +94,7 @@ class Fpm
             }
 
             // 未发现路由
-            $failback = $this->getFallback($method);
+            $failback = $this->getFallback();
             $this->send($failback($this->request()));
             return;
         } catch (Throwable $e) {

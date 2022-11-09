@@ -223,17 +223,11 @@ trait App
     /**
      * 获取错误回调
      *
-     * @param string $method 请求类型
-     * @return Closure
+     * @return \callable
      */
-    public function getFallback(string $method): Closure
+    public function getFallback()
     {
-        $handler = $this->route()->dispatch($method, '*');
-        if ($handler[0] === Dispatcher::FOUND) {
-            return $this->getCallback($handler[1], $handler[2], $this->app_name);
-        }
-
-        return function () {
+        return $this->route()->getErrorHandler() ?: function () {
             return new Response(404, [], '<html><head><title>404 Not Found</title></head><body><center><h1>404 Not Found</h1></center></body></html>');
         };
     }
@@ -249,7 +243,7 @@ trait App
         // 字符串
         if (is_string($callback)) {
             // 分割字符串获取对象和方法
-            $call = explode('@', $callback);
+            $call = explode('@', $callback, 2);
             if (isset($call[0]) && isset($call[1])) {
                 return ['controller' => $call[0], 'action' => $call[1]];
             }
