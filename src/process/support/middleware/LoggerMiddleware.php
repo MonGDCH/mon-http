@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace support\http;
+namespace support\http\middleware;
 
 use Closure;
 use mon\log\Logger;

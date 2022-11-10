@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace app\fpm\middleware;
+namespace support\http\middleware;
 
 use Closure;
 use mon\http\Response;
