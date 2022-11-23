@@ -276,6 +276,10 @@ class Route
         $route_path = implode('/', $paths);
         // 创建路由
         $this->map($method, $route_path, function (string $filePath) use ($root, $ext): Response {
+            // 验证请求路径安全
+            if (strpos($filePath, '..') !== false || strpos($filePath, "\\") !== false || strpos($filePath, "\0") !== false || strpos($filePath, '//') !== false || !$filePath) {
+                return new Response(404);
+            }
             // 修正请求路径
             if (preg_match('/%[0-9a-f]{2}/i', $filePath)) {
                 $filePath = urldecode($filePath);
