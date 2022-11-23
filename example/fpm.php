@@ -35,4 +35,7 @@ $app->route()->get('/', function (Request $request, Response $response) {
 });
 
 
+// 文件路由  http://127.0.0.1:8080/aa/route.php
+$app->route()->file('/aa', __DIR__);
+
 $app->run();

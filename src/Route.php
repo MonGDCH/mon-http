@@ -261,6 +261,40 @@ class Route
     }
 
     /**
+     * 文件路由，类似 golang http.FileServer
+     *
+     * @param string $path  请求根路径
+     * @param string $root  文件目录
+     * @param array $ext    允许访问文件扩展名
+     * @param array $method 允许请求方式
+     * @return void
+     */
+    public function file(string $path, string $root, array $ext = [], array $method = ['GET', 'POST']): void
+    {
+        // 生成路由路径
+        $paths = [$path == '/' ? '' : $path, '{filePath:.+}'];
+        $route_path = implode('/', $paths);
+        // 创建路由
+        $this->map($method, $route_path, function (string $filePath) use ($root, $ext): Response {
+            // 修正请求路径
+            if (preg_match('/%[0-9a-f]{2}/i', $filePath)) {
+                $filePath = urldecode($filePath);
+            }
+            // 验证文件扩展名白名单
+            if (!empty($ext) && !in_array(pathinfo($filePath, PATHINFO_EXTENSION), $ext)) {
+                return new Response(404);
+            }
+            // 文件路径
+            $file = $root . DIRECTORY_SEPARATOR . $filePath;
+            if (!is_file($file)) {
+                return new Response(404);
+            }
+            clearstatcache(true, $file);
+            return (new Response())->file($file);
+        });
+    }
+
+    /**
      * 设置错误处理器
      *
      * @param Closure|array|string $callback

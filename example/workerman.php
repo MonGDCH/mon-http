@@ -101,15 +101,12 @@ foreach ($property_map as $property) {
 
 // 监听事件
 $worker->onWorkerStart = function ($worker) {
-    // 加载公共的worker配置
-    // require_once __DIR__ . '/bootstrap.php';
-
     // 初始化HTTP服务器
     $app = new WorkerMan(true, true);
     // 异常错误处理
     $app->supportError(E::class);
     // 静态文件支持
-    $app->supportStaticFile(true, __DIR__, ['ico']);
+    // $app->supportStaticFile(true, __DIR__, ['ico']);
     // session扩展支持
     $app->supportSession(FileSessionHandler::class, ['save_path' => __DIR__ . '/sess/']);
     // 加载路由

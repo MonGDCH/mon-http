@@ -32,6 +32,9 @@ $route->group(['path' => '/group', 'middleware' => [MyMiddleware::class, MyMiddl
 
 $route->get('/text', ['MyController', 'text']);
 
+// 文件路由 http://127.0.0.1:8080/aa/route.php
+$route->file('/aa', __DIR__);
+
 // 定义错误路由
 $route->error(function ($request) {
     return 'error: ' . $request->path();

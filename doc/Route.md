@@ -35,6 +35,9 @@ $app->route()->get('/download', function(Request $request, Response $response){
     return $response;
 });
 
+// 文件路由
+$app->route()->file('/static', '/home/public/static');
+
 
 // 错误处理
 $app->route()->error([App\Controller\Index::class, 'index']);
@@ -42,4 +45,3 @@ $app->route()->error([App\Controller\Index::class, 'index']);
 
 
 ```
-

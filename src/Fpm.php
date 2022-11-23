@@ -112,6 +112,11 @@ class Fpm
     public function send($response): void
     {
         $response = $this->response($response);
+        // 存在发送文件，则发送文件
+        if ($response->file) {
+            $this->sendFile($response);
+            return;
+        }
         // 输出响应头
         if (!headers_sent()) {
             // 发送状态码
