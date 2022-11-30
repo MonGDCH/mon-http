@@ -197,7 +197,14 @@ class Request implements RequestInterface
     public function path(): string
     {
         $pathInfo = $this->detectPathInfo();
-        return $pathInfo ? preg_replace('/[\/]+/', '/', $pathInfo) : '/';
+        if (!$pathInfo) {
+            return '/';
+        }
+
+        // 去除重复的"/"
+        $pathInfo = preg_replace('/[\/]+/', '/', $pathInfo);
+        $pathInfo = ltrim($pathInfo, '/');
+        return '/' . $pathInfo;
     }
 
     /**
