@@ -7,14 +7,16 @@ namespace mon\http;
 use Throwable;
 use ErrorException;
 use Workerman\Worker;
+use mon\http\Request;
 use mon\http\libs\App;
 use FastRoute\Dispatcher;
 use Workerman\Protocols\Http;
-use mon\http\workerman\Request;
+use mon\http\Session as HttpSession;
 use Workerman\Protocols\Http\Session;
 use Workerman\Connection\TcpConnection;
 use mon\http\interfaces\RequestInterface;
 use mon\http\workerman\Session as WorkermanSession;
+use mon\http\workerman\Request as WorkermanRequest;
 
 /**
  * WorkerMan应用
@@ -25,13 +27,6 @@ use mon\http\workerman\Session as WorkermanSession;
 class WorkerMan
 {
     use App;
-
-    /**
-     * 版本号
-     * 
-     * @var string
-     */
-    const VERSION = '1.0.0';
 
     /**
      * 静态模块名
@@ -98,10 +93,10 @@ class WorkerMan
         $this->app_name = $name;
 
         $this->request_class = Request::class;
-        Http::requestClass($this->request_class);
+        Http::requestClass(WorkermanRequest::class);
 
         // 定义标志常量
-        defined('IN_HTTP') || define('IN_HTTP', true);
+        defined('IN_WORKERMAN') || define('IN_WORKERMAN', true);
 
         // 错误
         set_error_handler([$this, 'appError']);
@@ -122,8 +117,8 @@ class WorkerMan
             throw new ErrorException('The Request object must implement ' . RequestInterface::class);
         }
 
-        $this->request_class = $request_class;
-        Http::requestClass($this->request_class);
+        // $this->request_class = $request_class;
+        Http::requestClass($request_class);
 
         return $this;
     }
@@ -201,39 +196,39 @@ class WorkerMan
         try {
             // 绑定对象容器
             $request->connection = $connection;
-            $this->request = $request;
+            $this->request = new Request($request);
             $this->connection = $connection;
-            WorkermanSession::instance()->handler($request->session());
+            HttpSession::instance()->service(new WorkermanSession($this->request()->session()));
             // 请求路径
-            $path = $request->path();
+            $path = $this->request->path();
             // 请求方式
-            $method = $request->method();
+            $method = $this->request->method();
             // 验证请求路径安全
             if (strpos($path, '..') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false || strpos($path, '//') !== false || !$path) {
                 $failback = $this->getFallback();
-                return $this->send($connection, $request, $failback($request));
+                return $this->send($connection, $this->request, $failback($this->request));
             }
             // 判断是否存在缓存处理器，执行缓存处理器
             $key = $method . $path;
             if (isset($this->cacheCallback[$key])) {
-                [$callback, $request->controller, $request->action] = $this->cacheCallback[$key];
-                return $this->send($connection, $request, $callback($request));
+                [$callback, $this->request->controller, $this->request->action] = $this->cacheCallback[$key];
+                return $this->send($connection, $this->request, $callback($this->request));
             }
             // 处理文件响应
-            if ($this->handlerFile($connection, $request, $path, $key)) {
+            if ($this->handlerFile($connection, $this->request, $path, $key)) {
                 return;
             }
             // 处理路由响应
-            if ($this->handlerRoute($connection, $request, $method, $path, $key)) {
+            if ($this->handlerRoute($connection, $this->request, $method, $path, $key)) {
                 return;
             }
 
             // 错误回调响应
             $failback = $this->getFallback();
-            return $this->send($connection, $request, $failback($request));
+            return $this->send($connection, $this->request, $failback($this->request));
         } catch (Throwable $e) {
             // 异常响应
-            return $this->send($connection, $request, $this->handlerException($e, $request));
+            return $this->send($connection, $this->request, $this->handlerException($e, $this->request));
         }
     }
 
@@ -332,15 +327,15 @@ class WorkerMan
      * 发送响应内容
      *
      * @param TcpConnection $connection 链接实例
-     * @param Request $request 请求实例
+     * @param RequestInterface $request 请求实例
      * @param string|array|Response $response 响应对象
      * @return void
      */
-    protected function send(TcpConnection $connection, Request $request, $response): void
+    protected function send(TcpConnection $connection, RequestInterface $request, $response): void
     {
         $this->request = null;
         $this->connection = null;
-        WorkermanSession::instance()->clearHandler();
+        HttpSession::instance()->clearHandler();
 
         $response = $this->response($response);
         $keep_alive = $request->header('connection');

@@ -5,9 +5,9 @@
 // 定义路由
 
 use mon\http\Route;
+use mon\http\Request;
 use mon\http\Response;
-use mon\http\workerman\Session;
-use mon\http\workerman\Request;
+use mon\http\Session;
 use mon\http\interfaces\RequestInterface;
 use mon\http\interfaces\MiddlewareInterface;
 
@@ -15,9 +15,14 @@ use mon\http\interfaces\MiddlewareInterface;
 $route = $app->route();
 
 $route->get('/', function (A $aa) {
-    // Session::instance()->set('test', 123456);
+    Session::instance()->set('test', 123456);
     return 'Hello World!' . $aa->getName();
 });
+
+$route->get('/get', function () {
+    return Session::instance()->get('test');
+});
+
 // 中间件、控制器定义
 $route->get(['path' => '/midd', 'middleware' => [MyMiddleware::class]], [MyController::class, 'index']);
 // 定义组别路由
@@ -33,7 +38,9 @@ $route->group(['path' => '/group', 'middleware' => [MyMiddleware::class, MyMiddl
 $route->get('/text', ['MyController', 'text']);
 
 // 文件路由 http://127.0.0.1:8080/aa/route.php
-$route->file('/aa', __DIR__);
+$route->group(['path' => '/a', 'middleware' => MyMiddleware::class], function ($route) {
+    $route->file('/aa', __DIR__);
+});
 
 // 定义错误路由
 $route->error(function ($request) {
@@ -47,7 +54,7 @@ class MyMiddleware implements MiddlewareInterface
     public function process(RequestInterface $request, Closure $callback): Response
     {
         // 执行前置逻辑...
-
+        // dd(1);
         return $callback($request);
     }
 }
@@ -90,7 +97,8 @@ class MyController
 
     public function text(Request $request)
     {
-        // dd($request);
+        dd($request->getName('test 111'));
+        dd($request->aa);
         // 直接返回字符串
         return 'HTML' . ' => ' . $request->controller() . '@' . $request->action();
     }

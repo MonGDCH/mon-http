@@ -182,7 +182,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      */
     public function isAjax(): bool
     {
-        return $this->header('X-Requested-With') === 'XMLHttpRequest';
+        return strtolower($this->header('X-Requested-With', '')) === 'xmlhttprequest';
     }
 
     /**

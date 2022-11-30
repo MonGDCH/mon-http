@@ -1,11 +1,5 @@
 # Session支持
 
-### 获取驱动实例
-
-```php
-handler(): \Workerman\Protocols\Http\Session
-```
-
 
 ### 设置session, 支持.二级设置
 

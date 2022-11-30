@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace mon\http\fpm;
 
-use mon\util\Instance;
 use mon\http\libs\Request as LibsRequest;
 use mon\http\interfaces\RequestInterface;
 
@@ -16,7 +15,7 @@ use mon\http\interfaces\RequestInterface;
  */
 class Request implements RequestInterface
 {
-    use Instance, LibsRequest;
+    use LibsRequest;
 
     /**
      * HTTP请求头
@@ -301,8 +300,7 @@ class Request implements RequestInterface
      */
     public function isAjax(): bool
     {
-        $value = $this->server('HTTP_X_REQUESTED_WITH', '');
-        return strtolower($value) == 'xmlhttprequest';
+        return strtolower($this->server('HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
     }
 
     /**

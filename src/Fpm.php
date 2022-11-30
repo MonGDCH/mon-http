@@ -7,11 +7,14 @@ namespace mon\http;
 use Throwable;
 use mon\util\File;
 use ErrorException;
+use mon\http\Request;
+use mon\http\Session;
 use mon\http\libs\App;
 use mon\util\Container;
-use mon\http\fpm\Request;
-use mon\http\fpm\Session;
 use FastRoute\Dispatcher;
+use mon\http\fpm\Session as FpmSession;
+use mon\http\fpm\Request as FpmRequest;
+use mon\http\interfaces\RequestInterface;
 
 /**
  * FPM应用
@@ -22,13 +25,6 @@ use FastRoute\Dispatcher;
 class Fpm
 {
     use App;
-
-    /**
-     * 版本号
-     * 
-     * @var string
-     */
-    const VERSION = '1.0.0';
 
     /**
      * 构造方法
@@ -43,7 +39,7 @@ class Fpm
         $this->app_name = $name;
 
         $this->request_class = Request::class;
-        $this->request = Container::instance()->get(Request::class);
+        $this->request = new Request(Container::instance()->get(FpmRequest::class));
 
         // 定义标志常量
         defined('IN_FPM') || define('IN_FPM', true);
@@ -57,6 +53,24 @@ class Fpm
     }
 
     /**
+     * 自定义请求类支持
+     *
+     * @param string $request_class 请求类名
+     * @return Fpm
+     */
+    public function supportRequest(string $request_class): Fpm
+    {
+        // 绑定请求对象
+        if (!is_subclass_of($request_class, RequestInterface::class)) {
+            throw new ErrorException('The Request object must implement ' . RequestInterface::class);
+        }
+
+        $this->request = new Request(Container::instance()->get(FpmRequest::class));
+
+        return $this;
+    }
+
+    /**
      * 开启Session支持
      *
      * @param array $config session配置信息
@@ -64,7 +78,7 @@ class Fpm
      */
     public function supportSession(array $config = []): Fpm
     {
-        Session::instance()->register($config);
+        FpmSession::register($config);
         return $this;
     }
 
@@ -78,6 +92,8 @@ class Fpm
         try {
             $method = $this->request()->method();
             $path = $this->request()->path();
+            // 注册session服务
+            Session::instance()->service(new FpmSession());
             // 解析路由
             $handler = $this->route()->dispatch($method, $path);
             if ($handler[0] === Dispatcher::FOUND) {

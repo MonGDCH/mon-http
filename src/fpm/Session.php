@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace mon\http\fpm;
 
-use mon\util\Instance;
+use mon\http\interfaces\SessionInterface;
 
 /**
  * Session工具
@@ -12,16 +12,14 @@ use mon\util\Instance;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Session
+class Session implements SessionInterface
 {
-    use Instance;
-
     /**
      * 配置信息
      *
      * @var array
      */
-    protected $config = [
+    protected static $config = [
         // session名称，默认：PHPSID
         'session_name'      => 'PHPSID',
         // cookie有效期，默认：1440
@@ -50,100 +48,31 @@ class Session
     protected $init = null;
 
     /**
-     * 私有话构造方法
+     * 注册session配置
      *
      * @param array $config
+     * @return void
      */
-    protected function __construct(array $config = [])
+    public static function register(array $config = []): void
     {
-        $this->config = array_merge($this->config, $config);
-    }
-
-    /**
-     * 注册初始化session配置
-     *
-     * @param array $config 配置信息
-     * @return Session
-     */
-    public function register(array $config = []): Session
-    {
-        if (!empty($config)) {
-            $this->config = array_merge($this->config, $config);
-        }
-
-        $isDoStart = false;
-        // 判断是否在php.ini中开启是否已开启session
-        if (PHP_SESSION_ACTIVE != session_status()) {
-            // 未开启，关闭php.ini的自动开启
-            ini_set('session.auto_start', '0');
-            $isDoStart = true;
-
-            // 设置session名称
-            if (isset($this->config['session_name']) && !empty($this->config['session_name'])) {
-                session_name($this->config['session_name']);
-            }
-            // 设置session有效期
-            if (isset($this->config['lifetime']) && !empty($this->config['lifetime'])) {
-                ini_set('session.gc_maxlifetime', (string)$this->config['lifetime']);
-            }
-            if (isset($this->config['cookie_lifetime']) && !empty($this->config['cookie_lifetime'])) {
-                ini_set('session.cookie_lifetime', (string)$this->config['cookie_lifetime']);
-            }
-            // cookie domain
-            if (isset($this->config['domain']) && !empty($this->config['domain'])) {
-                ini_set('session.cookie_domain', $this->config['domain']);
-            }
-            // 同站点cookie
-            if (isset($this->config['same_site']) && !empty($this->config['same_site'])) {
-                ini_set('session.cookie_samesite', $this->config['same_site']);
-            }
-            // cookie路径，默认：/
-            if (isset($this->config['cookie_path']) && !empty($this->config['cookie_path'])) {
-                ini_set('session.cookie_path', $this->config['cookie_path']);
-            }
-            // session安全传输
-            if (isset($this->config['secure']) && !empty($this->config['secure'])) {
-                ini_set('session.cookie_secure', $this->config['secure'] ? '1' : '0');
-            }
-            // httponly设置
-            if (isset($this->config['http_only']) && !empty($this->config['http_only'])) {
-                ini_set('session.cookie_httponly', $this->config['http_only'] ? '1' : '0');
-            }
-            // gc
-            if (isset($this->config['gc_probability']) && !empty($this->config['gc_probability']) && is_array($this->config['gc_probability'])) {
-                ini_set('session.gc_probability', (string)$this->config['gc_probability'][0]);
-                ini_set('session.gc_divisor', (string)$this->config['gc_probability'][1]);
-            }
-        }
-
-        // 初始化
-        if ($isDoStart) {
-            session_start();
-            $this->init = true;
-        } else {
-            $this->init = false;
-        }
-
-        return $this;
+        self::$config = array_merge(self::$config, $config);
     }
 
     /**
      * session自动启动或者初始化
      *
-     * @return Session
+     * @return void
      */
-    public function bootstrap(): Session
+    public function bootstrap(): void
     {
         if (is_null($this->init)) {
-            $this->register();
+            $this->init();
         } elseif (false === $this->init) {
             if (PHP_SESSION_ACTIVE != session_status()) {
                 session_start();
             }
             $this->init = true;
         }
-
-        return $this;
     }
 
     /**
@@ -172,7 +101,6 @@ class Session
      *
      * @param string $key       键名
      * @param mixed  $default   默认值
-     * @param string $prefix    前缀
      * @return mixed
      */
     public function get(string $key = '', $default = null)
@@ -220,17 +148,13 @@ class Session
     /**
      * 删除session，支持数组批量删除，支持.二级删除
      *
-     * @param  string|array $key 键名
+     * @param  string $key 键名
      * @return void
      */
-    public function delete($key): void
+    public function delete(string $key): void
     {
         empty($this->init) && $this->bootstrap();
-        if (is_array($key)) {
-            foreach ($key as $name) {
-                $this->delete($name);
-            }
-        } elseif (strpos($key, '.')) {
+        if (strpos($key, '.')) {
             // 二维数组赋值
             list($name1, $name2) = explode('.', $key, 2);
             $_SESSION[$name1][$name2] = null;
@@ -250,5 +174,66 @@ class Session
     {
         empty($this->init) && $this->bootstrap();
         $_SESSION = [];
+    }
+
+    /**
+     * 初始化session
+     *
+     * @return void
+     */
+    protected function init(): void
+    {
+        $isDoStart = false;
+        // 判断是否在php.ini中开启是否已开启session
+        if (PHP_SESSION_ACTIVE != session_status()) {
+            // 未开启，关闭php.ini的自动开启
+            ini_set('session.auto_start', '0');
+            $isDoStart = true;
+
+            // 设置session名称
+            if (isset(static::$config['session_name']) && !empty(static::$config['session_name'])) {
+                session_name(static::$config['session_name']);
+            }
+            // 设置session有效期
+            if (isset(static::$config['lifetime']) && !empty(static::$config['lifetime'])) {
+                ini_set('session.gc_maxlifetime', (string)static::$config['lifetime']);
+            }
+            if (isset(static::$config['cookie_lifetime']) && !empty(static::$config['cookie_lifetime'])) {
+                ini_set('session.cookie_lifetime', (string)static::$config['cookie_lifetime']);
+            }
+            // cookie domain
+            if (isset(static::$config['domain']) && !empty(static::$config['domain'])) {
+                ini_set('session.cookie_domain', static::$config['domain']);
+            }
+            // 同站点cookie
+            if (isset(static::$config['same_site']) && !empty(static::$config['same_site'])) {
+                ini_set('session.cookie_samesite', static::$config['same_site']);
+            }
+            // cookie路径，默认：/
+            if (isset(static::$config['cookie_path']) && !empty(static::$config['cookie_path'])) {
+                ini_set('session.cookie_path', static::$config['cookie_path']);
+            }
+            // session安全传输
+            if (isset(static::$config['secure']) && !empty(static::$config['secure'])) {
+                ini_set('session.cookie_secure', static::$config['secure'] ? '1' : '0');
+            }
+            // httponly设置
+            if (isset(static::$config['http_only']) && !empty(static::$config['http_only'])) {
+                ini_set('session.cookie_httponly', static::$config['http_only'] ? '1' : '0');
+            }
+            // gc
+            if (isset(static::$config['gc_probability']) && !empty(static::$config['gc_probability']) && is_array(static::$config['gc_probability'])) {
+                ini_set('session.gc_probability', (string)static::$config['gc_probability'][0]);
+                ini_set('session.gc_divisor', (string)static::$config['gc_probability'][1]);
+            }
+        }
+
+        // 初始化
+        if ($isDoStart) {
+            session_start();
+            $this->init = true;
+        } else {
+            $this->init = false;
+        }
     }
 }

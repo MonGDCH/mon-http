@@ -7,6 +7,7 @@ use mon\util\Container;
 use mon\http\workerman\App;
 use mon\http\support\ErrorHandler;
 use mon\http\WorkerMan;
+use mon\http\workerman\Request;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Session\FileSessionHandler;
 
@@ -89,6 +90,17 @@ class E extends \mon\http\support\ErrorHandler
 }
 
 
+class MyRequest extends Request
+{
+    public $aa = __CLASS__;
+
+    public function getName(string $name)
+    {
+        return 'My name is' . $name;
+    }
+}
+
+
 
 // 开启程序
 $worker = new Worker($config['listen'], (array)$config['context']);
@@ -105,6 +117,8 @@ $worker->onWorkerStart = function ($worker) {
     $app = new WorkerMan(true, true);
     // 异常错误处理
     $app->supportError(E::class);
+    // 自定义请求类
+    $app->supportRequest(MyRequest::class);
     // 静态文件支持
     // $app->supportStaticFile(true, __DIR__, ['ico']);
     // session扩展支持

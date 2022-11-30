@@ -2,8 +2,8 @@
 
 use mon\http\Fpm;
 use mon\http\Response;
-use mon\http\fpm\Request;
-use mon\http\fpm\Session;
+use mon\http\Request;
+use mon\http\Session;
 use mon\http\interfaces\RequestInterface;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -24,7 +24,9 @@ class E extends \mon\http\support\ErrorHandler
 
 $app = new Fpm();
 // $app->supportError(E::class);
-// $app->supportSession();
+// $app->supportSession([
+//     'session_name'  => 'mysid'
+// ]);
 // require __DIR__ . '/router.php';
 
 $app->route()->get('/', function (Request $request, Response $response) {
@@ -35,7 +37,7 @@ $app->route()->get('/', function (Request $request, Response $response) {
 });
 
 
-// 文件路由  http://127.0.0.1:8080/aa/route.php
+// 文件路由  http://127.0.0.1:8080/aa/favicon.ico
 $app->route()->file('/aa', __DIR__);
 
 $app->run();

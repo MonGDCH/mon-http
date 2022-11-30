@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace mon\http\workerman;
 
-use mon\util\Instance;
-use Workerman\Protocols\Http\Session as SessionBase;
+use mon\http\interfaces\SessionInterface;
+use Workerman\Protocols\Http\Session as HttpSession;
 
 /**
  * Session工具
@@ -13,46 +13,37 @@ use Workerman\Protocols\Http\Session as SessionBase;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Session
+class Session implements SessionInterface
 {
-    use Instance;
-
     /**
      * 请求实例
      *
-     * @var SessionBase
+     * @var HttpSession
      */
-    protected $handler = null;
+    protected $handler;
 
     /**
-     * 私有化构造方法
+     * 构造方法
+     *
+     * @param SessionBase $handler  workerman session 驱动
      */
-    protected function __construct()
+    public function __construct(HttpSession $handler)
     {
+        $this->handler = $handler;
     }
 
     /**
      * 获取驱动实例
      *
-     * @return SessionBase
+     * @return HttpSession
      */
-    public function handler(SessionBase $handler = null): SessionBase
+    public function handler(HttpSession $handler = null): HttpSession
     {
         if (!is_null($handler)) {
             $this->handler = $handler;
         }
 
         return $this->handler;
-    }
-
-    /**
-     * 移除驱动
-     *
-     * @return void
-     */
-    public function clearHandler(): void
-    {
-        $this->handler = null;
     }
 
     /**

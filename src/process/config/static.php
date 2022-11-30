@@ -1,5 +1,6 @@
 <?php
 
+// workerman模式下，静态文件访问支持
 return [
     // 是否启用静态资源访问 
     'enable'    => false,
