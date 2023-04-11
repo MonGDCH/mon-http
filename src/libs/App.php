@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace mon\http\libs;
 
 use Closure;
+use mon\http\Context;
 use Throwable;
 use ErrorException;
 use mon\http\Route;
@@ -81,13 +82,6 @@ trait App
     protected $exception_handler;
 
     /**
-     * 请求对象
-     *
-     * @var RequestInterface
-     */
-    protected $request;
-
-    /**
      * 路由对象
      *
      * @var Route
@@ -118,7 +112,7 @@ trait App
      */
     public function request(): ?RequestInterface
     {
-        return $this->request;
+        return Context::get($this->request_class);
     }
 
     /**
@@ -276,7 +270,7 @@ trait App
             return $response;
         } catch (Throwable $err) {
             // 抛出异常
-            $response = new Response(500, [], $this->debug() ? (string)$err : $err->getMessage());
+            $response = new Response(500, [], $this->debug() ? (string) $err : $err->getMessage());
             $response->exception($err);
             return $response;
         }
@@ -421,7 +415,7 @@ trait App
             // 获取参数类型, 绑定参数
             foreach ($parameters as $param) {
                 // 变量名
-                $name  = $param->getName();
+                $name = $param->getName();
                 // 变量类型
                 $class = $param->getType();
                 // 绑定参数

@@ -117,7 +117,6 @@ class WorkerMan
             throw new ErrorException('The Request object must implement ' . RequestInterface::class);
         }
 
-        // $this->request_class = $request_class;
         Http::requestClass($request_class);
 
         return $this;
@@ -155,25 +154,25 @@ class WorkerMan
         Session::handlerClass($handler, $setting);
         $map = [
             // session名称，默认：PHPSID
-            'session_name'          => 'name',
+            'session_name' => 'name',
             // 自动更新时间，默认：false
             'auto_update_timestamp' => 'autoUpdateTimestamp',
             // cookie有效期，默认：1440
-            'cookie_lifetime'       => 'cookieLifetime',
+            'cookie_lifetime' => 'cookieLifetime',
             // cookie路径，默认：/
-            'cookie_path'           => 'cookiePath',
+            'cookie_path' => 'cookiePath',
             // 同站点cookie，默认：''
-            'same_site'             => 'sameSite',
+            'same_site' => 'sameSite',
             // cookie的domain，默认：''
-            'domain'                => 'domain',
+            'domain' => 'domain',
             // 是否仅适用https的cookie，默认：false
-            'secure'                => 'secure',
+            'secure' => 'secure',
             // session有效期，默认：1440
-            'lifetime'              => 'lifetime',
+            'lifetime' => 'lifetime',
             // 是否开启http_only，默认：true
-            'http_only'             => 'httpOnly',
+            'http_only' => 'httpOnly',
             // gc的概率，默认：[1, 1000]
-            'gc_probability'        => 'gcProbability',
+            'gc_probability' => 'gcProbability',
         ];
         foreach ($map as $key => $name) {
             if (isset($config[$key]) && property_exists(Session::class, $name)) {
@@ -196,39 +195,39 @@ class WorkerMan
         try {
             // 绑定对象容器
             $request->connection = $connection;
-            $this->request = new Request($request);
-            $this->connection = $connection;
+            Context::set($this->request_class, new Request($request));
+
             HttpSession::instance()->service(new WorkermanSession($this->request()->session()));
             // 请求路径
-            $path = $this->request->path();
+            $path = $this->request()->path();
             // 请求方式
-            $method = $this->request->method();
+            $method = $this->request()->method();
             // 验证请求路径安全
             if (strpos($path, '..') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false || strpos($path, '//') !== false || !$path) {
                 $failback = $this->getFallback();
-                return $this->send($connection, $this->request, $failback($this->request));
+                return $this->send($connection, $this->request(), $failback($this->request()));
             }
             // 判断是否存在缓存处理器，执行缓存处理器
             $key = $method . $path;
             if (isset($this->cacheCallback[$key])) {
-                [$callback, $this->request->controller, $this->request->action] = $this->cacheCallback[$key];
-                return $this->send($connection, $this->request, $callback($this->request));
+                [$callback, $this->request()->controller, $this->request()->action] = $this->cacheCallback[$key];
+                return $this->send($connection, $this->request(), $callback($this->request()));
             }
             // 处理文件响应
-            if ($this->handlerFile($connection, $this->request, $path, $key)) {
+            if ($this->handlerFile($connection, $this->request(), $path, $key)) {
                 return;
             }
             // 处理路由响应
-            if ($this->handlerRoute($connection, $this->request, $method, $path, $key)) {
+            if ($this->handlerRoute($connection, $this->request(), $method, $path, $key)) {
                 return;
             }
 
             // 错误回调响应
             $failback = $this->getFallback();
-            return $this->send($connection, $this->request, $failback($this->request));
+            return $this->send($connection, $this->request(), $failback($this->request()));
         } catch (Throwable $e) {
             // 异常响应
-            return $this->send($connection, $this->request, $this->handlerException($e, $this->request));
+            return $this->send($connection, $this->request(), $this->handlerException($e, $this->request()));
         }
     }
 
@@ -263,15 +262,18 @@ class WorkerMan
         }
 
         // 生成处理器
-        $callback = $this->getCallback(['callback' => function ($req) use ($file) {
-            clearstatcache(true, $file);
-            if (!is_file($file)) {
-                $failback = $this->getFallback();
-                return $failback($req);
-            }
+        $callback = $this->getCallback([
+            'callback' => function ($req) use ($file) {
+                clearstatcache(true, $file);
+                if (!is_file($file)) {
+                    $failback = $this->getFallback();
+                    return $failback($req);
+                }
 
-            return (new Response())->file($file, $req);
-        }, 'middleware' => []], ['req' => $request], $this->static_name);
+                return (new Response())->file($file, $req);
+            },
+            'middleware' => []
+        ], ['req' => $request], $this->static_name);
         // 缓存处理器
         $request->controller = '';
         $request->action = '';
@@ -333,9 +335,9 @@ class WorkerMan
      */
     protected function send(TcpConnection $connection, RequestInterface $request, $response): void
     {
-        $this->request = null;
         $this->connection = null;
         HttpSession::instance()->clearHandler();
+        Context::destroy();
 
         $response = $this->response($response);
         $keep_alive = $request->header('connection');
@@ -344,16 +346,6 @@ class WorkerMan
             return;
         }
         $connection->close($response);
-    }
-
-    /**
-     * 获取TCP链接实例
-     *
-     * @return TcpConnection
-     */
-    public function connection(): ?TcpConnection
-    {
-        return $this->connection;
     }
 
     /**

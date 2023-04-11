@@ -39,7 +39,7 @@ class Fpm
         $this->app_name = $name;
 
         $this->request_class = Request::class;
-        $this->request = new Request(Container::instance()->get(FpmRequest::class));
+        Context::set($this->request_class, Container::instance()->get(FpmRequest::class));
 
         // 定义标志常量
         defined('IN_FPM') || define('IN_FPM', true);
@@ -65,8 +65,7 @@ class Fpm
             throw new ErrorException('The Request object must implement ' . RequestInterface::class);
         }
 
-        $this->request = new Request(Container::instance()->get(FpmRequest::class));
-
+        Context::set($this->request_class, new Request(Container::instance()->get($request_class)));
         return $this;
     }
 
