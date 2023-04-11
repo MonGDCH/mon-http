@@ -39,7 +39,7 @@ class Fpm
         $this->app_name = $name;
 
         $this->request_class = Request::class;
-        Context::set($this->request_class, Container::instance()->get(FpmRequest::class));
+        Context::set($this->request_class, new Request(Container::instance()->get(FpmRequest::class)));
 
         // 定义标志常量
         defined('IN_FPM') || define('IN_FPM', true);

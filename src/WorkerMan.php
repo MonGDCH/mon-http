@@ -71,13 +71,6 @@ class WorkerMan
     protected $cacheCallback = [];
 
     /**
-     * TCP链接对象
-     *
-     * @var TcpConnection
-     */
-    protected $connection;
-
-    /**
      * 构造方法
      *
      * @param string  $request  HTTP请求响应的request类对象名
@@ -335,7 +328,6 @@ class WorkerMan
      */
     protected function send(TcpConnection $connection, RequestInterface $request, $response): void
     {
-        $this->connection = null;
         HttpSession::instance()->clearHandler();
         Context::destroy();
 

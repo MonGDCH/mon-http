@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace mon\http;
 
-use Fiber;
-use WeakMap;
 use stdClass;
 use SplObjectStorage;
-use Workerman\Events\Swow;
-use Workerman\Events\Revolt;
-use Workerman\Events\Swoole;
 
 /**
  * 请求上下文管理，请求结束自动销毁
@@ -42,7 +37,7 @@ class Context
     protected static function getObj(): stdClass
     {
         if (!static::$storage) {
-            static::$storage = class_exists(WeakMap::class) ? new WeakMap() : new SplObjectStorage();
+            static::$storage = new SplObjectStorage();
             static::$obj = new stdClass();
         }
         $key = static::getKey();
@@ -60,14 +55,6 @@ class Context
      */
     protected static function getKey()
     {
-        // switch (Worker::$eventLoopClass) {
-        //     case Revolt::class:
-        //         return Fiber::getCurrent();
-        //     case Swoole::class:
-        //         return \Swoole\Coroutine::getContext();
-        //     case Swow::class:
-        //         return \Swow\Coroutine::getCurrent();
-        // }
         return static::$obj;
     }
 
