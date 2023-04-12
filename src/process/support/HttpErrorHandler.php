@@ -26,5 +26,9 @@ class HttpErrorHandler extends ErrorHandler
     public function report(Throwable $e, RequestInterface $request)
     {
         // TODO 记录日志
+        if (class_exists(\mon\log\Logger::class)) {
+            $log = 'method：' . $request->method() . ' URL：' . $request->path() . ' file: ' . $e->getFile() . ' line: ' . $e->getLine() . ' message: ' . $e->getMessage();
+            \mon\log\Logger::instance()->channel()->error($log);
+        }
     }
 }
