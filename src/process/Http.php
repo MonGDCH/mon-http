@@ -7,10 +7,10 @@ namespace process;
 use gaia\Process;
 use mon\log\Logger;
 use mon\env\Config;
-use mon\http\Route;
 use Workerman\Worker;
 use mon\http\WorkerMan;
 use mon\http\Middleware;
+use support\http\Bootstrap;
 
 /**
  * HTTP进程服务
@@ -75,34 +75,19 @@ class Http extends Process
         $app->supportStaticFile($staticConfig['enable'], $staticConfig['path'], $staticConfig['ext_type']);
 
         // session扩展支持
-        $sessionConfig = $httpConfig['session'];
-        $app->supportSession($sessionConfig['handler'], $sessionConfig['setting'], $sessionConfig);
+        $app->supportSession($httpConfig['session']);
 
-        // 全局中间件
+        // 中间件支持
         $middlewareConfig = $httpConfig['middleware'];
         Middleware::instance()->load($middlewareConfig);
 
+        // 自定义启动时
+        Bootstrap::start($app);
+
         // 注册路由
-        $this->registerRoute($app->route());
+        Bootstrap::registerRoute($app, $app->route());
 
         // 绑定响应请求
         $worker->onMessage = [$app, 'run'];
-    }
-
-    /**
-     * 注册路由
-     *
-     * @param Route $route
-     * @return void
-     */
-    protected function registerRoute(Route $route): void
-    {
-        // 注册路由
-        $route->get('/', function () {
-            return 'Hello http process!';
-        });
-
-        // 建议require一个路由文件进行定义，支持monitor更新
-        // require APP_PATH . '/http/router.php';
     }
 }

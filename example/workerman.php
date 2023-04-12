@@ -122,7 +122,7 @@ $worker->onWorkerStart = function ($worker) {
     // 静态文件支持
     // $app->supportStaticFile(true, __DIR__, ['ico']);
     // session扩展支持
-    $app->supportSession(FileSessionHandler::class, ['save_path' => __DIR__ . '/sess/']);
+    $app->supportSession(['handler' => FileSessionHandler::class, 'setting' => ['save_path' => __DIR__ . '/sess/']]);
     // 加载路由
     require __DIR__ . '/router.php';
     // 绑定响应请求

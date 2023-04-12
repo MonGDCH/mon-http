@@ -14,6 +14,7 @@ use Workerman\Protocols\Http;
 use mon\http\Session as HttpSession;
 use Workerman\Protocols\Http\Session;
 use Workerman\Connection\TcpConnection;
+use mon\http\interfaces\AppInterface;
 use mon\http\interfaces\RequestInterface;
 use mon\http\workerman\Session as WorkermanSession;
 use mon\http\workerman\Request as WorkermanRequest;
@@ -24,7 +25,7 @@ use mon\http\workerman\Request as WorkermanRequest;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class WorkerMan
+class WorkerMan implements AppInterface
 {
     use App;
 
@@ -135,16 +136,19 @@ class WorkerMan
     }
 
     /**
-     * Session扩展支持
+     * Session支持
      *
-     * @param string $handler   驱动引擎，支持workerman内置驱动、或自定义驱动，需要实现\Workerman\Protocols\Http\Session\SessionHandlerInterface接口
-     * @param array $setting    驱动引擎构造方法传参
-     * @param array $config     Session公共配置
-     * @return App
+     * @param array $config  Session配置
+     * @return WorkerMan
      */
-    public function supportSession(string $handler, array $setting = [], array $config = []): WorkerMan
+    public function supportSession(array $config = []): WorkerMan
     {
-        Session::handlerClass($handler, $setting);
+        // handler 驱动引擎，支持workerman内置驱动、或自定义驱动，需要实现\Workerman\Protocols\Http\Session\SessionHandlerInterface接口
+        // setting 驱动引擎构造方法传参
+        if (!isset($config['handler']) || !isset($config['setting'])) {
+            throw new ErrorException('Session config faild. params handler, setting required!');
+        }
+        Session::handlerClass($config['handler'], $config['setting']);
         $map = [
             // session名称，默认：PHPSID
             'session_name' => 'name',

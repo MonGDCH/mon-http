@@ -18,6 +18,7 @@ use mon\http\Middleware;
 use InvalidArgumentException;
 use ReflectionFunctionAbstract;
 use mon\http\support\ErrorHandler;
+use mon\http\interfaces\AppInterface;
 use mon\http\exception\JumpException;
 use mon\http\exception\RouteException;
 use mon\http\interfaces\RequestInterface;
@@ -110,7 +111,7 @@ trait App
      *
      * @return RequestInterface
      */
-    public function request(): ?RequestInterface
+    public function request(): RequestInterface
     {
         return Context::get($this->request_class);
     }
@@ -150,7 +151,7 @@ trait App
      * @param string $error_class 错误处理类名
      * @return static
      */
-    public function supportError(string $error_class)
+    public function supportError(string $error_class): AppInterface
     {
         // 绑定请求对象
         if (!is_subclass_of($error_class, ExceptionHandlerInterface::class)) {

@@ -12,6 +12,7 @@ use mon\http\Session;
 use mon\http\libs\App;
 use mon\util\Container;
 use FastRoute\Dispatcher;
+use mon\http\interfaces\AppInterface;
 use mon\http\fpm\Session as FpmSession;
 use mon\http\fpm\Request as FpmRequest;
 use mon\http\interfaces\RequestInterface;
@@ -22,7 +23,7 @@ use mon\http\interfaces\RequestInterface;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Fpm
+class Fpm implements AppInterface
 {
     use App;
 
