@@ -7,6 +7,7 @@ namespace mon\http\support;
 use Throwable;
 use mon\http\Response;
 use Workerman\Protocols\Http\Session;
+use mon\http\exception\DumperException;
 use mon\http\interfaces\RequestInterface;
 
 /**
@@ -39,6 +40,15 @@ class ErrorHandler implements \mon\http\interfaces\ExceptionHandlerInterface
      */
     public function render(Throwable $e, RequestInterface $request, bool $debug = false): Response
     {
+        // dump变量输出
+        if ($e instanceof DumperException) {
+            $tmp = [];
+            foreach ($e->getData() as $val) {
+                $tmp[] = '<pre>' . dd($val, false) . '<pre/><br/>';
+            }
+            return new Response(200, [], implode('', $tmp));
+        }
+        // 程序错误
         $content = $debug ? $this->buildHTML($request, $e) : 'Server internal error';
         return new Response(500, [], $content);
     }

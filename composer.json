@@ -25,6 +25,9 @@
     "autoload": {
         "psr-4": {
             "mon\\http\\": "src/"
-        }
+        },
+        "files": [
+            "src/support/functions.php"
+        ]
     }
 }
