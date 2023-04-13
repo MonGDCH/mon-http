@@ -85,7 +85,7 @@ class Http extends Process
         Bootstrap::start($app);
 
         // 注册路由
-        Bootstrap::registerRoute($app, $app->route());
+        Bootstrap::registerRoute($app->route());
 
         // 绑定响应请求
         $worker->onMessage = [$app, 'run'];

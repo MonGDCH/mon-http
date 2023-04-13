@@ -8,28 +8,29 @@ use mon\http\Route;
 use mon\console\Input;
 use mon\console\Output;
 use mon\console\Command;
+use FastRoute\Dispatcher;
 
 /**
- * 查看路由表
+ * 测试请求路径
  *
  * @author Mon <98555883@qq.com>
  * @version 1.0.0
  */
-class ShowCommand extends Command
+class TestCommand extends Command
 {
     /**
      * 指令名
      *
      * @var string
      */
-    protected static $defaultName = 'route:show';
+    protected static $defaultName = 'route:test';
 
     /**
      * 指令描述
      *
      * @var string
      */
-    protected static $defaultDescription = 'Displays the defined route table.';
+    protected static $defaultDescription = 'Test the pathinfo is valid. Use route:test [method] url.';
 
     /**
      * 指令分组
@@ -50,22 +51,32 @@ class ShowCommand extends Command
         // 加载注册路由
         $route = new Route();
         \support\http\Bootstrap::registerRoute($route);
-        // 生成表格
+
+        $args = $in->getArgs();
+        $method = 'GET';
+        if (isset($args[0]) && isset($args[1])) {
+            $method = strtoupper($args[0]);
+            $path = $args[1];
+        } else if (isset($args[0])) {
+            $path = $args[0];
+        } else {
+            return $out->block('please input test uri pathinfo', 'ERROR');
+        }
         $columns = ['method', 'path', 'callback', 'middleware'];
-        $data = $route->getData();
-        $res = [];
-        foreach ($data[0] as $method => $item) {
-            foreach ($item as $path => $info) {
-                $res[] = [
-                    'method'    => $method,
-                    'path'      => $path,
-                    'callback'  => $this->getCallback($info['callback']),
-                    'middleware' => isset($info['middleware']) ? implode(', ', $info['middleware']) : '',
-                ];
-            }
+        $callback = $route->dispatch($method, $path);
+        if ($callback[0] == Dispatcher::FOUND) {
+            $info = $callback[1];
+            $table = [];
+            $table[] = [
+                'method'    => $method,
+                'path'      => $path,
+                'callback'  => $this->getCallback($info['callback']),
+                'middleware' => isset($info['middleware']) ? implode(', ', $info['middleware']) : '',
+            ];
+            return $out->table($table, 'Callback Table', $columns);
         }
 
-        return $out->table($res, 'Router Table', $columns);
+        return $out->error('[error] Route is not found');
     }
 
     /**

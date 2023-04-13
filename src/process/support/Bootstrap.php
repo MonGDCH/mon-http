@@ -29,11 +29,10 @@ class Bootstrap
     /**
      * 注册路由
      *
-     * @param AppInterface $app 驱动实例
      * @param Route $route  路由器
      * @return void
      */
-    public static function registerRoute(AppInterface $app, Route $route)
+    public static function registerRoute(Route $route)
     {
         // 注册路由
         $route->get('/', function () {

@@ -45,7 +45,7 @@ if (!function_exists('cpu_count')) {
 }
 
 // Gaia环境，进行指令注册
-if (class_exists(\gaia\App::class)) {
+if (PHP_SAPI == 'cli' && class_exists(\gaia\App::class)) {
     $path = __DIR__ . '/command';
     $namespance = 'mon\\http\\command';
     \gaia\App::console()->load($path, $namespance);

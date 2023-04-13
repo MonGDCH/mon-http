@@ -139,7 +139,7 @@ support\http\Bootstrap::start($app);
 | 注册应用请求路由
 |
 */
-support\http\Bootstrap::registerRoute($app, $app->route());
+support\http\Bootstrap::registerRoute($app->route());
 
 
 
