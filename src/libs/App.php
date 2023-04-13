@@ -21,6 +21,7 @@ use mon\http\support\ErrorHandler;
 use mon\http\interfaces\AppInterface;
 use mon\http\exception\JumpException;
 use mon\http\exception\RouteException;
+use mon\http\exception\DumperException;
 use mon\http\interfaces\RequestInterface;
 use mon\http\exception\CallbackParamsException;
 use mon\http\interfaces\ExceptionHandlerInterface;
@@ -258,8 +259,8 @@ trait App
      */
     public function handlerException(Throwable $e, RequestInterface $request): Response
     {
-        // 路由跳转
-        if ($e instanceof JumpException) {
+        // 路由跳转 或者 dump调试打印
+        if ($e instanceof JumpException || $e instanceof DumperException) {
             return $e->getResponse();
         }
 

@@ -123,20 +123,23 @@ $app->supportSession($config->get('http.session', []));
 
 /*
 |--------------------------------------------------------------------------
+| 启动时
+|--------------------------------------------------------------------------
+| 这里注册应用启动时业务
+|
+*/
+support\http\Bootstrap::start($app);
+
+
+
+/*
+|--------------------------------------------------------------------------
 | 定义路由
 |--------------------------------------------------------------------------
 | 注册应用请求路由
 |
 */
-$app->route()->group([], function (\mon\http\Route $route) {
-    // 注册路由
-    $route->get('/', function () {
-        return 'Hello fpm process!';
-    });
-
-    // 加载路由定义文件
-    // require APP_PATH . '/fpm/router.php';
-});
+support\http\Bootstrap::registerRoute($app, $app->route());
 
 
 

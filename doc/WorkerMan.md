@@ -65,16 +65,14 @@ supportStaticFile(bool $supportSatic, string $staticPath, array $supportType = [
 > 设置Session扩展支持相关
 
 ```php
-supportSession(string $handler, array $setting = [], array $config = []): WorkerMan
+supportSession(array $config): WorkerMan
 ```
 
 #### 参数说明
 
 | 参数名 | 类型 | 是否必须 | 描述 | 默认值 |
 | ------------ | ------------ | ------------ | ------------ | ------------ |
-| handler | string | 是  | 驱动引擎，支持workerman内置驱动、或自定义驱动 |  |
-| setting | array | 否 | 驱动引擎构造方法传参 |  |
-| config | array | 否 | Session公共配置 |  |
+| config | array | 是 | Session公共配置，必须存在 handler（驱动引擎，支持workerman内置驱动、或自定义驱动）、setting（驱动引擎构造方法传参） 两个参数 |  |
 
 
 ### 执行回调

@@ -27,7 +27,7 @@
             "mon\\http\\": "src/"
         },
         "files": [
-            "src/support/functions.php"
+            "src/support.php"
         ]
     }
 }

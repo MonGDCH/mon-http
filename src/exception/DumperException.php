@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace mon\http\exception;
 
 use RuntimeException;
+use mon\http\Response;
 
 /**
  * 打印渲染异常信息
@@ -19,7 +20,7 @@ class DumperException extends RuntimeException
      *
      * @var array
      */
-    protected $data;
+    protected $data = [];
 
     /**
      * 构造方法
@@ -39,5 +40,19 @@ class DumperException extends RuntimeException
     public function getData(): array
     {
         return $this->data;
+    }
+
+    /**
+     * 获取响应实例
+     *
+     * @return Response
+     */
+    public function getResponse(): Response
+    {
+        $tmp = [];
+        foreach ($this->getData() as $val) {
+            $tmp[] = '<pre>' . dd($val, false) . '<pre/><br/>';
+        }
+        return new Response(200, [], implode('', $tmp));
     }
 }
