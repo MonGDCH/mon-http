@@ -1,5 +1,13 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| Session配置文件
+|--------------------------------------------------------------------------
+| 定义Session配置
+|
+*/
+
 return [
     // workerman session驱动
     'handler'               => \Workerman\Protocols\Http\Session\FileSessionHandler::class,

@@ -24,6 +24,19 @@ class Response extends \Workerman\Protocols\Http\Response
     protected $_exception = null;
 
     /**
+     * 重载构造方法
+     *
+     * @param integer $status   状态码
+     * @param array $headers    请求头
+     * @param string $body      响应内容
+     */
+    public function __construct(int $status = 200, array $headers = [], string $body = '')
+    {
+        parent::__construct($status, $headers, $body);
+        $this->header('Server', 'Gaia HTTP');
+    }
+
+    /**
      * 输出文件流
      *
      * @param string $file 文件地址
@@ -35,6 +48,7 @@ class Response extends \Workerman\Protocols\Http\Response
         if ($request && $this->notModifiedSince($file, $request)) {
             return $this->withStatus(304);
         }
+
         return $this->withFile($file);
     }
 
@@ -50,6 +64,7 @@ class Response extends \Workerman\Protocols\Http\Response
         if ($name) {
             $this->header('Content-Disposition', "attachment; filename=\"$name\"");
         }
+
         return $this->withFile($file);
     }
 
@@ -64,6 +79,7 @@ class Response extends \Workerman\Protocols\Http\Response
         if ($exception) {
             $this->_exception = $exception;
         }
+
         return $this->_exception;
     }
 
@@ -80,6 +96,7 @@ class Response extends \Workerman\Protocols\Http\Response
         if ($if_modified_since === null || !($mtime = filemtime($file))) {
             return false;
         }
+
         return $if_modified_since === gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
     }
 }

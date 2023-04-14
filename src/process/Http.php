@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace process;
 
-use gaia\Process;
 use mon\log\Logger;
 use mon\env\Config;
 use Workerman\Worker;
+use gaia\ProcessTrait;
 use mon\http\WorkerMan;
 use mon\http\Middleware;
 use support\http\Bootstrap;
+use gaia\interfaces\ProcessInterface;
 
 /**
  * HTTP进程服务
@@ -18,36 +19,29 @@ use support\http\Bootstrap;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Http extends Process
+class Http implements ProcessInterface
 {
-    /**
-     * 启用进程
-     *
-     * @var boolean
-     */
-    protected static $enable = true;
+    use ProcessTrait;
 
     /**
-     * 进程配置
+     * 是否启用进程
      *
-     * @var array
+     * @return boolean
      */
-    protected static $processConfig = [
-        // 监听协议断开
-        'listen'    => 'http://0.0.0.0:8080',
-        // 通信协议
-        'transport' => 'tcp',
-        // 额外参数
-        'context'   => [],
-        // 进程数
-        'count'     =>  2,
-        // 进程用户
-        'user'      => '',
-        // 进程用户组
-        'group'     => '',
-        // 是否开启端口复用
-        'reusePort' => false,
-    ];
+    public static function enable(): bool
+    {
+        return Config::instance()->get('http.process.enable', false);
+    }
+
+    /**
+     * 获取进程配置
+     *
+     * @return array
+     */
+    public static function getProcessConfig(): array
+    {
+        return Config::instance()->get('http.process.config', []);
+    }
 
     /**
      * 进程启动
