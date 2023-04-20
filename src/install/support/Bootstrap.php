@@ -34,6 +34,13 @@ class Bootstrap
      */
     public static function registerRoute(Route $route)
     {
+        // 存在路由缓存则直接加载路由缓存，在FPM的环境下有优化性能的作用
+        if (defined('IN_FPM') && file_exists(ROUTE_CACHE_PATH)) {
+            $data = require ROUTE_CACHE_PATH;
+            $route->setData($data);
+            return;
+        }
+
         // 注册路由
         $route->get('/', function () {
             return 'Hello http process!';

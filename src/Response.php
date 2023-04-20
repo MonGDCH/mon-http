@@ -33,7 +33,7 @@ class Response extends \Workerman\Protocols\Http\Response
     public function __construct(int $status = 200, array $headers = [], string $body = '')
     {
         parent::__construct($status, $headers, $body);
-        $this->header('Server', 'Gaia HTTP');
+        $this->header('Server', 'Gaia-HTTP');
     }
 
     /**

@@ -20,7 +20,7 @@ return [
         // 通信协议
         'transport' => 'tcp',
         // 进程数
-        'count'     => cpu_count() * 2,
+        'count'     => \gaia\App::cpuCount() * 2,
         // 进程用户
         'user'      => '',
         // 进程用户组

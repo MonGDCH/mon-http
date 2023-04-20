@@ -20,29 +20,12 @@ if (!function_exists('dump')) {
     }
 }
 
-if (!function_exists('cpu_count')) {
-    /**
-     * 获取服务器CPU内核数
-     *
-     * @return integer
-     */
-    function cpu_count(): int
-    {
-        // Windows 不支持进程数设置
-        if (DIRECTORY_SEPARATOR === '\\') {
-            return 1;
-        }
-        $count = 4;
-        if (is_callable('shell_exec')) {
-            if (strtolower(PHP_OS) === 'darwin') {
-                $count = (int)shell_exec('sysctl -n machdep.cpu.core_count');
-            } else {
-                $count = (int)shell_exec('nproc');
-            }
-        }
-        return $count > 0 ? $count : 4;
-    }
-}
+
+// 路由缓存路径定义常量
+$path = defined('RUNTIME_PATH') ? (RUNTIME_PATH . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR) : './';
+$name = 'route_cache.php';
+defined('ROUTE_CACHE_PATH') || define('ROUTE_CACHE_PATH', $path . $name);
+
 
 // Gaia环境，进行指令注册
 if (PHP_SAPI == 'cli' && class_exists(\gaia\App::class)) {
