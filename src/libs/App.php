@@ -35,6 +35,13 @@ use mon\http\interfaces\ExceptionHandlerInterface;
 trait App
 {
     /**
+     * 版本号
+     *
+     * @var string
+     */
+    protected $version = '1.1.2';
+
+    /**
      * 应用名
      *
      * @var string
@@ -96,6 +103,16 @@ trait App
      * @var array
      */
     protected $adapters = ['int', 'float', 'string', 'bool', 'array', 'object', 'mixed', 'resource'];
+
+    /**
+     * 获取版本号
+     *
+     * @return string
+     */
+    public function version(): string
+    {
+        return $this->version;
+    }
 
     /**
      * 获取运行模式
