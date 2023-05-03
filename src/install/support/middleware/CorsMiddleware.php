@@ -31,15 +31,15 @@ class CorsMiddleware implements MiddlewareInterface
      */
     public function process(RequestInterface $request, Closure $next): Response
     {
-        /** @var Response $response */
-        $response = $request->method() == 'OPTIONS' ? (new Response()) : $next($request);
-        $response->withHeaders([
-            'Access-Control-Allow-Credentials' => 'true',
-            'Access-Control-Allow-Origin' => $request->header('origin', '*'),
-            'Access-Control-Allow-Methods' => $request->header('access-control-request-method', '*'),
-            'Access-Control-Allow-Headers' => $request->header('access-control-request-headers', '*'),
-        ]);
+        if ($request->method() == 'OPTIONS') {
+            return new Response(200, [
+                'Access-Control-Allow-Credentials' => 'true',
+                'Access-Control-Allow-Origin' => $request->header('origin', '*'),
+                'Access-Control-Allow-Methods' => $request->header('access-control-request-method', '*'),
+                'Access-Control-Allow-Headers' => $request->header('access-control-request-headers', '*'),
+            ]);
+        }
 
-        return $response;
+        return $next($request);
     }
 }

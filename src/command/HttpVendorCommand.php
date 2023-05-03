@@ -15,14 +15,14 @@ use mon\console\Command;
  * @author Mon <98555883@qq.com>
  * @version 1.0.0
  */
-class HttpPublishCommand extends Command
+class HttpVendorCommand extends Command
 {
     /**
      * 指令名
      *
      * @var string
      */
-    protected static $defaultName = 'http:publish';
+    protected static $defaultName = 'http:vendor';
 
     /**
      * 指令描述
