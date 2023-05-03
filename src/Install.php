@@ -26,7 +26,6 @@ class Install
      */
     protected static $file_relation = [
         'install/Http.php' => 'process/Http.php',
-        'install/fpm.php'  => 'public/fpm.php'
     ];
 
     /**
@@ -46,18 +45,6 @@ class Install
      */
     public static function install()
     {
-        // 创建框架文件
-        $source_path = __DIR__ . DIRECTORY_SEPARATOR;
-        // 移动文件
-        foreach (static::$file_relation as $source => $dest) {
-            $sourceFile = $source_path . $source;
-            Plugin::copyFile($sourceFile, $dest);
-        }
-        // 移动目录
-        foreach (static::$dir_relation as $source => $dest) {
-            $sourceDir = $source_path . $source;
-            Plugin::copydir($sourceDir, $dest);
-        }
     }
 
     /**
@@ -65,7 +52,25 @@ class Install
      *
      * @return void
      */
-    public function update()
+    public static function update()
+    {
+    }
+
+    /**
+     * 卸载
+     *
+     * @return void
+     */
+    public static function uninstall()
+    {
+    }
+
+    /**
+     * Gaia发布
+     *
+     * @return void
+     */
+    public static function publish()
     {
         // 创建框架文件
         $source_path = __DIR__ . DIRECTORY_SEPARATOR;
@@ -79,14 +84,5 @@ class Install
             $sourceDir = $source_path . $source;
             Plugin::copydir($sourceDir, $dest, true);
         }
-    }
-
-    /**
-     * 卸载
-     *
-     * @return void
-     */
-    public static function uninstall()
-    {
     }
 }

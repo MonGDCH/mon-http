@@ -345,7 +345,7 @@ trait App
         } elseif (is_array($response)) {
             return new Response(200, ['Content-Type' => 'application/json'], json_encode($response, JSON_UNESCAPED_UNICODE));
         }
-        return new Response(200, [], $response);
+        return new Response(200, [], (string)$response);
     }
 
     /**
