@@ -9,7 +9,7 @@
 - 中间件`Middleware`支持
 - `Session`支持
 - `fpm`访问支持
-- 支持依赖注入
+- 依赖注入支持
 
 ### 文档
 
@@ -25,13 +25,15 @@
 
 ##### 作为`mongdch\gaia`框架的HTTP服务
 
-1. 按需修改安装完成后创建的`process\Http`进程控制文件
+1. `composer`安装完成后，执行`gaia vendor:publish mon\http`发布组件代码
 
-2. 按需修改安装完成后创建的`config\http`目录下的配置文件
+2. 按需修改安装完成后创建的`process\Http`进程控制文件
 
-3. 在`process\Http`进程控制文件定义路由
+3. 按需修改安装完成后创建的`config\http`目录下的配置文件
 
-4. 重启`Gaia`服务，访问定义的路由
+4. 在`process\Http`进程控制文件定义路由
+
+5. 重启`Gaia`服务，访问定义的路由
 
 
 更多请查看`example`目录相关demo
