@@ -4,32 +4,32 @@ declare(strict_types=1);
 
 namespace mon\http\Command;
 
-use mon\util\File;
+use mon\http\Install;
 use mon\console\Input;
 use mon\console\Output;
 use mon\console\Command;
 
 /**
- * 发布FPM入口文件
+ * 发布插件包到Gaia中
  *
  * @author Mon <98555883@qq.com>
  * @version 1.0.0
  */
-class FpmCommand extends Command
+class HttpPublishCommand extends Command
 {
     /**
      * 指令名
      *
      * @var string
      */
-    protected static $defaultName = 'verdor:fpm';
+    protected static $defaultName = 'http:publish';
 
     /**
      * 指令描述
      *
      * @var string
      */
-    protected static $defaultDescription = 'Publish the fpm entry file.';
+    protected static $defaultDescription = 'Publish the vendor package.';
 
     /**
      * 指令分组
@@ -47,9 +47,6 @@ class FpmCommand extends Command
      */
     public function execute(Input $in, Output $out)
     {
-        $sourceFile = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'install' . DIRECTORY_SEPARATOR . 'fpm.php';
-        $destFile = ROOT_PATH . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'index.php';
-        File::instance()->copyFile($sourceFile, $destFile, true);
-        return $out->block('Create File ' . $destFile, 'SUCCESS');
+        Install::publish();
     }
 }

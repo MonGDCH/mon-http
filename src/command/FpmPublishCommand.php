@@ -10,26 +10,26 @@ use mon\console\Output;
 use mon\console\Command;
 
 /**
- * 清空缓存路由表
+ * 发布FPM入口文件
  *
  * @author Mon <98555883@qq.com>
  * @version 1.0.0
  */
-class ClearCommand extends Command
+class FpmPublishCommand extends Command
 {
     /**
      * 指令名
      *
      * @var string
      */
-    protected static $defaultName = 'route:clear';
+    protected static $defaultName = 'fpm:publish';
 
     /**
      * 指令描述
      *
      * @var string
      */
-    protected static $defaultDescription = 'Clear the route cache.';
+    protected static $defaultDescription = 'Publish the fpm entry file.';
 
     /**
      * 指令分组
@@ -47,12 +47,9 @@ class ClearCommand extends Command
      */
     public function execute(Input $in, Output $out)
     {
-        // 缓存路由信息
-        $del = File::instance()->removeFile(ROUTE_CACHE_PATH);
-        if (!$del) {
-            return $out->block('Clear route cache error!', 'ERROR');
-        }
-
-        return $out->block('Clear route cache success!', 'SUCCESS');
+        $sourceFile = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'install' . DIRECTORY_SEPARATOR . 'fpm.php';
+        $destFile = ROOT_PATH . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'index.php';
+        File::instance()->copyFile($sourceFile, $destFile, true);
+        return $out->block('Create File ' . $destFile, 'SUCCESS');
     }
 }

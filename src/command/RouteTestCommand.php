@@ -16,7 +16,7 @@ use FastRoute\Dispatcher;
  * @author Mon <98555883@qq.com>
  * @version 1.0.0
  */
-class TestCommand extends Command
+class RouteTestCommand extends Command
 {
     /**
      * 指令名

@@ -15,7 +15,7 @@ use mon\console\Command;
  * @author Mon <98555883@qq.com>
  * @version 1.0.0
  */
-class CacheCommand extends Command
+class RouteCacheCommand extends Command
 {
     /**
      * 指令名
