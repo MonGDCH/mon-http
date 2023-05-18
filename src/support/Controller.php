@@ -124,7 +124,7 @@ class Controller
         $charset = 'utf-8';
         switch ($this->dataType) {
             case 'xml':
-                $header['Content-Type'] = 'text/xml;charset=' . $charset;
+                $headers['Content-Type'] = 'text/xml;charset=' . $charset;
                 $root = 'mon';
                 $data  = "<?xml version=\"1.0\" encoding=\"{$charset}\"?>";
                 $data .= "<{$root}>";
@@ -132,7 +132,7 @@ class Controller
                 $data .= "</{$root}>";
                 break;
             default:
-                $header['Content-Type'] = 'application/json;charset=' . $charset;
+                $headers['Content-Type'] = 'application/json;charset=' . $charset;
                 $data = json_encode($result, JSON_UNESCAPED_UNICODE);
                 break;
         }

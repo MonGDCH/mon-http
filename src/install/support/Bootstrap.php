@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace support\http;
 
+use mon\log\Logger;
 use mon\http\Route;
 use mon\http\interfaces\AppInterface;
 
@@ -23,7 +24,8 @@ class Bootstrap
      */
     public static function start(AppInterface $app)
     {
-        // 初始化的一些程序
+        // 定义默认日志通道
+        Logger::instance()->setDefaultChanneel('http');
     }
 
     /**

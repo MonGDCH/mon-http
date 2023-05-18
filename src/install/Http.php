@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace process;
 
-use mon\log\Logger;
 use mon\env\Config;
 use Workerman\Worker;
 use gaia\ProcessTrait;
@@ -51,19 +50,21 @@ class Http implements ProcessInterface
      */
     public function onWorkerStart(Worker $worker): void
     {
-        // 定义默认日志通道
-        Logger::instance()->setDefaultChanneel('default');
         // 运行模式
-        $debug = Config::instance()->get('app.debug', true);
+        $debug = Config::instance()->get('app.debug', false);
+
         // 获取配置
         $httpConfig = Config::instance()->get('http');
         $appConfig = $httpConfig['app'];
+
         // 初始化HTTP服务器
         $app = new WorkerMan($debug, $appConfig['newCtrl']);
+
         // 自定义错误处理支持
         if (isset($appConfig['exception']) && !empty($appConfig['exception'])) {
             $app->supportError($appConfig['exception']);
         }
+
         // 静态文件支持
         $staticConfig = $httpConfig['static'];
         $app->supportStaticFile($staticConfig['enable'], $staticConfig['path'], $staticConfig['ext_type']);

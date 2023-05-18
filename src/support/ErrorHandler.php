@@ -232,7 +232,7 @@ SOURCE;
     protected function buildMessgae(string $name, int $code, string $file, int $line, string $message): string
     {
         $infoStr = sprintf('%s in %s', $this->parse_class($name), $this->parse_file($file, $line));
-        $msgStr = nl2br(htmlentities($message));
+        $msgStr = nl2br(htmlentities($message, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5));
 
         $html = <<<MESSAGE
 <div class="message">
