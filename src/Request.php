@@ -12,7 +12,7 @@ use mon\http\interfaces\RequestInterface;
  * 请求类门面实体，用于统一兼容处理wokerman和fpm环境
  * 
  * @author Mon <985558837@qq.com>
- * @version 1.0.0
+ * @version 1.0.1   优化支持PHP8.2 2023-05-22
  */
 class Request implements RequestInterface
 {
@@ -24,6 +24,13 @@ class Request implements RequestInterface
      * @var RequestInterface
      */
     protected $service;
+
+    /**
+     * 动态定义的属性，支持PHP8.2
+     *
+     * @var array
+     */
+    protected $_data = [];
 
     /**
      * 构造方法
@@ -254,10 +261,24 @@ class Request implements RequestInterface
      */
     public function __get(string $name)
     {
+        if (isset($this->_data[$name])) {
+            return $this->_data[$name];
+        }
         if (property_exists($this->service(), $name)) {
             return $this->service()->$name;
         }
 
         throw new InvalidArgumentException("Request facade property not found => " . $name);
+    }
+
+    /**
+     * 魔术属性设置请求实例绑定参数
+     *
+     * @param string $name  参数名
+     * @param mixed $value  绑定值
+     */
+    public function __set(string $name, $value)
+    {
+        $this->_data[$name] = $value;
     }
 }

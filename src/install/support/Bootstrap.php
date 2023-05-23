@@ -6,6 +6,9 @@ namespace support\http;
 
 use mon\log\Logger;
 use mon\http\Route;
+use mon\orm\gaia\ORM;
+use mon\log\format\LineFormat;
+use mon\log\record\FileRecord;
 use mon\http\interfaces\AppInterface;
 
 /**
@@ -17,6 +20,13 @@ use mon\http\interfaces\AppInterface;
 class Bootstrap
 {
     /**
+     * 日志通道
+     *
+     * @var string
+     */
+    protected static $logChannel = 'http';
+
+    /**
      * 启动
      *
      * @param AppInterface $app 驱动实例
@@ -24,8 +34,10 @@ class Bootstrap
      */
     public static function start(AppInterface $app)
     {
-        // 定义默认日志通道
-        Logger::instance()->setDefaultChanneel('http');
+        // 日志处理
+        static::registerLogger();
+        // 数据库链接
+        ORM::register(true);
     }
 
     /**
@@ -44,11 +56,63 @@ class Bootstrap
         }
 
         // 注册路由
-        $route->get('/', function () {
-            return 'Hello http process!';
-        });
+        // $route->get('/', function () {
+        //     return 'Hello http process!';
+        // });
 
         // 建议require一个路由文件进行定义，支持monitor更新
-        // require_once APP_PATH . '/http/router.php';
+        require_once APP_PATH . '/http/router.php';
+    }
+
+    /**
+     * 注册日志处理
+     *
+     * @return void
+     */
+    protected static function registerLogger()
+    {
+        // 定义HTTP日志通道
+        Logger::instance()->createChannel(static::$logChannel, [
+            // 解析器
+            'format'    => [
+                // 类名
+                'handler'   => LineFormat::class,
+                // 配置信息
+                'config'    => [
+                    // 日志是否包含级别
+                    'level'         => true,
+                    // 日志是否包含时间
+                    'date'          => true,
+                    // 时间格式，启用日志时间时有效
+                    'date_format'   => 'Y-m-d H:i:s',
+                    // 是否启用日志追踪
+                    'trace'         => false,
+                    // 追踪层级，启用日志追踪时有效
+                    'layer'         => 3
+                ]
+            ],
+            // 记录器
+            'record'    => [
+                // 类名
+                'handler'   => FileRecord::class,
+                // 配置信息
+                'config'    => [
+                    // 是否自动写入文件
+                    'save'      => false,
+                    // 写入文件后，清除缓存日志
+                    'clear'     => true,
+                    // 日志名称，空则使用当前日期作为名称       
+                    'logName'   => '',
+                    // 日志文件大小
+                    'maxSize'   => 20480000,
+                    // 日志目录
+                    'logPath'   => RUNTIME_PATH . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . static::$logChannel,
+                    // 日志滚动卷数   
+                    'rollNum'   => 3
+                ]
+            ]
+        ]);
+        // 设置为默认的日志通道
+        Logger::instance()->setDefaultChannel(static::$logChannel);
     }
 }
