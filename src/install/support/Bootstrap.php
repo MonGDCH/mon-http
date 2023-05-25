@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace support\http;
 
+use ErrorException;
+use mon\env\Config;
 use mon\log\Logger;
 use mon\http\Route;
-use mon\orm\gaia\ORM;
 use mon\log\format\LineFormat;
 use mon\log\record\FileRecord;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 use mon\http\interfaces\AppInterface;
 
 /**
@@ -36,8 +39,6 @@ class Bootstrap
     {
         // 日志处理
         static::registerLogger();
-        // 数据库链接
-        ORM::register(true);
     }
 
     /**
@@ -54,14 +55,28 @@ class Bootstrap
             $route->setData($data);
             return;
         }
+        // 路由目录路径
+        $routePath = Config::instance()->get('http.app.routePath', ROOT_PATH . DIRECTORY_SEPARATOR . 'routes');
+        // 是否递归路由目录
+        $recursive = Config::instance()->get('http.app.recursive', false);
 
-        // 注册路由
-        // $route->get('/', function () {
-        //     return 'Hello http process!';
-        // });
+        if (!is_dir($routePath)) {
+            throw new ErrorException('routes dir not found! path: ' . $routePath);
+        }
 
-        // 建议require一个路由文件进行定义，支持monitor更新
-        require_once APP_PATH . '/http/router.php';
+        // 获取指定目录内容
+        $iterator = new RecursiveDirectoryIterator($routePath, RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
+        // 是否递归目录
+        $iterator = $recursive ? new RecursiveIteratorIterator($iterator) : $iterator;
+        /** @var RecursiveDirectoryIterator $iterator */
+        foreach ($iterator as $file) {
+            // 过滤目录及非文件
+            if ($file->isDir() || $file->getExtension() != 'php') {
+                continue;
+            }
+            // 加载文件
+            require_once $file->getPathname();
+        }
     }
 
     /**
@@ -101,7 +116,7 @@ class Bootstrap
                     'save'      => false,
                     // 写入文件后，清除缓存日志
                     'clear'     => true,
-                    // 日志名称，空则使用当前日期作为名称       
+                    // 日志名称，空则使用当前日期作为名称
                     'logName'   => '',
                     // 日志文件大小
                     'maxSize'   => 20480000,

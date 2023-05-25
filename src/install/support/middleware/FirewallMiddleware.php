@@ -20,27 +20,35 @@ use mon\http\interfaces\MiddlewareInterface;
 class FirewallMiddleware implements MiddlewareInterface
 {
     /**
-     * IP黑名单列表
-     *
-     * @example array ['192.168.1.13', '123.23.23.44', '193.134.*.*']
-     * @var array
-     */
-    protected $black_list = [];
-
-    /**
-     * IP白名单列表
+     * 配置信息
      *
      * @var array
      */
-    protected $white_list = [];
+    protected $config = [
+        // 是否启用访问防火墙
+        'enable'    => false,
+        // IP黑名单，['192.168.1.13', '123.23.23.44', '193.134.*.*']
+        'black'     => [],
+        // IP白名单
+        'white'     => []
+    ];
 
     /**
      * 构造方法
      */
     public function __construct()
     {
-        $this->black_list = array_merge($this->black_list, Config::instance()->get('http.app.firewall.black', []));
-        $this->white_list = array_merge($this->white_list, Config::instance()->get('http.app.firewall.white', []));
+        $this->config = array_merge($this->config, Config::instance()->get('http.firewall', []));
+    }
+
+    /**
+     * 获取配置信息
+     *
+     * @return array
+     */
+    public function getConfig(): array
+    {
+        return $this->config;
     }
 
     /**
@@ -52,19 +60,26 @@ class FirewallMiddleware implements MiddlewareInterface
      */
     public function process(RequestInterface $request, Closure $next): Response
     {
+        // 配置信息
+        $config = $this->getConfig();
+        // 是否启用防火墙
+        if (!$config['enable']) {
+            return $next($request);
+        }
+
         // 获取用户IP
         $ip = $request->ip();
         // 校验是否在IP黑名单中
-        if (!empty($this->black_list)) {
-            $check = Tool::instance()->safe_ip($ip, $this->black_list);
+        if (!empty($this->config['black'])) {
+            $check = Tool::instance()->safe_ip($ip, $this->config['black']);
             if ($check) {
                 // 黑名单中，返回404
                 return new Response(404);
             }
         }
         // 校验是否再IP白名单中
-        if (!empty($this->white_list)) {
-            $check = Tool::instance()->safe_ip($ip, $this->white_list);
+        if (!empty($this->config['white'])) {
+            $check = Tool::instance()->safe_ip($ip, $this->config['white']);
             if (!$check) {
                 // 不存在白名单中，返回404
                 return new Response(404);

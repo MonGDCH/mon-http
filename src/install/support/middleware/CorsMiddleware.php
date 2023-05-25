@@ -31,15 +31,17 @@ class CorsMiddleware implements MiddlewareInterface
      */
     public function process(RequestInterface $request, Closure $next): Response
     {
-        if ($request->method() == 'OPTIONS') {
-            return new Response(200, [
-                'Access-Control-Allow-Credentials' => 'true',
-                'Access-Control-Allow-Origin' => $request->header('origin', '*'),
-                'Access-Control-Allow-Methods' => $request->header('access-control-request-method', '*'),
-                'Access-Control-Allow-Headers' => $request->header('access-control-request-headers', '*'),
-            ]);
-        }
+        // 如果是opitons请求则返回一个空的响应，否则继续向洋葱芯穿越，并得到一个响应
+        $response = $request->method() == 'OPTIONS' ? new Response() : $next($request);
 
-        return $next($request);
+        // 给响应添加跨域相关的http头
+        $response->withHeaders([
+            'Access-Control-Allow-Credentials' => 'true',
+            'Access-Control-Allow-Origin' => $request->header('origin', '*'),
+            'Access-Control-Allow-Methods' => $request->header('access-control-request-method', '*'),
+            'Access-Control-Allow-Headers' => $request->header('access-control-request-headers', '*'),
+        ]);
+
+        return $response;
     }
 }

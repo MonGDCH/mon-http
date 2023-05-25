@@ -30,27 +30,6 @@ class Controller
     protected $headers = [];
 
     /**
-     * 允许跨域的域名
-     *
-     * @var array
-     */
-    protected $allowOrigin = [];
-
-    /**
-     * 允许跨域的请求方式
-     *
-     * @var array
-     */
-    protected $allowMethods = [];
-
-    /**
-     * 允许跨域的请求头
-     *
-     * @var array
-     */
-    protected $allowHeaders = [];
-
-    /**
      * 输出视图内容
      *
      * @param string $content   输出内容
@@ -60,7 +39,8 @@ class Controller
      */
     protected function view(string $content, array $header = [], int $code = 200): Response
     {
-        return new Response($code, $header, $content);
+        $headers = array_merge($this->headers, $header);
+        return new Response($code, $headers, $content);
     }
 
     /**
@@ -104,21 +84,6 @@ class Controller
     protected function dataReturn(int $code, string $msg, array $data = [], array $extend = [], array $headers = []): Response
     {
         $headers = array_merge($this->headers, $headers);
-        if (!empty($this->allowOrigin)) {
-            $origin = implode(',', (array) $this->allowOrigin);
-            $headers['Access-Control-Allow-Origin'] = $origin;
-        }
-
-        if (!empty($this->allowMethods)) {
-            $method = strtoupper(implode(',', (array) $this->allowMethods));
-            $headers['Access-Control-Allow-Methods'] = $method;
-        }
-
-        if (!empty($this->allowHeaders)) {
-            $headers = strtoupper(implode(',', (array) $this->allowHeaders));
-            $headers['Access-Control-Allow-Headers'] = $headers;
-        }
-
         $result = ['code' => $code, 'msg' => $msg, 'data' => $data];
         $result = array_merge($result, $extend);
         $charset = 'utf-8';
