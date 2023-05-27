@@ -138,12 +138,12 @@ class Request implements RequestInterface
     /**
      * 获取上传文件
      *
-     * @param mixed $name 文件参数名
+     * @param string $name 文件参数名
      * @return mixed
      */
     public function file($name = null)
     {
-        return $this->service()->file();
+        return $this->service()->file($name);
     }
 
     /**

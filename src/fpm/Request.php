@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace mon\http\fpm;
 
+use mon\http\libs\UploadFile;
 use mon\http\libs\Request as LibsRequest;
 use mon\http\interfaces\RequestInterface;
 
@@ -162,8 +163,28 @@ class Request implements RequestInterface
      */
     public function file($name = null)
     {
-        if (is_null($name)) {
-            return $_FILES;
+        if (empty($_FILES)) {
+            return is_null($name) ? [] : null;
+        }
+
+        $files = $_FILES[$name] ?? [];
+        if (!is_null($name)) {
+            // 多文件
+            if (is_array(current($files))) {
+                return $this->parseFiles($files);
+            }
+
+            return $this->parseFile($files);
+        }
+
+        $upload_files = [];
+        foreach ($files as $name => $file) {
+            // 多文件
+            if (is_array(current($file))) {
+                $upload_files[$name] = $this->parseFiles($file);
+            } else {
+                $upload_files[$name] = $this->parseFile($file);
+            }
         }
 
         return $_FILES[$name] ?? null;
@@ -391,5 +412,35 @@ class Request implements RequestInterface
         }
 
         return $baseUrl;
+    }
+
+    /**
+     * 解析文件
+     *
+     * @param array $file 文件信息
+     * @return UploadFile
+     */
+    protected function parseFile(array $file): UploadFile
+    {
+        return new UploadFile($file['tmp_name'], $file['name'], $file['type'], $file['error']);
+    }
+
+    /**
+     * 解析文件列表
+     *
+     * @param array $files 文件信息列表
+     * @return array
+     */
+    protected function parseFiles(array $files): array
+    {
+        $upload_files = [];
+        foreach ($files as $key => $file) {
+            if (is_array(current($file))) {
+                $upload_files[$key] = $this->parseFiles($file);
+            } else {
+                $upload_files[$key] = $this->parseFile($file);
+            }
+        }
+        return $upload_files;
     }
 }
