@@ -10,7 +10,7 @@
 
 return [
     // 启用
-    'enable'    => true,
+    'enable'    => false,
     // 进程配置
     'config'    => [
         // 监听协议端口

@@ -124,6 +124,9 @@ trait Request
      */
     public function filter($input)
     {
+        if (is_numeric($input)) {
+            return $input;
+        }
         if (is_array($input)) {
             return array_map('htmlspecialchars', (array)$input);
         }
