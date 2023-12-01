@@ -210,6 +210,8 @@ class Fpm implements AppInterface
      */
     public function appError(int $errno, string $errstr, string $errfile = '', int $errline = 0): void
     {
+        // 清除输出缓冲区
+        ob_get_clean();
         $exception = new ErrorException($errstr, 0, $errno, $errfile, $errline);
         $this->appException($exception);
     }
@@ -222,10 +224,12 @@ class Fpm implements AppInterface
      */
     public function appException(Throwable $e): void
     {
+        // 清除输出缓冲区
+        ob_get_clean();
         $this->exceptionHandler()->report($e, $this->request());
         $response = $this->exceptionHandler()->render($e, $this->request(), $this->debug());
         $this->send($response);
-        exit();
+        exit;
     }
 
     /**
