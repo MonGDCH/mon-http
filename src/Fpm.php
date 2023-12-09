@@ -213,7 +213,7 @@ class Fpm implements AppInterface
         // 清除输出缓冲区
         ob_get_clean();
         $exception = new ErrorException($errstr, 0, $errno, $errfile, $errline);
-        $this->appException($exception);
+        throw $exception;
     }
 
     /**
