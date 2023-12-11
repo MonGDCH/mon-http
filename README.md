@@ -6,7 +6,7 @@
 
 - 基于`workerman`的http服务器
 - 基于`fast-route`的路由支持
-- 中间件`Middleware`支持
+- 中间件`Middleware`支持，内置`Cors`跨域、`Firewall`防火墙、`Logger`日志、`Throttle`限流等中间件
 - `Session`支持
 - `fpm`访问支持
 - 依赖注入支持
