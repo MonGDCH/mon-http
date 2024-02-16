@@ -60,10 +60,8 @@ class FirewallMiddleware implements MiddlewareInterface
      */
     public function process(RequestInterface $request, Closure $next): Response
     {
-        // 配置信息
-        $config = $this->getConfig();
         // 是否启用防火墙
-        if (!$config['enable']) {
+        if (!$this->config['enable']) {
             return $next($request);
         }
 

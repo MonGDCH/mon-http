@@ -46,12 +46,25 @@ $config = \mon\env\Config::instance();
 
 /*
 |--------------------------------------------------------------------------
-| 创建fpm应用
+| 创建FPM应用
 |--------------------------------------------------------------------------
-| 这里创建fpm应用
+| 这里创建FPM应用
 |
 */
 $app = new \mon\http\Fpm($config->get('app.debug', false));
+
+
+
+/*
+|--------------------------------------------------------------------------
+| 是否启用FPM应用
+|--------------------------------------------------------------------------
+| 这里判断是否启用FPM应用，未启用则结束运行
+|
+*/
+if (!$config->get('http.app.fpm.enable', false)) {
+    return $app->send($app->getFallback());
+}
 
 
 
@@ -92,10 +105,16 @@ support\http\Bootstrap::start($app);
 |--------------------------------------------------------------------------
 | 定义路由
 |--------------------------------------------------------------------------
-| 注册应用请求路由
+| 注册应用请求路由，存在路由缓存文件，则直接加载缓存文件
 |
 */
-support\http\Bootstrap::registerRoute($app->route());
+$cache_route_file = $config->get('http.app.fpm.cache', '');
+if ($cache_route_file && file_exists($cache_route_file)) {
+    $data = require $cache_route;
+    $app->route()->setData($data);
+} else {
+    support\http\Bootstrap::registerRoute($app->route());
+}
 
 
 

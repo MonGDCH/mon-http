@@ -28,6 +28,7 @@ class ThrottleMiddleware implements MiddlewareInterface
      * @var array
      */
     public static $default_config = [
+        'enable' => false,                          // 是否启用
         'cache_name' => null,                       // 缓存驱动
         'driver_name' => CounterFixed::class,       // 限流算法驱动
         'prefix' => 'throttle_',                    // 缓存键前缀，防止键与其他应用冲突
@@ -116,6 +117,16 @@ class ThrottleMiddleware implements MiddlewareInterface
     }
 
     /**
+     * 获取配置信息
+     *
+     * @return array
+     */
+    public function getConfig(): array
+    {
+        return $this->config;
+    }
+
+    /**
      * 中间件实现接口
      *
      * @param RequestInterface $request  请求实例
@@ -124,6 +135,11 @@ class ThrottleMiddleware implements MiddlewareInterface
      */
     public function process(RequestInterface $request, Closure $next): Response
     {
+        // 是否启用防火墙
+        if (!$this->config['enable']) {
+            return $next($request);
+        }
+
         $allow = $this->allowRequest($request);
         if (!$allow) {
             // 访问受限

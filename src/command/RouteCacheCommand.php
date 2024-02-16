@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace mon\http\Command;
 
+use mon\env\Config;
 use mon\http\Route;
 use mon\console\Input;
 use mon\console\Output;
@@ -52,7 +53,11 @@ class RouteCacheCommand extends Command
         \support\http\Bootstrap::registerRoute($route);
 
         // 缓存路由信息
-        $save = $route->cache(ROUTE_CACHE_PATH);
+        $cache_route = Config::instance()->get('http.fpm.cache', '');
+        if (!$cache_route) {
+            return $out->block('Route cache file path error!', 'ERROR');
+        }
+        $save = $route->cache($cache_route);
         if (!$save) {
             return $out->block('Build route cache error!', 'ERROR');
         }

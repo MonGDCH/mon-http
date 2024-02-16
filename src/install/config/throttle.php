@@ -8,6 +8,9 @@
 */
 
 return [
+    // 是否启用节流请求
+    'enable'    => false,
+
     // Psr-16通用缓存库规范: https://blog.csdn.net/maquealone/article/details/79651111
     // Cache驱动必须符合PSR-16缓存库规范，最低实现get/set俩个方法
     'cache_name'                    => \mon\cache\Cache::class,

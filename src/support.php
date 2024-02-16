@@ -21,12 +21,6 @@ if (!function_exists('dump')) {
 }
 
 
-// 路由缓存路径定义常量
-$path = defined('RUNTIME_PATH') ? (RUNTIME_PATH . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR) : './runtime/cache/';
-$name = 'route_cache.php';
-defined('ROUTE_CACHE_PATH') || define('ROUTE_CACHE_PATH', $path . $name);
-
-
 // Gaia环境，进行指令注册
 if (PHP_SAPI == 'cli' && class_exists(\gaia\App::class)) {
     $path = __DIR__ . '/command';

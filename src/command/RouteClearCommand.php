@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace mon\http\Command;
 
 use mon\util\File;
+use mon\env\Config;
 use mon\console\Input;
 use mon\console\Output;
 use mon\console\Command;
@@ -48,7 +49,11 @@ class RouteClearCommand extends Command
     public function execute(Input $in, Output $out)
     {
         // 缓存路由信息
-        $del = File::instance()->removeFile(ROUTE_CACHE_PATH);
+        $cache_route = Config::instance()->get('http.fpm.cache', '');
+        if (!$cache_route) {
+            return $out->block('Route cache file path error!', 'ERROR');
+        }
+        $del = File::instance()->removeFile($cache_route);
         if (!$del) {
             return $out->block('Clear route cache error!', 'ERROR');
         }
