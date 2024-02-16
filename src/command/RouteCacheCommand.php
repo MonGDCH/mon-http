@@ -53,7 +53,7 @@ class RouteCacheCommand extends Command
         \support\http\Bootstrap::registerRoute($route);
 
         // 缓存路由信息
-        $cache_route = Config::instance()->get('http.fpm.cache', '');
+        $cache_route = Config::instance()->get('http.app.fpm.cache', '');
         if (!$cache_route) {
             return $out->block('Route cache file path error!', 'ERROR');
         }

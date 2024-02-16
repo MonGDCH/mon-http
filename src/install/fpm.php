@@ -63,7 +63,8 @@ $app = new \mon\http\Fpm($config->get('app.debug', false));
 |
 */
 if (!$config->get('http.app.fpm.enable', false)) {
-    return $app->send($app->getFallback());
+    $disabled = $app->getFallback();
+    return $app->send($disabled());
 }
 
 
@@ -110,7 +111,7 @@ support\http\Bootstrap::start($app);
 */
 $cache_route_file = $config->get('http.app.fpm.cache', '');
 if ($cache_route_file && file_exists($cache_route_file)) {
-    $data = require $cache_route;
+    $data = require $cache_route_file;
     $app->route()->setData($data);
 } else {
     support\http\Bootstrap::registerRoute($app->route());
