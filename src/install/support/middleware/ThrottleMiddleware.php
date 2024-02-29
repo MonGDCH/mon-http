@@ -8,6 +8,7 @@ use Closure;
 use mon\env\Config;
 use mon\http\Response;
 use mon\util\Container;
+use support\cache\CacheService;
 use mon\http\interfaces\RequestInterface;
 use mon\http\interfaces\MiddlewareInterface;
 use support\http\middleware\throttle\CounterFixed;
@@ -113,7 +114,11 @@ class ThrottleMiddleware implements MiddlewareInterface
     public function __construct()
     {
         $this->config = array_merge(static::$default_config, Config::instance()->get('http.throttle', []));
-        $this->cache = Container::instance()->get($this->config['cache_name'], [Config::instance()->get('cache', [])]);
+        if (class_exists(CacheService::class)) {
+            $this->cache = CacheService::instance();
+        } else {
+            $this->cache = Container::instance()->get($this->config['cache_name'], [Config::instance()->get('cache', [])]);
+        }
     }
 
     /**

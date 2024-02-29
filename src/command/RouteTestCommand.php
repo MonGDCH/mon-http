@@ -49,8 +49,7 @@ class RouteTestCommand extends Command
     public function execute(Input $in, Output $out)
     {
         // 加载注册路由
-        $route = new Route();
-        \support\http\Bootstrap::registerRoute($route);
+        \support\http\Bootstrap::registerRoute();
 
         $args = $in->getArgs();
         $method = 'GET';
@@ -63,7 +62,7 @@ class RouteTestCommand extends Command
             return $out->block('please input test uri pathinfo', 'ERROR');
         }
         $columns = ['method', 'path', 'callback', 'middleware'];
-        $callback = $route->dispatch($method, $path);
+        $callback = Route::instance()->dispatch($method, $path);
         if ($callback[0] == Dispatcher::FOUND) {
             $info = $callback[1];
             $table = [];

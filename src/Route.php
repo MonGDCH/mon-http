@@ -6,6 +6,7 @@ namespace mon\http;
 
 use Closure;
 use mon\util\File;
+use mon\util\Instance;
 use mon\util\Container;
 use ReflectionFunction;
 use InvalidArgumentException;
@@ -22,6 +23,8 @@ use FastRoute\Dispatcher\GroupCountBased as Dispatcher;
  */
 class Route
 {
+    use Instance;
+
     /**
      * fast-route路由容器
      *
@@ -70,6 +73,13 @@ class Route
      * @var Closure|array|string
      */
     protected $error;
+
+    /**
+     * 单例化路由实例
+     */
+    protected function __construct()
+    {
+    }
 
     /**
      * 设置路由数据

@@ -9,7 +9,7 @@
 
 return [
     // 是否启用节流请求
-    'enable'    => false,
+    'enable'                        => false,
 
     // Psr-16通用缓存库规范: https://blog.csdn.net/maquealone/article/details/79651111
     // Cache驱动必须符合PSR-16缓存库规范，最低实现get/set俩个方法
@@ -28,7 +28,7 @@ return [
     'prefix'                        => 'throttle_',
 
     // 要被限制的请求类型, eg: GET POST PUT DELETE HEAD
-    'visit_method'                  => ['GET'],
+    'visit_method'                  => ['GET', 'POST'],
 
     // 设置访问频率，例如 '10/m' 指的是允许每分钟请求10次。值 null 表示不限制,
     // eg: null 10/m  20/h  300/d 200/300

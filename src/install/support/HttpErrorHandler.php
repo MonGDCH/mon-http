@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace support\http;
 
 use Throwable;
+use \mon\log\Logger;
 use mon\http\support\ErrorHandler;
 use mon\http\interfaces\RequestInterface;
 
@@ -25,10 +26,10 @@ class HttpErrorHandler extends ErrorHandler
      */
     public function report(Throwable $e, RequestInterface $request)
     {
-        // TODO 记录日志
-        if (class_exists(\mon\log\Logger::class)) {
+        // 记录日志
+        if (class_exists(Logger::class)) {
             $log = 'method：' . $request->method() . ' URL：' . $request->path() . ' file: ' . $e->getFile() . ' line: ' . $e->getLine() . ' message: ' . $e->getMessage();
-            \mon\log\Logger::instance()->channel()->error($log);
+            Logger::instance()->channel()->error($log);
         }
     }
 }

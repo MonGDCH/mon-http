@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "mongdch/mon-util",
-            "version": "1.5.2",
+            "version": "1.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MonGDCH/mon-util.git",
-                "reference": "5b22a5e923e5f99cce86119b4d6aedf55f3a7d57"
+                "reference": "d470c4ed91954e3fe06f9afe5d20f91a8df52c92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MonGDCH/mon-util/zipball/5b22a5e923e5f99cce86119b4d6aedf55f3a7d57",
-                "reference": "5b22a5e923e5f99cce86119b4d6aedf55f3a7d57",
+                "url": "https://api.github.com/repos/MonGDCH/mon-util/zipball/d470c4ed91954e3fe06f9afe5d20f91a8df52c92",
+                "reference": "d470c4ed91954e3fe06f9afe5d20f91a8df52c92",
                 "shasum": ""
             },
             "require": {
@@ -54,9 +54,9 @@
             ],
             "support": {
                 "issues": "https://github.com/MonGDCH/mon-util/issues",
-                "source": "https://github.com/MonGDCH/mon-util/tree/1.5.2"
+                "source": "https://github.com/MonGDCH/mon-util/tree/1.5.3"
             },
-            "time": "2024-02-04T07:43:52+00:00"
+            "time": "2024-02-26T09:00:46+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -163,16 +163,16 @@
         },
         {
             "name": "workerman/workerman",
-            "version": "v4.1.14",
+            "version": "v4.1.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/walkor/workerman.git",
-                "reference": "f7c9667c7b5387c01fa9e50ee79ed931e93ee76e"
+                "reference": "afc8242fc769ab7cf22eb4ac22b97cb59d465e4e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/walkor/workerman/zipball/f7c9667c7b5387c01fa9e50ee79ed931e93ee76e",
-                "reference": "f7c9667c7b5387c01fa9e50ee79ed931e93ee76e",
+                "url": "https://api.github.com/repos/walkor/workerman/zipball/afc8242fc769ab7cf22eb4ac22b97cb59d465e4e",
+                "reference": "afc8242fc769ab7cf22eb4ac22b97cb59d465e4e",
                 "shasum": ""
             },
             "require": {
@@ -222,7 +222,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2023-08-09T03:37:45+00:00"
+            "time": "2024-02-19T02:10:39+00:00"
         }
     ],
     "packages-dev": [],

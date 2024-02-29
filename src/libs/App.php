@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace mon\http\libs;
 
 use Closure;
-use mon\http\Context;
 use Throwable;
 use ErrorException;
 use mon\http\Route;
 use ReflectionClass;
 use ReflectionMethod;
+use mon\http\Context;
 use mon\http\Response;
 use mon\util\Container;
 use ReflectionFunction;
@@ -39,7 +39,7 @@ trait App
      *
      * @var string
      */
-    protected $version = '1.1.2';
+    protected $version = '1.1.10';
 
     /**
      * 应用名
@@ -91,13 +91,6 @@ trait App
     protected $exception_handler;
 
     /**
-     * 路由对象
-     *
-     * @var Route
-     */
-    protected $route;
-
-    /**
      * PHP内置常规类型
      *
      * @var array
@@ -141,11 +134,7 @@ trait App
      */
     public function route(): Route
     {
-        if (!$this->route) {
-            $this->route = new Route();
-        }
-
-        return $this->route;
+        return Route::instance();
     }
 
     /**

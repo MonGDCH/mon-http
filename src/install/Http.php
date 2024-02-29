@@ -78,7 +78,7 @@ class Http implements ProcessInterface
         Bootstrap::start($app);
 
         // 注册路由
-        Bootstrap::registerRoute($app->route());
+        Bootstrap::registerRoute();
 
         // 绑定响应请求
         $worker->onMessage = [$app, 'run'];

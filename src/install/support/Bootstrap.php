@@ -44,10 +44,9 @@ class Bootstrap
     /**
      * 注册路由
      *
-     * @param Route $route  路由器
      * @return void
      */
-    public static function registerRoute(Route $route)
+    public static function registerRoute()
     {
         // 路由目录路径
         $routePath = Config::instance()->get('http.app.routePath', ROOT_PATH . DIRECTORY_SEPARATOR . 'routes');
@@ -58,6 +57,8 @@ class Bootstrap
             throw new ErrorException('routes dir not found! path: ' . $routePath);
         }
 
+        // 获取路由实例，供require使用
+        $route = Route::instance();
         // 获取指定目录内容
         $iterator = new RecursiveDirectoryIterator($routePath, RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
         // 是否递归目录
@@ -78,7 +79,7 @@ class Bootstrap
      *
      * @return void
      */
-    protected static function registerLogger()
+    public static function registerLogger()
     {
         // 定义HTTP日志通道
         Logger::instance()->createChannel(static::$logChannel, [

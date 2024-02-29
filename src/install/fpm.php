@@ -24,6 +24,17 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 /*
 |--------------------------------------------------------------------------
+| Plugins插件支持
+|--------------------------------------------------------------------------
+| 注册Plugins插件
+|
+*/
+\support\Plugin::register();
+
+
+
+/*
+|--------------------------------------------------------------------------
 | 获取配置服务
 |--------------------------------------------------------------------------
 | 这里获取配置服务, 定义配置环境
@@ -112,9 +123,9 @@ support\http\Bootstrap::start($app);
 $cache_route_file = $config->get('http.app.fpm.cache', '');
 if ($cache_route_file && file_exists($cache_route_file)) {
     $data = require $cache_route_file;
-    $app->route()->setData($data);
+    \mon\http\Route::instance()->setData($data);
 } else {
-    support\http\Bootstrap::registerRoute($app->route());
+    \support\http\Bootstrap::registerRoute();
 }
 
 
