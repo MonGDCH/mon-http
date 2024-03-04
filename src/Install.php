@@ -47,6 +47,7 @@ class Install
      */
     public static function install()
     {
+        echo 'Mon-http installation successful, please execute `php gaia vendor:publish mon\http`' . PHP_EOL;
     }
 
     /**
@@ -56,6 +57,7 @@ class Install
      */
     public static function update()
     {
+        echo 'Mon-http upgrade successful, please execute `php gaia vendor:publish mon\http`' . PHP_EOL;
     }
 
     /**
