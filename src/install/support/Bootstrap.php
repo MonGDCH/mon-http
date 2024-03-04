@@ -7,7 +7,6 @@ namespace support\http;
 use ErrorException;
 use mon\env\Config;
 use mon\log\Logger;
-use mon\http\Route;
 use mon\log\format\LineFormat;
 use mon\log\record\FileRecord;
 use RecursiveIteratorIterator;
@@ -50,15 +49,12 @@ class Bootstrap
     {
         // 路由目录路径
         $routePath = Config::instance()->get('http.app.routePath', ROOT_PATH . DIRECTORY_SEPARATOR . 'routes');
-        // 是否递归路由目录
-        $recursive = Config::instance()->get('http.app.recursive', false);
-
         if (!is_dir($routePath)) {
             throw new ErrorException('routes dir not found! path: ' . $routePath);
         }
 
-        // 获取路由实例，供require使用
-        $route = Route::instance();
+        // 是否递归路由目录
+        $recursive = Config::instance()->get('http.app.recursive', false);
         // 获取指定目录内容
         $iterator = new RecursiveDirectoryIterator($routePath, RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
         // 是否递归目录
