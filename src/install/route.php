@@ -9,6 +9,6 @@
 
 use mon\http\Route;
 
-Route::instance()->get('[/{name}]', function (string $name = 'Gaia HTTP') {
+Route::instance()->get('/[{name}]', function ($name = 'Gaia HTTP') {
     return "Hello {$name}!";
 });
