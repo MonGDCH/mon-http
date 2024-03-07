@@ -27,6 +27,8 @@ class LoggerMiddleware implements MiddlewareInterface
      */
     public function process(RequestInterface $request, Closure $next): Response
     {
+        // 请求开始时间
+        $start_time = microtime(true);
         // 请求IP
         $ip = $request->ip();
         // 请求方式
@@ -39,6 +41,9 @@ class LoggerMiddleware implements MiddlewareInterface
         Logger::instance()->channel()->log('bootstrap', $log);
         // 执行响应
         $response = $next($request);
+        // 响应时间
+        $runing_time = number_format((microtime(true) - $start_time) * 1000, 6);
+        Logger::instance()->channel()->debug("Runing time {$runing_time} ms");
         // 记录日志
         Logger::instance()->channel()->log('end', '=====================================', ['save' => true]);
         return $response;

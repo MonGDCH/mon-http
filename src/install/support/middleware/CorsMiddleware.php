@@ -13,7 +13,7 @@ use mon\http\interfaces\MiddlewareInterface;
  * 跨域请求中间件
  * 
  * 使用该中间件，需要给所有OPTIONS请求设置options路由
- * $route->options('[{path:.+}]', function () {
+ * $route->options('[{path:.+}]', function ($path = '') {
  *       return '';
  * });
  * 

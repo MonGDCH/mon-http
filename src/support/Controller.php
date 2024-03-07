@@ -13,7 +13,7 @@ use mon\http\Response;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Controller
+abstract class Controller
 {
     /**
      * 返回数据类型
@@ -34,41 +34,43 @@ class Controller
      *
      * @param string $content   输出内容
      * @param array $header     响应头
-     * @param integer $code     状态码
+     * @param integer $status   响应状态码
      * @return Response
      */
-    protected function view(string $content, array $header = [], int $code = 200): Response
+    protected function view(string $content, array $header = [], int $status = 200): Response
     {
         $headers = array_merge($this->headers, $header);
-        return new Response($code, $headers, $content);
+        return new Response($status, $headers, $content);
     }
 
     /**
      * 返回错误信息
      *
      * @param string $msg       描述信息
-     * @param array  $data       结果集
-     * @param array  $extend     扩展数据
-     * @param array  $headers    响应头
+     * @param array  $data      结果集
+     * @param array  $extend    扩展数据
+     * @param array  $headers   响应头
+     * @param integer $status   响应状态码
      * @return Response
      */
-    protected function error(string $msg, array $data = [], array $extend = [], array $headers = []): Response
+    protected function error(string $msg, array $data = [], array $extend = [], array $headers = [], int $status = 200): Response
     {
-        return $this->dataReturn(0, $msg, $data, $extend, $headers);
+        return $this->result(0, $msg, $data, $extend, $headers, $status);
     }
 
     /**
      * 返回成功信息
      *
      * @param string $msg       描述信息
-     * @param array  $data       结果集
-     * @param array  $extend     扩展数据
-     * @param array  $headers    响应头
+     * @param array  $data      结果集
+     * @param array  $extend    扩展数据
+     * @param array  $headers   响应头
+     * @param integer $status   响应状态码
      * @return Response
      */
-    protected function success(string $msg, array $data = [], array $extend = [], array $headers = []): Response
+    protected function success(string $msg, array $data = [], array $extend = [], array $headers = [], int $status = 200): Response
     {
-        return $this->dataReturn(1, $msg, $data, $extend, $headers);
+        return $this->result(1, $msg, $data, $extend, $headers, $status);
     }
 
     /**
@@ -79,9 +81,10 @@ class Controller
      * @param  array   $data    结果集
      * @param  array   $extend  扩展字段
      * @param  array   $headers 响应头
+     * @param  integer $status  响应状态码
      * @return Response
      */
-    protected function dataReturn(int $code, string $msg, array $data = [], array $extend = [], array $headers = []): Response
+    protected function result(int $code, string $msg, array $data = [], array $extend = [], array $headers = [], int $status = 200): Response
     {
         $headers = array_merge($this->headers, $headers);
         $result = ['code' => $code, 'msg' => $msg, 'data' => $data];
@@ -102,6 +105,6 @@ class Controller
                 break;
         }
 
-        return new Response(200, $headers, $data);
+        return new Response($status, $headers, $data);
     }
 }

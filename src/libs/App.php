@@ -19,10 +19,9 @@ use InvalidArgumentException;
 use ReflectionFunctionAbstract;
 use mon\http\support\ErrorHandler;
 use mon\http\interfaces\AppInterface;
-use mon\http\exception\JumpException;
 use mon\http\exception\RouteException;
-use mon\http\exception\DumperException;
 use mon\http\interfaces\RequestInterface;
+use mon\http\interfaces\BusinessInterface;
 use mon\http\exception\CallbackParamsException;
 use mon\http\interfaces\ExceptionHandlerInterface;
 
@@ -266,8 +265,8 @@ trait App
     public function handlerException(Throwable $e, RequestInterface $request): Response
     {
         // 路由跳转 或者 dump调试打印
-        if ($e instanceof JumpException || $e instanceof DumperException) {
-            return $e->getResponse();
+        if ($e instanceof BusinessInterface) {
+            return $e->getResponse($request);
         }
 
         try {
@@ -352,12 +351,15 @@ trait App
         $params = $this->getRouteParams($params);
         // 解析获取依赖参数
         $parameters = [];
+        /** @var \ReflectionParameter $parameter */
         foreach ($reflection->getParameters() as $parameter) {
             // 参数名称
             $paramsName = $parameter->getName();
             if ($parameter->hasType()) {
+                /** @var \ReflectionNamedType $class 变量类型 */
+                $class = $parameter->getType();
                 // 指定类型，获取类型名称注入参数
-                $typeName = $parameter->getType()->getName();
+                $typeName = $class->getName();
                 if (in_array($typeName, $this->adapters)) {
                     // 内置类型
                     if (isset($params[$paramsName])) {
@@ -421,10 +423,11 @@ trait App
             // 获取类方法需要的参数
             $parameters = $constructor->getParameters();
             // 获取参数类型, 绑定参数
+            /** @var \ReflectionParameter $param */
             foreach ($parameters as $param) {
                 // 变量名
                 $name = $param->getName();
-                // 变量类型
+                /** @var \ReflectionNamedType $class 变量类型 */
                 $class = $param->getType();
                 // 绑定参数
                 if ($class && !in_array($class->getName(), $this->adapters)) {

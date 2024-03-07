@@ -6,6 +6,8 @@ namespace mon\http\exception;
 
 use RuntimeException;
 use mon\http\Response;
+use mon\http\interfaces\RequestInterface;
+use mon\http\interfaces\BusinessInterface;
 
 /**
  * 打印渲染异常信息
@@ -13,7 +15,7 @@ use mon\http\Response;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class DumperException extends RuntimeException
+class DumperException extends RuntimeException implements BusinessInterface
 {
     /**
      * 打印的数据
@@ -43,11 +45,12 @@ class DumperException extends RuntimeException
     }
 
     /**
-     * 获取响应实例
+     * 获取响应信息
      *
+     * @param RequestInterface $request
      * @return Response
      */
-    public function getResponse(): Response
+    public function getResponse(RequestInterface $request): Response
     {
         $tmp = [];
         foreach ($this->getData() as $val) {
