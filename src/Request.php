@@ -128,11 +128,13 @@ class Request implements RequestInterface
     /**
      * 获取请求Cookie
      *
+     * @param string|null $name cookie名
+     * @param mixed $default    默认值
      * @return mixed
      */
-    public function cookie()
+    public function cookie($name = null, $default = null)
     {
-        return $this->service()->cookie();
+        return $this->service()->cookie($name, $default);
     }
 
     /**

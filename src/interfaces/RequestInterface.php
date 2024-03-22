@@ -82,9 +82,11 @@ interface RequestInterface
     /**
      * 获取请求Cookie
      *
+     * @param string|null $name cookie名
+     * @param mixed $default    默认值
      * @return mixed
      */
-    public function cookie();
+    public function cookie($name = null, $default = null);
 
     /**
      * 获取上传文件
