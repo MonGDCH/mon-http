@@ -116,16 +116,6 @@ class Request implements RequestInterface
     }
 
     /**
-     * 获取请求Session
-     *
-     * @return mixed
-     */
-    public function session()
-    {
-        return $this->service()->session();
-    }
-
-    /**
      * 获取请求Cookie
      *
      * @param string|null $name cookie名

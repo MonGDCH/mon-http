@@ -135,19 +135,6 @@ class Request implements RequestInterface
     }
 
     /**
-     * 获取请求Session
-     *
-     * @param string|null $name cookie名
-     * @param mixed $default    默认值
-     * @return mixed
-     */
-    public function session($name = null, $default = null)
-    {
-        $value = session_status() == PHP_SESSION_ACTIVE ? $_SESSION : [];
-        return is_null($name) ? $value : $this->getData($value, $name, $default);
-    }
-
-    /**
      * 获取请求Cookie
      *
      * @param string|null $name cookie名
