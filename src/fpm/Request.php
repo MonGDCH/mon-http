@@ -137,7 +137,7 @@ class Request implements RequestInterface
     /**
      * 获取请求Session
      *
-     * @param string|null $name cookie名
+     * @param string|null $name 键名
      * @param mixed $default    默认值
      * @return mixed
      */
