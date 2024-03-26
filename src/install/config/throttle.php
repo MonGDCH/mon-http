@@ -12,7 +12,7 @@ return [
     'enable'                        => false,
 
     // Psr-16通用缓存库规范: https://blog.csdn.net/maquealone/article/details/79651111
-    // Cache驱动必须符合PSR-16缓存库规范，最低实现get/set俩个方法
+    // Cache驱动必须符合PSR-16缓存库规范，最低实现get/set俩个方法，优先使用 \support\cache\CacheService 服务实例
     'cache_name'                    => \mon\cache\Cache::class,
 
     /*

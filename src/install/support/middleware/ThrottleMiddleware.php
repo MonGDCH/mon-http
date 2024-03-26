@@ -60,13 +60,6 @@ class ThrottleMiddleware implements MiddlewareInterface
     protected $config = [];
 
     /**
-     * 缓存对象
-     *
-     * @var \Psr\SimpleCache\CacheInterface
-     */
-    protected $cache;
-
-    /**
      * 算法驱动实例
      *
      * @var ThrottleAbstract
@@ -114,11 +107,6 @@ class ThrottleMiddleware implements MiddlewareInterface
     public function __construct()
     {
         $this->config = array_merge(static::$default_config, Config::instance()->get('http.throttle', []));
-        if (class_exists(CacheService::class)) {
-            $this->cache = CacheService::instance();
-        } else {
-            $this->cache = Container::instance()->get($this->config['cache_name'], [Config::instance()->get('cache', [])]);
-        }
     }
 
     /**
@@ -162,6 +150,22 @@ class ThrottleMiddleware implements MiddlewareInterface
     }
 
     /**
+     * 获取缓存对象
+     *
+     * @return \Psr\SimpleCache\CacheInterface
+     */
+    protected function getCache()
+    {
+        if (class_exists(CacheService::class)) {
+            return CacheService::instance();
+        } else if (class_exists($this->config['cache_name'])) {
+            return Container::instance()->get($this->config['cache_name'], [Config::instance()->get('cache', [])]);
+        }
+
+        throw new \RuntimeException('The cache driver must extends ' . $this->config['cache_name']);
+    }
+
+    /**
      * 请求是否允许
      *
      * @param RequestInterface $request
@@ -185,8 +189,7 @@ class ThrottleMiddleware implements MiddlewareInterface
         if (!$this->driver_class instanceof ThrottleAbstract) {
             throw new \TypeError('The throttle driver must extends ' . ThrottleAbstract::class);
         }
-        $allow = $this->driver_class->allowRequest($key, $micronow, $max_requests, $duration, $this->cache);
-
+        $allow = $this->driver_class->allowRequest($key, $micronow, $max_requests, $duration, $this->getCache());
         if ($allow) {
             // 允许访问
             $this->now = $now;
