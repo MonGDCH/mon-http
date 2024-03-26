@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace mon\http\support;
 
 use Throwable;
-use mon\http\Session;
 use mon\http\Response;
+use Workerman\Protocols\Http\Session;
 use mon\http\interfaces\RequestInterface;
 use mon\http\interfaces\ExceptionHandlerInterface;
 
@@ -61,12 +61,18 @@ class ErrorHandler implements ExceptionHandlerInterface
         $trace = $e->getTrace();
         $source = $this->getSourceCode($e);
 
+        // workerman特殊处理session
+        $session = $request->session();
+        if ($session instanceof Session) {
+            $session->all();
+        }
+
         $tables = [
             'GET Data'  => $request->get(),
             'POST Data' => $request->post(),
             'Files'     => $request->file(),
             'Cookies'   => $request->cookie(),
-            'Session'   => Session::instance()->get(),
+            'Session'   => $session,
         ];
 
         $headerTmp = $this->buildHead();

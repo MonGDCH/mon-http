@@ -73,6 +73,13 @@ interface RequestInterface
     public function server($name = null, $default = null);
 
     /**
+     * 获取请求Session
+     *
+     * @return mixed
+     */
+    public function session();
+
+    /**
      * 获取请求Cookie
      *
      * @param string|null $name cookie名
