@@ -207,7 +207,7 @@ class WorkerMan implements AppInterface
             // 判断是否存在缓存处理器，执行缓存处理器
             $key = $method . $path;
             if (isset($this->cacheCallback[$key])) {
-                [$callback, $this->request()->controller, $this->request()->action] = $this->cacheCallback[$key];
+                [$callback, $this->request()->controller, $this->request()->action, $this->request()->params] = $this->cacheCallback[$key];
                 return $this->send($connection, $this->request(), $callback($this->request()));
             }
             // 处理文件响应
@@ -279,7 +279,7 @@ class WorkerMan implements AppInterface
             $this->clearCacheCallback();
         }
         // 缓存回调处理器
-        $this->cacheCallback[$key] = [$callback, '', ''];
+        $this->cacheCallback[$key] = [$callback, '', '', []];
         // 执行回调
         $this->send($connection, $request, $callback($request));
 
@@ -301,6 +301,8 @@ class WorkerMan implements AppInterface
         // 执行路由
         $handler = $this->route()->dispatch($method, $path);
         if ($handler[0] === Dispatcher::FOUND) {
+            // 绑定路由请求参数
+            $request->params = $handler[2];
             // 获取路由回调处理器
             $callback = $this->getCallback($handler[1], $handler[2], $this->app_name);
             // 获取路由回调处理器信息
@@ -312,7 +314,7 @@ class WorkerMan implements AppInterface
                 $this->clearCacheCallback();
             }
             // 缓存回调处理器
-            $this->cacheCallback[$key] = [$callback, $callbackInfo['controller'], $callbackInfo['action']];
+            $this->cacheCallback[$key] = [$callback, $callbackInfo['controller'], $callbackInfo['action'], $handler[2]];
             // 返回响应类实例
             $this->send($connection, $request, $callback($request));
 

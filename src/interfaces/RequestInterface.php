@@ -11,6 +11,16 @@ namespace mon\http\interfaces;
 interface RequestInterface
 {
     /**
+     * 获取路由参数
+     *
+     * @param mixed  $name      参数键名
+     * @param mixed  $default   默认值
+     * @param boolean $filter   是否过滤参数
+     * @return mixed
+     */
+    public function params($name = null, $default = null, bool $filter = true);
+
+    /**
      * 获取控制器名称
      *
      * @return string

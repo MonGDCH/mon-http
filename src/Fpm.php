@@ -97,6 +97,8 @@ class Fpm implements AppInterface
             // 解析路由
             $handler = $this->route()->dispatch($method, $path);
             if ($handler[0] === Dispatcher::FOUND) {
+                // 绑定路由请求参数
+                $this->request()->params = $handler[2];
                 // 获取路由回调处理器
                 $callback = $this->getCallback($handler[1], $handler[2], $this->app_name);
                 // 获取路由回调处理器信息
