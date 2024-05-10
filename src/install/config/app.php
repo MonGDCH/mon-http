@@ -20,7 +20,7 @@ return [
             // 路由文件路径
             'path'      => ROOT_PATH . DIRECTORY_SEPARATOR . 'routes',
             // 是否递归加载子目录路由
-            'recursive' => false,
+            'recursive' => true,
             // 路由缓存文件
             'cache'     => RUNTIME_PATH . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'route_cache.php',
         ],
@@ -53,7 +53,7 @@ return [
             // 路由文件路径
             'path'      => ROOT_PATH . DIRECTORY_SEPARATOR . 'routes',
             // 是否递归加载子目录路由
-            'recursive' => false
+            'recursive' => true
         ],
         // 静态文件访问配置
         'static'    => [

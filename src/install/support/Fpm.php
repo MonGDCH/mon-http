@@ -36,8 +36,12 @@ class Fpm
         $app = new Http($debug);
         // 是否启用FPM应用
         if (!Config::instance()->get('http.app.fpm.enable', false)) {
-            $disabled = $app->getFallback();
-            $app->send($disabled());
+            if ($debug) {
+                echo 'Gaia框架FPM服务未启用，请修改配置文件启动FPM服务';
+            } else {
+                $disabled = $app->getFallback();
+                $app->send($disabled());
+            }
             exit;
         }
 
@@ -82,7 +86,7 @@ class Fpm
             throw new ErrorException('routes dir not found! path: ' . $routePath);
         }
         // 是否递归路由目录
-        $recursive = Config::instance()->get('http.app.recursive', false);
+        $recursive = Config::instance()->get('http.app.fpm.route.recursive', false);
         // 获取指定目录内容
         $iterator = new RecursiveDirectoryIterator($routePath, RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
         // 是否递归目录

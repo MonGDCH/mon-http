@@ -61,10 +61,11 @@ class Http implements ProcessInterface
         // 初始化HTTP服务器
         $app = new WorkerMan($debug, Config::instance()->get('http.app.workerman.newCtrl', true));
 
-        // 自定义错误处理支持
-        if (Config::instance()->get('http.app.exception', '')) {
-            $app->supportError(Config::instance()->get('http.app.exception', ''));
-        }
+        // 注册异常处理器
+        $app->supportError(Config::instance()->get('http.app.exception', HttpErrorHandler::class));
+
+        // 注册session
+        $app->supportSession(Config::instance()->get('http.session', []));
 
         // 静态文件支持
         $app->supportStaticFile(
@@ -72,9 +73,6 @@ class Http implements ProcessInterface
             Config::instance()->get('http.app.workerman.static.path', ''),
             Config::instance()->get('http.app.workerman.static.ext_type', [])
         );
-
-        // session扩展支持
-        $app->supportSession(Config::instance()->get('http.session', []));
 
         // 中间件支持
         Middleware::instance()->load(Config::instance()->get('http.middleware', []));
