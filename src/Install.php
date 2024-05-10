@@ -26,7 +26,7 @@ class Install
      */
     protected static $file_relation = [
         'install/fpm.php' => 'public/index.php',
-        'install/Http.php' => 'process/Http.php',
+        'install/http.php' => 'bin/http',
         'install/route.php' => 'routes/route.php',
     ];
 

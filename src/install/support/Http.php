@@ -5,39 +5,88 @@ declare(strict_types=1);
 namespace support\http;
 
 use ErrorException;
-use mon\env\Config;
 use mon\log\Logger;
+use mon\env\Config;
+use Workerman\Worker;
+use gaia\ProcessTrait;
+use mon\http\WorkerMan;
+use mon\http\Middleware;
 use mon\log\format\LineFormat;
 use mon\log\record\FileRecord;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
-use mon\http\interfaces\AppInterface;
+use gaia\interfaces\ProcessInterface;
 
 /**
- * HTTP初始化
+ * Workerman HTTP 进程服务
  * 
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Bootstrap
+class Http implements ProcessInterface
 {
-    /**
-     * 日志通道
-     *
-     * @var string
-     */
-    protected static $logChannel = 'http';
+    use ProcessTrait;
 
     /**
-     * 启动
+     * 是否启用进程
      *
-     * @param AppInterface $app 驱动实例
+     * @return boolean
+     */
+    public static function enable(): bool
+    {
+        return Config::instance()->get('http.app.workerman.enable', false);
+    }
+
+    /**
+     * 获取进程配置
+     *
+     * @return array
+     */
+    public static function getProcessConfig(): array
+    {
+        return Config::instance()->get('http.app.workerman.config', []);
+    }
+
+    /**
+     * 进程启动
+     *
+     * @param Worker $worker
      * @return void
      */
-    public static function start(AppInterface $app)
+    public function onWorkerStart(Worker $worker): void
     {
-        // 日志处理
-        static::registerLogger();
+        // 运行模式
+        $debug = Config::instance()->get('app.debug', false);
+
+        // 初始化HTTP服务器
+        $app = new WorkerMan($debug, Config::instance()->get('http.app.workerman.newCtrl', true));
+
+        // 自定义错误处理支持
+        if (Config::instance()->get('http.app.exception', '')) {
+            $app->supportError(Config::instance()->get('http.app.exception', ''));
+        }
+
+        // 静态文件支持
+        $app->supportStaticFile(
+            Config::instance()->get('http.app.workerman.static.enable', false),
+            Config::instance()->get('http.app.workerman.static.path', ''),
+            Config::instance()->get('http.app.workerman.static.ext_type', [])
+        );
+
+        // session扩展支持
+        $app->supportSession(Config::instance()->get('http.session', []));
+
+        // 中间件支持
+        Middleware::instance()->load(Config::instance()->get('http.middleware', []));
+
+        // 注册日志处理
+        $this->registerLogger();
+
+        // 注册路由
+        $this->registerRoute();
+
+        // 绑定响应请求
+        $worker->onMessage = [$app, 'run'];
     }
 
     /**
@@ -45,16 +94,16 @@ class Bootstrap
      *
      * @return void
      */
-    public static function registerRoute()
+    protected function registerRoute()
     {
         // 路由目录路径
-        $routePath = Config::instance()->get('http.app.routePath', ROOT_PATH . DIRECTORY_SEPARATOR . 'routes');
+        $routePath = Config::instance()->get('http.app.workerman.route.path', ROOT_PATH . DIRECTORY_SEPARATOR . 'routes');
         if (!is_dir($routePath)) {
             throw new ErrorException('routes dir not found! path: ' . $routePath);
         }
 
         // 是否递归路由目录
-        $recursive = Config::instance()->get('http.app.recursive', false);
+        $recursive = Config::instance()->get('http.app.workerman.route.recursive', false);
         // 获取指定目录内容
         $iterator = new RecursiveDirectoryIterator($routePath, RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
         // 是否递归目录
@@ -73,12 +122,13 @@ class Bootstrap
     /**
      * 注册日志处理
      *
+     * @param string $logChannel  日志通道名
      * @return void
      */
-    public static function registerLogger()
+    protected function registerLogger(string $logChannel = 'http')
     {
         // 定义HTTP日志通道
-        Logger::instance()->createChannel(static::$logChannel, [
+        Logger::instance()->createChannel($logChannel, [
             // 解析器
             'format'    => [
                 // 类名
@@ -112,13 +162,13 @@ class Bootstrap
                     // 日志文件大小
                     'maxSize'   => 20480000,
                     // 日志目录
-                    'logPath'   => RUNTIME_PATH . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . static::$logChannel,
+                    'logPath'   => RUNTIME_PATH . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . $logChannel,
                     // 日志滚动卷数   
                     'rollNum'   => 3
                 ]
             ]
         ]);
         // 设置为默认的日志通道
-        Logger::instance()->setDefaultChannel(static::$logChannel);
+        Logger::instance()->setDefaultChannel($logChannel);
     }
 }

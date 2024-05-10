@@ -28,7 +28,6 @@ class HttpErrorHandler extends ErrorHandler
     {
         // 记录日志
         if (class_exists(Logger::class)) {
-            // $log = 'method：' . $request->method() . ' URL：' . $request->path() . ' file: ' . $e->getFile() . ' line: ' . $e->getLine() . ' message: ' . $e->getMessage();
             $log = 'Error message: ' . $e->getMessage() . ' file: ' . $e->getFile() . ' line: ' . $e->getLine();
             Logger::instance()->channel()->error($log);
         }
