@@ -30,7 +30,7 @@ class RouteTestCommand extends Command
      *
      * @var string
      */
-    protected static $defaultDescription = 'Test the pathinfo is valid. Use route:test [method] url.';
+    protected static $defaultDescription = 'Test the pathinfo is valid. Use route:test [-http] [method] url.';
 
     /**
      * 指令分组
@@ -49,7 +49,12 @@ class RouteTestCommand extends Command
     public function execute(Input $in, Output $out)
     {
         // 加载注册路由
-        \support\http\Fpm::registerRoute();
+        $isHttp = $in->getSopt('http', false);
+        if ($isHttp) {
+            \support\http\Http::registerRoute();
+        } else {
+            \support\http\Fpm::registerRoute();
+        }
 
         $args = $in->getArgs();
         $method = 'GET';

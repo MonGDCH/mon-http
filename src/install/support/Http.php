@@ -78,10 +78,10 @@ class Http implements ProcessInterface
         Middleware::instance()->load(Config::instance()->get('http.middleware', []));
 
         // 注册日志处理
-        $this->registerLogger();
+        static::registerLogger();
 
         // 注册路由
-        $this->registerRoute();
+        static::registerRoute();
 
         // 绑定响应请求
         $worker->onMessage = [$app, 'run'];
@@ -92,7 +92,7 @@ class Http implements ProcessInterface
      *
      * @return void
      */
-    protected function registerRoute()
+    public static function registerRoute()
     {
         // 路由目录路径
         $routePath = Config::instance()->get('http.app.workerman.route.path', ROOT_PATH . DIRECTORY_SEPARATOR . 'routes');
@@ -123,7 +123,7 @@ class Http implements ProcessInterface
      * @param string $logChannel  日志通道名
      * @return void
      */
-    protected function registerLogger(string $logChannel = 'http')
+    public static function registerLogger(string $logChannel = 'http')
     {
         // 定义HTTP日志通道
         Logger::instance()->createChannel($logChannel, [

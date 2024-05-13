@@ -29,7 +29,7 @@ class RouteShowCommand extends Command
      *
      * @var string
      */
-    protected static $defaultDescription = 'Displays the defined route table.';
+    protected static $defaultDescription = 'Displays the defined route table. php gaia route:show [-http]';
 
     /**
      * 指令分组
@@ -48,7 +48,13 @@ class RouteShowCommand extends Command
     public function execute(Input $in, Output $out)
     {
         // 加载注册路由
-        \support\http\Fpm::registerRoute();
+        $isHttp = $in->getSopt('http', false);
+        if ($isHttp) {
+            \support\http\Http::registerRoute();
+        } else {
+            \support\http\Fpm::registerRoute();
+        }
+
         // 生成表格
         $columns = ['method', 'path', 'callback', 'middleware'];
         $data = Route::instance()->getData();
@@ -64,7 +70,8 @@ class RouteShowCommand extends Command
             }
         }
 
-        return $out->table($res, 'Router Table', $columns);
+        $name = $isHttp ? 'HTTP Router Table' : 'FPM Router Table';
+        return $out->table($res, $name, $columns);
     }
 
     /**
