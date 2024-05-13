@@ -222,7 +222,8 @@ class Request implements RequestInterface
     public function path(): string
     {
         $pathInfo = $this->detectPathInfo();
-        return $pathInfo ? preg_replace('/[\/]+/', '/', $pathInfo) : '/';
+        $pathInfo ? preg_replace('/[\/]+/', '/', $pathInfo) : '/';
+        return (strpos($pathInfo, '/') !== 0) ? ('/' . $pathInfo) : $pathInfo;
     }
 
     /**

@@ -48,7 +48,7 @@ class RouteShowCommand extends Command
     public function execute(Input $in, Output $out)
     {
         // 加载注册路由
-        \support\http\Bootstrap::registerRoute();
+        \support\http\Fpm::registerRoute();
         // 生成表格
         $columns = ['method', 'path', 'callback', 'middleware'];
         $data = Route::instance()->getData();

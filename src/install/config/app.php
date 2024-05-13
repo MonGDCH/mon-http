@@ -22,7 +22,7 @@ return [
             // 是否递归加载子目录路由
             'recursive' => true,
             // 路由缓存文件
-            'cache'     => RUNTIME_PATH . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'route_cache.php',
+            'cache'     => RUNTIME_PATH . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'fpm_route_cache.php',
         ],
     ],
     // Gaia基于workerman的HTTP服务配置

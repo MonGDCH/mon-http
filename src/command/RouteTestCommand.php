@@ -49,7 +49,7 @@ class RouteTestCommand extends Command
     public function execute(Input $in, Output $out)
     {
         // 加载注册路由
-        \support\http\Bootstrap::registerRoute();
+        \support\http\Fpm::registerRoute();
 
         $args = $in->getArgs();
         $method = 'GET';

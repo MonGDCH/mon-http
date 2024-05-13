@@ -49,7 +49,7 @@ class RouteClearCommand extends Command
     public function execute(Input $in, Output $out)
     {
         // 缓存路由信息
-        $cache_route = Config::instance()->get('http.app.fpm.cache', '');
+        $cache_route = Config::instance()->get('http.app.fpm.route.cache', '');
         if (!$cache_route) {
             return $out->block('Route cache file path error!', 'ERROR');
         }

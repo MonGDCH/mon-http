@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "mongdch/mon-util",
-            "version": "1.5.4",
+            "version": "1.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MonGDCH/mon-util.git",
-                "reference": "a4b9b797d8d86bc2833385475ae8a946611a8bd2"
+                "reference": "a4f89d00e66f62eab7a4cf40e90e2d2acdbdcab9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MonGDCH/mon-util/zipball/a4b9b797d8d86bc2833385475ae8a946611a8bd2",
-                "reference": "a4b9b797d8d86bc2833385475ae8a946611a8bd2",
+                "url": "https://api.github.com/repos/MonGDCH/mon-util/zipball/a4f89d00e66f62eab7a4cf40e90e2d2acdbdcab9",
+                "reference": "a4f89d00e66f62eab7a4cf40e90e2d2acdbdcab9",
                 "shasum": ""
             },
             "require": {
@@ -54,9 +54,9 @@
             ],
             "support": {
                 "issues": "https://github.com/MonGDCH/mon-util/issues",
-                "source": "https://github.com/MonGDCH/mon-util/tree/1.5.4"
+                "source": "https://github.com/MonGDCH/mon-util/tree/1.5.5"
             },
-            "time": "2024-03-04T06:50:08+00:00"
+            "time": "2024-04-15T05:45:46+00:00"
         },
         {
             "name": "nikic/fast-route",
