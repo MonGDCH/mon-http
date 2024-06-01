@@ -264,7 +264,7 @@ trait App
      */
     public function handlerException(Throwable $e, RequestInterface $request): Response
     {
-        // 路由跳转 或者 dump调试打印
+        // 实现业务异常接口，直接返回对应响应对象
         if ($e instanceof BusinessInterface) {
             return $e->getResponse($request);
         }

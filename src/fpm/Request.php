@@ -33,6 +33,20 @@ class Request implements RequestInterface
     protected $input = null;
 
     /**
+     * 请求uri
+     *
+     * @var string
+     */
+    protected $uri = null;
+
+    /**
+     * 请求pathinfo
+     *
+     * @var string
+     */
+    protected $pathinfo = null;
+
+    /**
      * 构造方法
      */
     public function __construct()
@@ -221,9 +235,14 @@ class Request implements RequestInterface
      */
     public function path(): string
     {
+        if (!is_null($this->pathinfo)) {
+            return $this->pathinfo;
+        }
+
         $pathInfo = $this->detectPathInfo();
         $pathInfo ? preg_replace('/[\/]+/', '/', $pathInfo) : '/';
-        return (strpos($pathInfo, '/') !== 0) ? ('/' . $pathInfo) : $pathInfo;
+        $this->pathinfo = (strpos($pathInfo, '/') !== 0) ? ('/' . $pathInfo) : $pathInfo;
+        return $this->pathinfo;
     }
 
     /**
@@ -233,32 +252,36 @@ class Request implements RequestInterface
      */
     public function uri(): string
     {
+        if (!is_null($this->uri)) {
+            return $this->uri;
+        }
+
         if (isset($_SERVER['HTTP_X_ORIGINAL_URL'])) {
             // 带微软重写模块的IIS
-            $requestUri = $_SERVER['HTTP_X_ORIGINAL_URL'];
+            $this->uri = $_SERVER['HTTP_X_ORIGINAL_URL'];
         } elseif (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
             // 带ISAPI_Rewrite的IIS
-            $requestUri = $_SERVER['HTTP_X_REWRITE_URL'];
+            $this->uri = $_SERVER['HTTP_X_REWRITE_URL'];
         } elseif (isset($_SERVER['IIS_WasUrlRewritten']) && $_SERVER['IIS_WasUrlRewritten'] == '1' && isset($_SERVER['UNENCODED_URL']) && $_SERVER['UNENCODED_URL'] != '') {
             // URL重写的IIS7：确保我们得到的未编码的URL(双斜杠的问题)
-            $requestUri = $_SERVER['UNENCODED_URL'];
+            $this->uri = $_SERVER['UNENCODED_URL'];
         } elseif (isset($_SERVER['REQUEST_URI'])) {
-            $requestUri = $_SERVER['REQUEST_URI'];
+            $this->uri = $_SERVER['REQUEST_URI'];
             // 只使用URL路径, 不包含scheme、主机[和端口]或者http代理
-            if ($requestUri) {
-                $requestUri = preg_replace('#^[^/:]+://[^/]+#', '', $requestUri);
+            if ($this->uri) {
+                $this->uri = preg_replace('#^[^/:]+://[^/]+#', '', $this->uri);
             }
         } elseif (isset($_SERVER['ORIG_PATH_INFO'])) {
             // IIS 5.0, CGI
-            $requestUri = $_SERVER['ORIG_PATH_INFO'];
+            $this->uri = $_SERVER['ORIG_PATH_INFO'];
             if (!empty($_SERVER['QUERY_STRING'])) {
-                $requestUri .= '?' . $_SERVER['QUERY_STRING'];
+                $this->uri .= '?' . $_SERVER['QUERY_STRING'];
             }
         } else {
-            $requestUri = '/';
+            $this->uri = '/';
         }
 
-        return $requestUri;
+        return $this->uri;
     }
 
     /**

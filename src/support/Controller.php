@@ -16,13 +16,6 @@ use mon\http\Response;
 abstract class Controller
 {
     /**
-     * 返回数据类型
-     *
-     * @var string
-     */
-    protected $dataType = 'json';
-
-    /**
      * 响应头
      *
      * @var array
@@ -30,17 +23,53 @@ abstract class Controller
     protected $headers = [];
 
     /**
-     * 输出视图内容
+     * 返回数据类型
+     *
+     * @var string
+     */
+    protected $dataType = 'json';
+
+    /**
+     * 成功响应code值
+     *
+     * @var integer
+     */
+    protected $success_code = 1;
+
+    /**
+     * 错误响应code值
+     *
+     * @var integer
+     */
+    protected $error_code = 0;
+
+    /**
+     * 输出文本内容
      *
      * @param string $content   输出内容
      * @param array $header     响应头
      * @param integer $status   响应状态码
      * @return Response
      */
-    protected function view(string $content, array $header = [], int $status = 200): Response
+    protected function text(string $content, array $header = [], int $status = 200): Response
     {
         $headers = array_merge($this->headers, $header);
         return new Response($status, $headers, $content);
+    }
+
+    /**
+     * 输出json内容
+     *
+     * @param array $data       结果集
+     * @param array $header     响应头
+     * @param integer $status   响应状态码
+     * @return Response
+     */
+    protected function json(array $data, array $header = [], int $status = 200): Response
+    {
+        $headers = array_merge($this->headers, $header);
+        $headers['Content-Type'] = 'application/json;charset=utf-8';
+        return new Response($status, $headers, json_encode($data, JSON_UNESCAPED_UNICODE));
     }
 
     /**
@@ -55,7 +84,7 @@ abstract class Controller
      */
     protected function error(string $msg, array $data = [], array $extend = [], array $headers = [], int $status = 200): Response
     {
-        return $this->result(0, $msg, $data, $extend, $headers, $status);
+        return $this->result($this->error_code, $msg, $data, $extend, $headers, $status);
     }
 
     /**
@@ -70,7 +99,7 @@ abstract class Controller
      */
     protected function success(string $msg, array $data = [], array $extend = [], array $headers = [], int $status = 200): Response
     {
-        return $this->result(1, $msg, $data, $extend, $headers, $status);
+        return $this->result($this->success_code, $msg, $data, $extend, $headers, $status);
     }
 
     /**

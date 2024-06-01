@@ -10,7 +10,7 @@ use mon\http\interfaces\RequestInterface;
 use mon\http\interfaces\BusinessInterface;
 
 /**
- * 路由跳转
+ * 业务跳转URL
  *
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
@@ -18,20 +18,14 @@ use mon\http\interfaces\BusinessInterface;
 class JumpException extends Exception implements BusinessInterface
 {
     /**
-     * 响应类实例
-     *
-     * @var Response
-     */
-    protected $response;
-
-    /**
      * 构造方法
      *
-     * @param Response $response 响应类
+     * @param string $url   跳转地址，code为302有效
+     * @param integer $code 响应状态码
      */
-    public function __construct(Response $response)
+    public function __construct(string $url = '', int $code = 302)
     {
-        $this->response = $response;
+        parent::__construct($url, $code);
     }
 
     /**
@@ -42,6 +36,11 @@ class JumpException extends Exception implements BusinessInterface
      */
     public function getResponse(RequestInterface $request): Response
     {
-        return $this->response;
+        if ($this->getCode() == 302) {
+            $header['Location'] = $this->getMessage();
+            return new Response($this->getCode(), $header);
+        }
+
+        return new Response($this->getCode());
     }
 }
