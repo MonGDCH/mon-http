@@ -7,6 +7,7 @@ namespace support\http;
 use ErrorException;
 use mon\log\Logger;
 use mon\env\Config;
+use mon\thinkORM\ORM;
 use Workerman\Worker;
 use gaia\ProcessTrait;
 use mon\http\WorkerMan;
@@ -15,6 +16,8 @@ use mon\log\format\LineFormat;
 use mon\log\record\FileRecord;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
+use support\cache\CacheService;
+use mon\thinkORM\ORMMiddleware;
 use gaia\interfaces\ProcessInterface;
 
 /**
@@ -82,6 +85,19 @@ class Http implements ProcessInterface
 
         // 注册路由
         static::registerRoute();
+
+        // 定义数据库配置，自动识别是否已安装Orm库
+        if (class_exists(ORM::class)) {
+            $config = Config::instance()->get('database', []);
+            // 识别是否存在缓存库
+            if (class_exists(CacheService::class)) {
+                ORM::register(false, $config, Logger::instance()->channel(), CacheService::instance()->getService()->store());
+            } else {
+                ORM::register(false, $config, Logger::instance()->channel());
+            }
+            // 注册ORM中间件
+            Middleware::instance()->set('', ORMMiddleware::class);
+        }
 
         // 绑定响应请求
         $worker->onMessage = [$app, 'run'];
