@@ -31,16 +31,6 @@ class Http implements ProcessInterface
     use ProcessTrait;
 
     /**
-     * 是否启用进程
-     *
-     * @return boolean
-     */
-    public static function enable(): bool
-    {
-        return Config::instance()->get('http.app.workerman.enable', false);
-    }
-
-    /**
      * 获取进程配置
      *
      * @return array
@@ -96,7 +86,7 @@ class Http implements ProcessInterface
                 ORM::register(false, $config, Logger::instance()->channel());
             }
             // 注册ORM中间件
-            Middleware::instance()->set('', ORMMiddleware::class);
+            Middleware::instance()->set('__worker__', [ORMMiddleware::class]);
         }
 
         // 绑定响应请求

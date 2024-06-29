@@ -73,7 +73,7 @@ class Fpm
                 ORM::register(false, $config, Logger::instance()->channel());
             }
             // 注册ORM中间件
-            Middleware::instance()->set('', ORMMiddleware::class);
+            Middleware::instance()->set('__fpm__', [ORMMiddleware::class]);
         }
 
         // 运行FPM

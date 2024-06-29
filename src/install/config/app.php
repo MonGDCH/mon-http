@@ -27,8 +27,6 @@ return [
     ],
     // Gaia基于workerman的HTTP服务配置
     'workerman' => [
-        // 是否启用进程
-        'enable'    => false,
         // 进程配置
         'config'    => [
             // 监听协议端口
