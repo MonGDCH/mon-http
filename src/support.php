@@ -19,11 +19,3 @@ if (!function_exists('dump')) {
         throw new \mon\http\exception\DumperException($args);
     }
 }
-
-
-// Gaia环境，进行指令注册
-if (PHP_SAPI == 'cli' && class_exists(\gaia\App::class)) {
-    $path = __DIR__ . '/command';
-    $namespance = 'mon\\http\\command';
-    \gaia\App::console()->load($path, $namespance);
-}

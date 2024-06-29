@@ -2,34 +2,35 @@
 
 declare(strict_types=1);
 
-namespace mon\http\Command;
+namespace support\command\http;
 
 use mon\http\Route;
 use mon\console\Input;
 use mon\console\Output;
 use mon\console\Command;
+use FastRoute\Dispatcher;
 
 /**
- * 查看路由表
+ * 测试请求路径
  *
  * @author Mon <98555883@qq.com>
  * @version 1.0.0
  */
-class RouteShowCommand extends Command
+class RouteTestCommand extends Command
 {
     /**
      * 指令名
      *
      * @var string
      */
-    protected static $defaultName = 'route:show';
+    protected static $defaultName = 'route:test';
 
     /**
      * 指令描述
      *
      * @var string
      */
-    protected static $defaultDescription = 'Displays the defined route table. php gaia route:show [-http]';
+    protected static $defaultDescription = 'Test the pathinfo is valid. Use route:test [-fpm] [method] url.';
 
     /**
      * 指令分组
@@ -48,30 +49,38 @@ class RouteShowCommand extends Command
     public function execute(Input $in, Output $out)
     {
         // 加载注册路由
-        $isHttp = $in->getSopt('http', false);
-        if ($isHttp) {
-            \support\http\Http::registerRoute();
-        } else {
+        $isFpm = $in->getSopt('fpm', false);
+        if ($isFpm) {
             \support\http\Fpm::registerRoute();
+        } else {
+            \support\http\Http::registerRoute();
         }
 
-        // 生成表格
+        $args = $in->getArgs();
+        $method = 'GET';
+        if (isset($args[0]) && isset($args[1])) {
+            $method = strtoupper($args[0]);
+            $path = $args[1];
+        } else if (isset($args[0])) {
+            $path = $args[0];
+        } else {
+            return $out->block('please input test uri pathinfo', 'ERROR');
+        }
         $columns = ['method', 'path', 'callback', 'middleware'];
-        $data = Route::instance()->getData();
-        $res = [];
-        foreach ($data[0] as $method => $item) {
-            foreach ($item as $path => $info) {
-                $res[] = [
-                    'method'    => $method,
-                    'path'      => $path,
-                    'callback'  => $this->getCallback($info['callback']),
-                    'middleware' => isset($info['middleware']) ? implode(', ', $info['middleware']) : '',
-                ];
-            }
+        $callback = Route::instance()->dispatch($method, $path);
+        if ($callback[0] == Dispatcher::FOUND) {
+            $info = $callback[1];
+            $table = [];
+            $table[] = [
+                'method'    => $method,
+                'path'      => $path,
+                'callback'  => $this->getCallback($info['callback']),
+                'middleware' => isset($info['middleware']) ? implode(', ', $info['middleware']) : '',
+            ];
+            return $out->table($table, 'Callback Table', $columns);
         }
 
-        $name = $isHttp ? 'HTTP Router Table' : 'FPM Router Table';
-        return $out->table($res, $name, $columns);
+        return $out->error('[error] Route is not found');
     }
 
     /**

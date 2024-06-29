@@ -64,7 +64,6 @@ class Fpm
         $app->run();
     }
 
-
     /**
      * 注册路由
      *

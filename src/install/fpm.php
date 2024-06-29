@@ -18,7 +18,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 | 初始化Gaia应用
 |
 */
-\gaia\App::initialize();
+\gaia\App::initialize('fpm');
 
 
 

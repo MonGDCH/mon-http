@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\http\Command;
+namespace support\command\http;
 
 use mon\util\File;
 use mon\env\Config;
@@ -30,7 +30,7 @@ class RouteClearCommand extends Command
      *
      * @var string
      */
-    protected static $defaultDescription = 'Clear the route cache.';
+    protected static $defaultDescription = 'Clear the fpm route cache.';
 
     /**
      * 指令分组

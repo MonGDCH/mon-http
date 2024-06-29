@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace mon\http\Command;
+namespace support\command\http;
 
 use mon\env\Config;
 use mon\http\Route;
@@ -30,7 +30,7 @@ class RouteCacheCommand extends Command
      *
      * @var string
      */
-    protected static $defaultDescription = 'Cache the route.';
+    protected static $defaultDescription = 'Cache the fpm route.';
 
     /**
      * 指令分组
