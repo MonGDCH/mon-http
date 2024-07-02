@@ -76,14 +76,14 @@ class Http implements ProcessInterface
         // 注册路由
         static::registerRoute();
 
-        // 定义数据库配置，自动识别是否已安装Orm库
+        // 定义数据库配置，自动识别是否已安装ORM库
         if (class_exists(ORM::class)) {
             $config = Config::instance()->get('database', []);
             // 识别是否存在缓存库
             if (class_exists(CacheService::class)) {
-                ORM::register(false, $config, Logger::instance()->channel(), CacheService::instance()->getService()->store());
+                ORM::register(true, $config, Logger::instance()->channel(), CacheService::instance()->getService()->store());
             } else {
-                ORM::register(false, $config, Logger::instance()->channel());
+                ORM::register(true, $config, Logger::instance()->channel());
             }
             // 注册ORM中间件
             Middleware::instance()->set('__worker__', [ORMMiddleware::class]);
