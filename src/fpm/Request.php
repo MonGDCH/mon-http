@@ -185,8 +185,8 @@ class Request implements RequestInterface
             return is_null($name) ? [] : null;
         }
 
-        $files = $_FILES[$name] ?? [];
         if (!is_null($name)) {
+            $files = $_FILES[$name];
             // 多文件
             if (is_array(current($files))) {
                 return $this->parseFiles($files);
@@ -196,7 +196,7 @@ class Request implements RequestInterface
         }
 
         $upload_files = [];
-        foreach ($files as $name => $file) {
+        foreach ($_FILES as $name => $file) {
             // 多文件
             if (is_array(current($file))) {
                 $upload_files[$name] = $this->parseFiles($file);
@@ -205,7 +205,7 @@ class Request implements RequestInterface
             }
         }
 
-        return $_FILES[$name] ?? null;
+        return $upload_files;
     }
 
     /**
