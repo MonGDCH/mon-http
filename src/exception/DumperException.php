@@ -54,8 +54,13 @@ class DumperException extends RuntimeException implements BusinessInterface
     {
         $tmp = [];
         foreach ($this->getData() as $val) {
-            $tmp[] = '<pre>' . dd($val, false) . '<pre/><br/>';
+            if (defined('IN_WORKERMAN') && IN_WORKERMAN) {
+                $tmp[] = '<pre>' . dd($val, false) . '<pre/><br/>';
+            } else {
+                $tmp[] =  dd($val, false) . '<br/>';
+            }
         }
+
         return new Response(200, [], implode('', $tmp));
     }
 }
