@@ -200,7 +200,15 @@ class WorkerMan implements AppInterface
             // 请求方式
             $method = $this->request()->method();
             // 验证请求路径安全
-            if (strpos($path, '..') !== false || strpos($path, "\\") !== false || strpos($path, "\0") !== false || strpos($path, '//') !== false || !$path) {
+            if (
+                strpos($path, '/../') !== false ||
+                substr($path, -3) === '/..' ||
+                strpos($path, '..') !== false ||
+                strpos($path, "\\") !== false ||
+                strpos($path, "\0") !== false ||
+                strpos($path, '//') !== false ||
+                !$path
+            ) {
                 $failback = $this->getFallback();
                 return $this->send($connection, $this->request(), $failback($this->request()));
             }
