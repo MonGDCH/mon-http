@@ -6,6 +6,7 @@ namespace mon\http\support;
 
 use mon\util\Common;
 use mon\http\Response;
+use mon\http\interfaces\RequestInterface;
 
 /**
  * 控制器基类
@@ -70,6 +71,30 @@ abstract class Controller
         $headers = array_merge($this->headers, $header);
         $headers['Content-Type'] = 'application/json;charset=utf-8';
         return new Response($status, $headers, json_encode($data, JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * 输出文件流
+     *
+     * @param string $path  文件路径
+     * @param RequestInterface|null $request    请求实例
+     * @return Response
+     */
+    protected function file(string $path, RequestInterface $request = null): Response
+    {
+        return (new Response())->file($path, $request);
+    }
+
+    /**
+     * 文件下载
+     *
+     * @param string $path  文件路径
+     * @param string $name  文件名
+     * @return Response
+     */
+    protected function download(string $path, string $name): Response
+    {
+        return (new Response())->download($path, $name);
     }
 
     /**

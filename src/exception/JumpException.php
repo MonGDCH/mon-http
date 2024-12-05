@@ -20,12 +20,12 @@ class JumpException extends Exception implements BusinessInterface
     /**
      * 构造方法
      *
-     * @param string $url   跳转地址，code为302有效
-     * @param integer $code 响应状态码
+     * @param string $url   跳转地址，status为302有效
+     * @param integer $status 响应状态码
      */
-    public function __construct(string $url = '', int $code = 302)
+    public function __construct(string $url = '', int $status = 302)
     {
-        parent::__construct($url, $code);
+        parent::__construct($url, $status);
     }
 
     /**

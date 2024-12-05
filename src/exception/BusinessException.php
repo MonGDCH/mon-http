@@ -33,17 +33,26 @@ class BusinessException extends Exception implements BusinessInterface
     protected $data = [];
 
     /**
+     * 响应状态码
+     *
+     * @var integer
+     */
+    protected $status = 200;
+
+    /**
      * 构造方法
      *
      * @param string $message   描述信息
      * @param integer $code     状态码
      * @param array $data       结果就
+     * @param integer $status   响应状态码
      * @param string $dataType  响应数据类型
      */
-    public function __construct(string $message = '', int $code = 0, array $data = [], string $dataType = 'json')
+    public function __construct(string $message = '', int $code = 0, array $data = [], int $status = 200, string $dataType = 'json')
     {
         parent::__construct($message, $code);
         $this->data = $data;
+        $this->status = $status;
         $this->dataType = $dataType;
     }
 
@@ -65,6 +74,16 @@ class BusinessException extends Exception implements BusinessInterface
     public function getData(): array
     {
         return $this->data;
+    }
+
+    /**
+     * 获取响应状态码
+     *
+     * @return integer
+     */
+    public function getStatus(): int
+    {
+        return $this->status;
     }
 
     /**
@@ -96,6 +115,6 @@ class BusinessException extends Exception implements BusinessInterface
                 break;
         }
 
-        return new Response(200, $headers, $data);
+        return new Response($this->getStatus(), $headers, $data);
     }
 }

@@ -215,7 +215,7 @@ class Request implements RequestInterface
      */
     public function method(): string
     {
-        return $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        return $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? $_SERVER['REQUEST_METHOD'] ?? '';
     }
 
     /**
