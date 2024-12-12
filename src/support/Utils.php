@@ -30,7 +30,7 @@ class Utils
      * @param boolean $recursive    是否递归路由目录
      * @return void
      */
-    public function loadRoute(string $routePath, bool $recursive): void
+    public function loadRoute(string $routePath, bool $recursive = false): void
     {
         if (!is_dir($routePath)) {
             throw new RouteException('Routes dir not found! path: ' . $routePath);
@@ -40,7 +40,7 @@ class Utils
         // 是否递归目录
         $iterator = $recursive ? new RecursiveIteratorIterator($iterator) : $iterator;
         // 加载路由文件，映射路由$route变量
-        Route::instance()->group('', function (Route $route) {
+        Route::instance()->group('', function (Route $route) use ($iterator) {
             /** @var RecursiveDirectoryIterator $iterator */
             foreach ($iterator as $file) {
                 // 过滤目录及非文件
