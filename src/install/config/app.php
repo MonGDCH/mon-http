@@ -15,15 +15,8 @@ return [
     'fpm'       => [
         // 是否启用fpm
         'enable'    => false,
-        // 路由配置
-        'route'     => [
-            // 路由文件路径
-            'path'      => ROOT_PATH . DIRECTORY_SEPARATOR . 'routes',
-            // 是否递归加载子目录路由
-            'recursive' => true,
-            // 路由缓存文件
-            'cache'     => RUNTIME_PATH . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'fpm_route_cache.php',
-        ],
+        // 路由缓存文件
+        'cache'     => RUNTIME_PATH . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'fpm_route_cache.php',
     ],
     // Gaia基于workerman的HTTP服务配置
     'workerman' => [
@@ -46,13 +39,6 @@ return [
         ],
         // 是否每次业务重新创建控制器
         'newCtrl'   => true,
-        // 路由配置
-        'route'     => [
-            // 路由文件路径
-            'path'      => ROOT_PATH . DIRECTORY_SEPARATOR . 'routes',
-            // 是否递归加载子目录路由
-            'recursive' => true
-        ],
         // 静态文件访问配置
         'static'    => [
             // 是否启用静态资源访问 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace support\http;
 
-use ErrorException;
 use mon\log\Logger;
 use mon\env\Config;
 use mon\thinkORM\ORM;
@@ -12,10 +11,7 @@ use Workerman\Worker;
 use gaia\ProcessTrait;
 use mon\http\WorkerMan;
 use mon\http\Middleware;
-use mon\log\format\LineFormat;
-use mon\log\record\FileRecord;
-use RecursiveIteratorIterator;
-use RecursiveDirectoryIterator;
+use mon\http\support\Utils;
 use support\cache\CacheService;
 use mon\thinkORM\ORMMiddleware;
 use gaia\interfaces\ProcessInterface;
@@ -71,7 +67,7 @@ class Http implements ProcessInterface
         Middleware::instance()->load(Config::instance()->get('http.middleware', []));
 
         // 注册日志处理
-        static::registerLogger();
+        Utils::registerLogger('http');
 
         // 注册路由
         static::registerRoute();
@@ -79,12 +75,9 @@ class Http implements ProcessInterface
         // 定义数据库配置，自动识别是否已安装ORM库
         if (class_exists(ORM::class)) {
             $config = Config::instance()->get('database', []);
-            // 识别是否存在缓存库
-            if (class_exists(CacheService::class)) {
-                ORM::register(true, $config, Logger::instance()->channel(), CacheService::instance()->getService()->store());
-            } else {
-                ORM::register(true, $config, Logger::instance()->channel());
-            }
+            // 注册ORM
+            $cache_store = class_exists(CacheService::class) ? CacheService::instance()->getService()->store() : null;
+            ORM::register(true, $config, Logger::instance()->channel(), $cache_store);
             // 注册ORM中间件
             Middleware::instance()->set('__worker__', [ORMMiddleware::class]);
         }
@@ -100,79 +93,7 @@ class Http implements ProcessInterface
      */
     public static function registerRoute()
     {
-        // 路由目录路径
-        $routePath = Config::instance()->get('http.app.workerman.route.path', ROOT_PATH . DIRECTORY_SEPARATOR . 'routes');
-        if (!is_dir($routePath)) {
-            throw new ErrorException('routes dir not found! path: ' . $routePath);
-        }
-
-        // 是否递归路由目录
-        $recursive = Config::instance()->get('http.app.workerman.route.recursive', false);
-        // 获取指定目录内容
-        $iterator = new RecursiveDirectoryIterator($routePath, RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
-        // 是否递归目录
-        $iterator = $recursive ? new RecursiveIteratorIterator($iterator) : $iterator;
-        /** @var RecursiveDirectoryIterator $iterator */
-        foreach ($iterator as $file) {
-            // 过滤目录及非文件
-            if ($file->isDir() || $file->getExtension() != 'php') {
-                continue;
-            }
-            // 加载文件
-            require_once $file->getPathname();
-        }
-    }
-
-    /**
-     * 注册日志处理
-     *
-     * @param string $logChannel  日志通道名
-     * @return void
-     */
-    public static function registerLogger(string $logChannel = 'http')
-    {
-        // 定义HTTP日志通道
-        Logger::instance()->createChannel($logChannel, [
-            // 解析器
-            'format'    => [
-                // 类名
-                'handler'   => LineFormat::class,
-                // 配置信息
-                'config'    => [
-                    // 日志是否包含级别
-                    'level'         => true,
-                    // 日志是否包含时间
-                    'date'          => true,
-                    // 时间格式，启用日志时间时有效
-                    'date_format'   => 'Y-m-d H:i:s',
-                    // 是否启用日志追踪
-                    'trace'         => false,
-                    // 追踪层级，启用日志追踪时有效
-                    'layer'         => 3
-                ]
-            ],
-            // 记录器
-            'record'    => [
-                // 类名
-                'handler'   => FileRecord::class,
-                // 配置信息
-                'config'    => [
-                    // 是否自动写入文件
-                    'save'      => false,
-                    // 写入文件后，清除缓存日志
-                    'clear'     => true,
-                    // 日志名称，空则使用当前日期作为名称
-                    'logName'   => '',
-                    // 日志文件大小
-                    'maxSize'   => 20480000,
-                    // 日志目录
-                    'logPath'   => RUNTIME_PATH . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . $logChannel,
-                    // 日志滚动卷数   
-                    'rollNum'   => 3
-                ]
-            ]
-        ]);
-        // 设置为默认的日志通道
-        Logger::instance()->setDefaultChannel($logChannel);
+        // 加载默认路由定义文件
+        require_once __DIR__ . '/Route.php';
     }
 }

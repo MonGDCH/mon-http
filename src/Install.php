@@ -25,7 +25,6 @@ class Install
      * @var array
      */
     protected static $file_relation = [
-        'install/route.php' => 'routes/route.php',
         'install/fpm.php'   => 'public/index.php',
         'install/http.php'  => 'bin/http.php',
     ];
@@ -66,9 +65,7 @@ class Install
      *
      * @return void
      */
-    public static function uninstall()
-    {
-    }
+    public static function uninstall() {}
 
     /**
      * Gaia发布

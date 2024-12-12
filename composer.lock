@@ -8,11 +8,11 @@
     "packages": [
         {
             "name": "mongdch/mon-util",
-            "version": "1.5.9",
+            "version": "1.5.10",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/mongdch/mon-util/1.5.9/mongdch-mon-util-1.5.9.zip",
-                "reference": "35bb84b8536a8508672ecd4fb4807f7acc5345af",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/mongdch/mon-util/1.5.10/mongdch-mon-util-1.5.10.zip",
+                "reference": "3e5ee40172544229c0d596ee39f9148198c097e8",
                 "shasum": ""
             },
             "require": {
@@ -46,14 +46,14 @@
                 "tool",
                 "util"
             ],
-            "time": "2024-12-03T09:31:28+00:00"
+            "time": "2024-12-11T06:39:28+00:00"
         },
         {
             "name": "nikic/fast-route",
             "version": "v1.3.0",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/nikic/fast-route/v1.3.0/nikic-fast-route-v1.3.0.zip",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/nikic/fast-route/v1.3.0/nikic-fast-route-v1.3.0.zip",
                 "reference": "181d480e08d9476e61381e04a71b34dc0432e812",
                 "shasum": ""
             },
@@ -175,12 +175,12 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.2.0"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.2.0"
 }

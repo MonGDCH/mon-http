@@ -6,8 +6,6 @@
 |--------------------------------------------------------------------------
 */
 
-use mon\http\Context;
-
 if (!function_exists('dump')) {
     /**
      * 浏览器打印调试变量
@@ -45,6 +43,6 @@ if (!function_exists('request')) {
      */
     function request(): \mon\http\Request
     {
-        return Context::get(\mon\http\Request::class);
+        return \mon\http\Context::get(\mon\http\Request::class);
     }
 }
