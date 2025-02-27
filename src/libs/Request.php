@@ -167,7 +167,7 @@ trait Request
     protected function getData(array $data, string $name, $default = null)
     {
         foreach (explode('.', $name) as $val) {
-            if (isset($data[$val])) {
+            if (array_key_exists($val, $data)) {
                 $data = $data[$val];
             } else {
                 return $default;

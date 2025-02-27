@@ -1,18 +1,19 @@
 {
     "name": "mongdch/mon-http",
-    "description": "The Workerman HTTP Server",
+    "description": "The FPM and Workerman HTTP Server",
     "license": "MIT",
     "homepage": "http://gdmon.com/",
     "keywords": [
-        "Mon",
-        "http server",
-        "workerman"
+        "fast",
+        "workerman",
+        "api",
+        "http server"
     ],
     "authors": [
         {
             "name": "Mon",
             "email": "985558837@qq.com",
-            "homepage": "http://www.gdmon.com/",
+            "homepage": "https://github.com/MonGDCH",
             "role": "Developer"
         }
     ],

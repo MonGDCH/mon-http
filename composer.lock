@@ -8,11 +8,11 @@
     "packages": [
         {
             "name": "mongdch/mon-util",
-            "version": "1.5.10",
+            "version": "1.5.14",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/mongdch/mon-util/1.5.10/mongdch-mon-util-1.5.10.zip",
-                "reference": "3e5ee40172544229c0d596ee39f9148198c097e8",
+                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-util/1.5.14/mongdch-mon-util-1.5.14.zip",
+                "reference": "bfb0d70953bd012dcb7c2f76a7dde3cfc59bde3d",
                 "shasum": ""
             },
             "require": {
@@ -46,14 +46,18 @@
                 "tool",
                 "util"
             ],
-            "time": "2024-12-11T06:39:28+00:00"
+            "support": {
+                "issues": "https://github.com/MonGDCH/mon-util/issues",
+                "source": "https://github.com/MonGDCH/mon-util/tree/1.5.14"
+            },
+            "time": "2025-02-27T06:49:21+00:00"
         },
         {
             "name": "nikic/fast-route",
             "version": "v1.3.0",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/nikic/fast-route/v1.3.0/nikic-fast-route-v1.3.0.zip",
+                "url": "https://mirrors.tencent.com/repository/composer/nikic/fast-route/v1.3.0/nikic-fast-route-v1.3.0.zip",
                 "reference": "181d480e08d9476e61381e04a71b34dc0432e812",
                 "shasum": ""
             },
@@ -86,6 +90,10 @@
                 "router",
                 "routing"
             ],
+            "support": {
+                "issues": "https://github.com/nikic/FastRoute/issues",
+                "source": "https://github.com/nikic/FastRoute/tree/master"
+            },
             "time": "2018-02-13T20:26:39+00:00"
         },
         {
@@ -93,7 +101,7 @@
             "version": "1.0.0",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/psr/container/1.0.0/psr-container-1.0.0.zip",
+                "url": "https://mirrors.tencent.com/repository/composer/psr/container/1.0.0/psr-container-1.0.0.zip",
                 "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
                 "shasum": ""
             },
@@ -129,6 +137,10 @@
                 "container-interop",
                 "psr"
             ],
+            "support": {
+                "issues": "https://github.com/php-fig/container/issues",
+                "source": "https://github.com/php-fig/container/tree/master"
+            },
             "time": "2017-02-14T16:28:37+00:00"
         },
         {
@@ -136,7 +148,7 @@
             "version": "v4.1.17",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/workerman/workerman/v4.1.17/workerman-workerman-v4.1.17.zip",
+                "url": "https://mirrors.tencent.com/repository/composer/workerman/workerman/v4.1.17/workerman-workerman-v4.1.17.zip",
                 "reference": "bb9e4b0c3fc3931a2ae38a1fb7a3ac09246efae9",
                 "shasum": ""
             },
@@ -169,6 +181,13 @@
                 "asynchronous",
                 "event-loop"
             ],
+            "support": {
+                "email": "walkor@workerman.net",
+                "forum": "http://wenda.workerman.net/",
+                "issues": "https://github.com/walkor/workerman/issues",
+                "source": "https://github.com/walkor/workerman",
+                "wiki": "http://doc.workerman.net/"
+            },
             "time": "2024-11-07T07:48:34+00:00"
         }
     ],
