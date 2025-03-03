@@ -150,10 +150,32 @@ trait Request
             return $input;
         }
         if (is_array($input)) {
-            return array_map('htmlspecialchars', (array)$input);
+            return $this->filterArray((array)$input);
         }
 
         return htmlspecialchars((string)$input ?: '');
+    }
+
+    /**
+     * 递归处理数字型参数数据
+     *
+     * @param array $input
+     * @return array
+     */
+    protected function filterArray(array $input): array
+    {
+        $result = [];
+        foreach ($input as $key => $value) {
+            if (is_numeric($value)) {
+                $result[$key] = $value;
+            } elseif (is_array($value)) {
+                $result[$key] = $this->filterArray($value);
+            } else {
+                $result[$key] = htmlspecialchars((string)$value ?: '');
+            }
+        }
+
+        return $result;
     }
 
     /**
