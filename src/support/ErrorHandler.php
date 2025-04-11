@@ -122,14 +122,14 @@ HTMLTMP;
                 $tbody = '<caption>' . $label . '</caption>';
                 $tr = '';
                 foreach ($value as $key => $val) {
-                    $tr .= '<tr><td>' . htmlentities($key) . '</td>';
+                    $tr .= '<tr><td>' . htmlentities(strval($key)) . '</td>';
                     $td = '';
                     if (is_array($val) || is_object($val)) {
-                        $td = htmlentities(json_encode($val, JSON_PRETTY_PRINT));
+                        $td = htmlentities(strval(json_encode($val, JSON_PRETTY_PRINT)));
                     } else if (is_bool($val)) {
                         $td = $val ? 'true' : 'false';
                     } else if (is_scalar($val)) {
-                        $td = htmlentities($val);
+                        $td = htmlentities(strval($val));
                     } else {
                         $td = 'Resource';
                     }
@@ -205,7 +205,7 @@ TRACE;
 
         $str = '';
         foreach ($source['source'] as $key => $value) {
-            $str .= '<li class="line-' . ($key + $source['first']) . '"><code>' . htmlentities($value) . '</code></li>';
+            $str .= '<li class="line-' . ($key + $source['first']) . '"><code>' . htmlentities(strval($value)) . '</code></li>';
         }
 
         $html = <<<SOURCE

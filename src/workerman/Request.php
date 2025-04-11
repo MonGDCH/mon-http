@@ -20,6 +20,13 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
     use LibsRequest;
 
     /**
+     * php:input数据json_decode后的数据
+     *
+     * @var array
+     */
+    protected $jsonData = null;
+
+    /**
      * 当前链接
      *
      * @var TcpConnection
@@ -75,10 +82,17 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      */
     public function json($name = null, $default = null, $filter = true)
     {
-        $data = (array)json_decode($this->rawBody(), true);
-        $result = is_null($name) ? $data : $this->getData($data, $name, $default);
+        if (is_null($this->jsonData)) {
+            $input = $this->rawBody();
+            if (!$input) {
+                return $default;
+            }
+            $this->jsonData = (array)json_decode($input, true);
+        }
 
-        return $filter && $data ? $this->filter($result) : $result;
+        $result = is_null($name) ? $this->jsonData : $this->getData($this->jsonData, $name, $default);
+
+        return $filter ? $this->filter($result) : $result;
     }
 
     /**
@@ -254,7 +268,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
     }
 
     /**
-     * 获取本地断开
+     * 获取本地端口
      *
      * @return integer
      */

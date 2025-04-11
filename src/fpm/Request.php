@@ -23,7 +23,7 @@ class Request implements RequestInterface
      *
      * @var array
      */
-    protected $header = [];
+    protected $header = null;
 
     /**
      * php://input数据
@@ -31,6 +31,13 @@ class Request implements RequestInterface
      * @var string
      */
     protected $input = null;
+
+    /**
+     * php:input数据json_decode后的数据
+     *
+     * @var array
+     */
+    protected $jsonData = null;
 
     /**
      * 请求uri
@@ -45,33 +52,6 @@ class Request implements RequestInterface
      * @var string
      */
     protected $pathinfo = null;
-
-    /**
-     * 构造方法
-     */
-    public function __construct()
-    {
-        if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
-            $header = $result;
-        } else {
-            $header = [];
-            foreach ($_SERVER as $key => $val) {
-                if (0 === strpos($key, 'HTTP_')) {
-                    $key = str_replace('_', '-', strtolower(substr($key, 5)));
-                    $header[$key] = $val;
-                }
-            }
-            if (isset($_SERVER['CONTENT_TYPE'])) {
-                $header['content-type'] = $_SERVER['CONTENT_TYPE'];
-            }
-            if (isset($_SERVER['CONTENT_LENGTH'])) {
-                $header['content-length'] = $_SERVER['CONTENT_LENGTH'];
-            }
-        }
-
-        $this->header = array_change_key_case($header);
-        $this->input = file_get_contents('php://input');
-    }
 
     /**
      * 获取GET数据
@@ -104,6 +84,20 @@ class Request implements RequestInterface
     }
 
     /**
+     * 获取input内容
+     *
+     * @return string
+     */
+    public function rawBody(): string
+    {
+        if (is_null($this->input)) {
+            $this->input = file_get_contents('php://input');
+        }
+
+        return $this->input ?: '';
+    }
+
+    /**
      * 获取application/json参数
      *
      * @param mixed $name       参数键名
@@ -113,10 +107,17 @@ class Request implements RequestInterface
      */
     public function json($name = null, $default = null, bool $filter = true)
     {
-        $data = (array)json_decode($this->input, true);
-        $result = is_null($name) ? $data : $this->getData($data, $name, $default);
+        if (is_null($this->jsonData)) {
+            $input = $this->rawBody();
+            if (!$input) {
+                return $default;
+            }
+            $this->jsonData = (array)json_decode($input, true);
+        }
 
-        return $filter && $data ? $this->filter($result) : $result;
+        $result = is_null($name) ? $this->jsonData : $this->getData($this->jsonData, $name, $default);
+
+        return $filter ? $this->filter($result) : $result;
     }
 
     /**
@@ -128,6 +129,27 @@ class Request implements RequestInterface
      */
     public function header($name = null, $default = null)
     {
+        if (is_null($this->header)) {
+            if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
+                $header = $result;
+            } else {
+                $header = [];
+                foreach ($_SERVER as $key => $val) {
+                    if (0 === strpos($key, 'HTTP_')) {
+                        $key = str_replace('_', '-', strtolower(substr($key, 5)));
+                        $header[$key] = $val;
+                    }
+                }
+                if (isset($_SERVER['CONTENT_TYPE'])) {
+                    $header['content-type'] = $_SERVER['CONTENT_TYPE'];
+                }
+                if (isset($_SERVER['CONTENT_LENGTH'])) {
+                    $header['content-length'] = $_SERVER['CONTENT_LENGTH'];
+                }
+            }
+            $this->header = array_change_key_case($header);
+        }
+
         if (is_null($name)) {
             return $this->header;
         }
