@@ -43,5 +43,7 @@ $app->route()->file('/static', '/home/public/static');
 $app->route()->error([App\Controller\Index::class, 'index']);
 
 
+// 路由命名
+Router::get('/test', [App\Controller\Index::class,'test'])->name('test');
 
 ```

@@ -33,9 +33,7 @@ class Middleware
     /**
      * 私有化构造方法
      */
-    protected function __construct()
-    {
-    }
+    protected function __construct() {}
 
     /**
      * 设置默认全局中间件模块名

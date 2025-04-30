@@ -77,9 +77,7 @@ class Route
     /**
      * 单例化路由实例
      */
-    protected function __construct()
-    {
-    }
+    protected function __construct() {}
 
     /**
      * 设置路由数据
@@ -136,9 +134,9 @@ class Route
      *
      * @param  mixed  $pattern  请求模式
      * @param  mixed  $callback 路由回调
-     * @return Route
+     * @return Router
      */
-    public function get($pattern, $callback): Route
+    public function get($pattern, $callback): Router
     {
         return $this->map(['GET'], $pattern, $callback);
     }
@@ -148,9 +146,9 @@ class Route
      *
      * @param  mixed  $pattern  请求模式
      * @param  mixed  $callback 路由回调
-     * @return Route
+     * @return Router
      */
-    public function post($pattern, $callback): Route
+    public function post($pattern, $callback): Router
     {
         return $this->map(['POST'], $pattern, $callback);
     }
@@ -160,9 +158,9 @@ class Route
      *
      * @param  mixed  $pattern  请求模式
      * @param  mixed  $callback 路由回调
-     * @return Route
+     * @return Router
      */
-    public function put($pattern, $callback): Route
+    public function put($pattern, $callback): Router
     {
         return $this->map(['PUT'], $pattern, $callback);
     }
@@ -172,9 +170,9 @@ class Route
      *
      * @param  mixed  $pattern  请求模式
      * @param  mixed  $callback 路由回调
-     * @return Route
+     * @return Router
      */
-    public function patch($pattern, $callback): Route
+    public function patch($pattern, $callback): Router
     {
         return $this->map(['PATCH'], $pattern, $callback);
     }
@@ -184,9 +182,9 @@ class Route
      *
      * @param  mixed  $pattern  请求模式
      * @param  mixed  $callback 路由回调
-     * @return Route
+     * @return Router
      */
-    public function delete($pattern, $callback): Route
+    public function delete($pattern, $callback): Router
     {
         return $this->map(['DELETE'], $pattern, $callback);
     }
@@ -196,9 +194,9 @@ class Route
      *
      * @param  mixed  $pattern  请求模式
      * @param  mixed  $callback 路由回调
-     * @return Route
+     * @return Router
      */
-    public function options($pattern, $callback): Route
+    public function options($pattern, $callback): Router
     {
         return $this->map(['OPTIONS'], $pattern, $callback);
     }
@@ -208,9 +206,9 @@ class Route
      *
      * @param  mixed  $pattern  请求模式
      * @param  mixed  $callback 路由回调
-     * @return Route
+     * @return Router
      */
-    public function any($pattern, $callback): Route
+    public function any($pattern, $callback): Router
     {
         return $this->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, $callback);
     }
@@ -246,9 +244,9 @@ class Route
      * @param  array $method   请求方式
      * @param  mixed $pattern  请求模式
      * @param  mixed $callback 路由回调
-     * @return Route
+     * @return Router
      */
-    public function map(array $method, $pattern, $callback): Route
+    public function map(array $method, $pattern, $callback): Router
     {
         $parse = $this->parsePattern($pattern);
         // 获取请求路径
@@ -267,7 +265,7 @@ class Route
         // 注册fast-route路由表
         $this->collector()->addRoute($method, $path, $result);
 
-        return $this;
+        return new Router($path, $method);
     }
 
     /**

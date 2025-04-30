@@ -8,11 +8,11 @@
     "packages": [
         {
             "name": "mongdch/mon-util",
-            "version": "1.5.14",
+            "version": "1.5.16",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-util/1.5.14/mongdch-mon-util-1.5.14.zip",
-                "reference": "bfb0d70953bd012dcb7c2f76a7dde3cfc59bde3d",
+                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-util/1.5.16/mongdch-mon-util-1.5.16.zip",
+                "reference": "8e0f9dc4945c85b8a8cfef23275e00cf6c317b51",
                 "shasum": ""
             },
             "require": {
@@ -48,9 +48,9 @@
             ],
             "support": {
                 "issues": "https://github.com/MonGDCH/mon-util/issues",
-                "source": "https://github.com/MonGDCH/mon-util/tree/1.5.14"
+                "source": "https://github.com/MonGDCH/mon-util/tree/1.5.16"
             },
-            "time": "2025-02-27T06:49:21+00:00"
+            "time": "2025-04-29T09:32:29+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -194,12 +194,12 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.2.0"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }

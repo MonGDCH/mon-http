@@ -28,9 +28,7 @@ class Session implements SessionInterface
     /**
      * 私有化构造方法
      */
-    protected function __construct()
-    {
-    }
+    protected function __construct() {}
 
     /**
      * 获取服务实例

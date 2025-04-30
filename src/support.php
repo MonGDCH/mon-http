@@ -46,3 +46,17 @@ if (!function_exists('request')) {
         return \mon\http\Context::get(\mon\http\Request::class);
     }
 }
+
+if (!function_exists('route')) {
+    /**
+     * 获取路由路径
+     *
+     * @throws \InvalidArgumentException
+     * @return string
+     */
+    function route(string $name): string
+    {
+        $path = \mon\http\Router::getRouter($name);
+        return $path;
+    }
+}

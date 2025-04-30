@@ -38,7 +38,7 @@ trait App
      *
      * @var string
      */
-    protected $version = '1.1.10';
+    protected $version = '1.2.24';
 
     /**
      * 应用名
