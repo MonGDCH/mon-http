@@ -36,6 +36,14 @@ $app->route()->get('/', function (Request $request, Response $response) {
     return 'Hello Fpm';
 });
 
+$app->route()->post('/test', function (Request $request, Response $response) {
+    // $file = __DIR__ . '/router.php';
+    // return $response->download($file);
+    // return $response->file($file);
+    // return 'Hello test!';
+    $data = $request->xml();
+    dd($data);
+});
 
 // 文件路由  http://127.0.0.1:8080/aa/favicon.ico
 $app->route()->file('/aa', __DIR__);

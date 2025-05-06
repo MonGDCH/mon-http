@@ -20,13 +20,6 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
     use LibsRequest;
 
     /**
-     * php:input数据json_decode后的数据
-     *
-     * @var array
-     */
-    protected $jsonData = null;
-
-    /**
      * 当前链接
      *
      * @var TcpConnection
@@ -70,29 +63,6 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
     {
         $result = parent::post($name, $default);
         return $filter && $result ? $this->filter($result) : $result;
-    }
-
-    /**
-     * 获取application/json参数
-     *
-     * @param string|null $name 参数键名
-     * @param mixed $default    默认值
-     * @param boolean $filter   是否过滤参数
-     * @return mixed
-     */
-    public function json($name = null, $default = null, $filter = true)
-    {
-        if (is_null($this->jsonData)) {
-            $input = $this->rawBody();
-            if (!$input) {
-                return $default;
-            }
-            $this->jsonData = (array)json_decode($input, true);
-        }
-
-        $result = is_null($name) ? $this->jsonData : $this->getData($this->jsonData, $name, $default);
-
-        return $filter ? $this->filter($result) : $result;
     }
 
     /**

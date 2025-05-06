@@ -47,6 +47,11 @@ $route->error(function ($request) {
     return 'error: ' . $request->path();
 });
 
+$route->post('/test', function (Request $request, Response $response) {
+    $data = $request->xml();
+    return $response->withBody(json_encode($data));
+});
+
 
 // 定义中间件
 class MyMiddleware implements MiddlewareInterface

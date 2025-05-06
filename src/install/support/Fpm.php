@@ -7,6 +7,7 @@ namespace support\http;
 use mon\env\Config;
 use mon\log\Logger;
 use mon\http\Route;
+use mon\http\Router;
 use mon\thinkORM\ORM;
 use mon\http\Middleware;
 use mon\http\Fpm as Http;
@@ -84,7 +85,8 @@ class Fpm
         $cache_route_file = Config::instance()->get('http.app.fpm.cache', '');
         if ($cache_route_file && file_exists($cache_route_file)) {
             $data = require $cache_route_file;
-            Route::instance()->setData($data);
+            Router::registerRoutes($data['routers']);
+            Route::instance()->setData($data['routerData']);
             return;
         }
 

@@ -34,6 +34,20 @@ trait Request
     public $action = '';
 
     /**
+     * php:input数据json_decode后的数据
+     *
+     * @var array
+     */
+    protected $jsonData = null;
+
+    /**
+     * php:input数据xml解析后的数据
+     *
+     * @var array
+     */
+    protected $xmlData = null;
+
+    /**
      * 获取路由参数
      *
      * @param mixed  $name      参数键名
@@ -66,6 +80,61 @@ trait Request
     public function action(): string
     {
         return $this->action;
+    }
+
+    /**
+     * 获取application/json参数
+     *
+     * @param mixed $name       参数键名
+     * @param mixed $default    默认值
+     * @param boolean $filter   是否过滤参数
+     * @return mixed
+     */
+    public function json($name = null, $default = null, bool $filter = true)
+    {
+        if (is_null($this->jsonData)) {
+            $input = $this->rawBody();
+            if (!$input) {
+                return $default;
+            }
+            $this->jsonData = (array)json_decode($input, true);
+        }
+
+        $result = is_null($name) ? $this->jsonData : $this->getData($this->jsonData, $name, $default);
+
+        return $filter ? $this->filter($result) : $result;
+    }
+
+    /**
+     * 获取application/xml参数
+     *
+     * @param mixed $name       参数键名
+     * @param mixed $default    默认值
+     * @param boolean $filter   是否过滤参数
+     * @return mixed
+     */
+    public function xml($name = null, $default = null, bool $filter = true)
+    {
+        if (is_null($this->xmlData)) {
+            $input = $this->rawBody();
+            if (!$input) {
+                return $default;
+            }
+            // 开启内部错误处理
+            libxml_use_internal_errors(true);
+            // 尝试将字符串解析为 XML
+            $xml = simplexml_load_string($input);
+            // 获取所有解析错误
+            $errors = libxml_get_errors();
+            // 清除错误列表
+            libxml_clear_errors();
+            // 如果没有错误，说明是有效的 XML
+            $this->xmlData = empty($errors) ? (array)json_decode(json_encode($xml), true) : [];
+        }
+
+        $result = is_null($name) ? $this->xmlData : $this->getData($this->xmlData, $name, $default);
+
+        return $filter ? $this->filter($result) : $result;
     }
 
     /**

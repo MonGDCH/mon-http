@@ -9,6 +9,10 @@ use mon\http\Route;
 use mon\console\Input;
 use mon\console\Output;
 use mon\console\Command;
+use mon\http\Router;
+use mon\util\File;
+
+use function PHPSTORM_META\type;
 
 /**
  * 缓存路由表
@@ -48,14 +52,28 @@ class RouteCacheCommand extends Command
      */
     public function execute(Input $in, Output $out)
     {
-        $cache_route = Config::instance()->get('http.app.fpm.route.cache', '');
+        $cache_route = Config::instance()->get('http.app.fpm.cache', '');
         if (!$cache_route) {
             return $out->block('Route cache file path error!', 'ERROR');
         }
         // 加载注册路由
         \support\http\Fpm::registerRoute();
-        // 缓存路由信息
-        $save = Route::instance()->cache($cache_route);
+
+        // 获取路由命名
+        $routers = Router::getRouters();
+        $routersData = var_export($routers, true);
+        // 获取路由定义
+        $routerData = Route::instance()->cache();
+        // 保存路由缓存
+        $cache = <<<Tmp
+        <?php
+        return [
+        'routers' => $routersData,
+        'routerData' => $routerData,
+        ];
+        Tmp;
+        // 缓存路由文件
+        $save = File::instance()->createFile($cache, $cache_route, false);
         if (!$save) {
             return $out->block('Build route cache error!', 'ERROR');
         }

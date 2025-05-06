@@ -83,6 +83,17 @@ class Router
     }
 
     /**
+     * 注册路由表
+     *
+     * @param array $routers  路由表
+     * @return void
+     */
+    public static function registerRoutes(array $routers)
+    {
+        self::$routers = $routers;
+    }
+
+    /**
      * 获取路由表
      *
      * @return array
