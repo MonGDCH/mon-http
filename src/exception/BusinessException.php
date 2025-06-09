@@ -106,7 +106,7 @@ class BusinessException extends Exception implements BusinessInterface
                 $root = 'mon';
                 $data  = "<?xml version=\"1.0\" encoding=\"{$charset}\"?>";
                 $data .= "<{$root}>";
-                $data .= Common::instance()->arrToXML($result);
+                $data .= Common::arrToXML($result);
                 $data .= "</{$root}>";
                 break;
             default:

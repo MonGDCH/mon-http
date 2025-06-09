@@ -69,7 +69,7 @@ class FirewallMiddleware implements MiddlewareInterface
         $ip = $request->ip();
         // 校验是否在IP黑名单中
         if (!empty($this->config['black'])) {
-            $check = Tool::instance()->checkSafeIP($this->config['black'], $ip);
+            $check = Tool::checkSafeIP($this->config['black'], $ip);
             if ($check) {
                 // 黑名单中，返回404
                 return new Response(404);
@@ -77,7 +77,7 @@ class FirewallMiddleware implements MiddlewareInterface
         }
         // 校验是否再IP白名单中
         if (!empty($this->config['white'])) {
-            $check = Tool::instance()->checkSafeIP($this->config['white'], $ip);
+            $check = Tool::checkSafeIP($this->config['white'], $ip);
             if (!$check) {
                 // 不存在白名单中，返回404
                 return new Response(404);

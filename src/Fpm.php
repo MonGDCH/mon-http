@@ -174,11 +174,11 @@ class Fpm implements AppInterface
             // 发送头部信息
             $headers = $response->getHeaders();
             if (!isset($headers['Content-Type'])) {
-                $mimeType = File::instance()->getMimeType($file);
+                $mimeType = File::getMimeType($file);
                 $headers['Content-Type'] = $mimeType ?: 'application/octet-stream';
             }
             if (!isset($headers['Content-Disposition'])) {
-                $headers['Content-Disposition'] = 'attachment; filename=' . File::instance()->getBaseName($file);
+                $headers['Content-Disposition'] = 'attachment; filename=' . File::getBaseName($file);
             }
             if (!isset($headers['Last-Modified'])) {
                 if ($mtime = filemtime($file)) {

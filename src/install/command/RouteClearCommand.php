@@ -53,7 +53,7 @@ class RouteClearCommand extends Command
         if (!$cache_route) {
             return $out->block('Route cache file path error!', 'ERROR');
         }
-        $del = File::instance()->removeFile($cache_route);
+        $del = File::removeFile($cache_route);
         if (!$del) {
             return $out->block('Clear route cache error!', 'ERROR');
         }

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace support\command\http;
 
+use mon\util\File;
 use mon\env\Config;
 use mon\http\Route;
+use mon\http\Router;
 use mon\console\Input;
 use mon\console\Output;
 use mon\console\Command;
-use mon\http\Router;
-use mon\util\File;
 
 use function PHPSTORM_META\type;
 
@@ -73,7 +73,7 @@ class RouteCacheCommand extends Command
         ];
         Tmp;
         // 缓存路由文件
-        $save = File::instance()->createFile($cache, $cache_route, false);
+        $save = File::createFile($cache, $cache_route, false);
         if (!$save) {
             return $out->block('Build route cache error!', 'ERROR');
         }

@@ -407,7 +407,7 @@ class Route
         }
         // 缓存路由文件
         $cache = '<?php ' . PHP_EOL . 'return ' . $content . ';';
-        return File::instance()->createFile($cache, $path, false);
+        return File::createFile($cache, $path, false);
     }
 
     /**

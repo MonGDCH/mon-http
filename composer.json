@@ -2,7 +2,7 @@
     "name": "mongdch/mon-http",
     "description": "The FPM and Workerman HTTP Server",
     "license": "MIT",
-    "homepage": "http://gdmon.com/",
+    "homepage": "https://github.com/MonGDCH",
     "keywords": [
         "fast",
         "workerman",
