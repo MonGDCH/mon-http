@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace support\http;
 
-use mon\log\Logger;
 use mon\env\Config;
+use mon\http\Logger;
 use mon\thinkORM\ORM;
 use Workerman\Worker;
 use gaia\ProcessTrait;
 use mon\http\WorkerMan;
 use mon\http\Middleware;
-use mon\http\support\Utils;
 use support\cache\CacheService;
 use mon\thinkORM\ORMMiddleware;
 use gaia\interfaces\ProcessInterface;
@@ -51,7 +50,7 @@ class Http implements ProcessInterface
         $app = new WorkerMan($debug, Config::instance()->get('http.app.workerman.newCtrl', true));
 
         // 注册异常处理器
-        $app->supportError(Config::instance()->get('http.app.exception', HttpErrorHandler::class));
+        $app->supportError(Config::instance()->get('http.app.exception', ErrorHandler::class));
 
         // 注册session
         $app->supportSession(Config::instance()->get('http.session', []));
@@ -64,10 +63,7 @@ class Http implements ProcessInterface
         );
 
         // 中间件支持
-        Middleware::instance()->load(Config::instance()->get('http.middleware', []));
-
-        // 注册日志处理
-        Utils::registerLogger('http');
+        Middleware::load(Config::instance()->get('http.middleware', []));
 
         // 注册路由
         static::registerRoute();
@@ -77,9 +73,9 @@ class Http implements ProcessInterface
             $config = Config::instance()->get('database', []);
             // 注册ORM
             $cache_store = class_exists(CacheService::class) ? CacheService::instance()->getService()->store() : null;
-            ORM::register(true, $config, Logger::instance()->channel(), $cache_store);
+            ORM::register(true, $config, Logger::service(), $cache_store);
             // 注册ORM中间件
-            Middleware::instance()->set('__worker__', [ORMMiddleware::class]);
+            Middleware::set('workerman', [ORMMiddleware::class]);
         }
 
         // 绑定响应请求

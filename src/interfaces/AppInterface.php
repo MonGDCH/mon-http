@@ -60,6 +60,14 @@ interface AppInterface
     public function supportError(string $error_class): AppInterface;
 
     /**
+     * 自定义日志服务支持
+     *
+     * @param object|string $logger 日志服务对象
+     * @return WorkerMan
+     */
+    public function supportLogger($logger): AppInterface;
+
+    /**
      * 获取路由实例
      *
      * @return Route

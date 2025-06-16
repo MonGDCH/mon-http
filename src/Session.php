@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace mon\http;
 
-use mon\util\Instance;
 use InvalidArgumentException;
 use mon\http\interfaces\SessionInterface;
 
@@ -16,7 +15,12 @@ use mon\http\interfaces\SessionInterface;
  */
 class Session implements SessionInterface
 {
-    use Instance;
+    /**
+     * 单例实体
+     *
+     * @var Session
+     */
+    protected static $instance = null;
 
     /**
      * session实例
@@ -29,6 +33,20 @@ class Session implements SessionInterface
      * 私有化构造方法
      */
     protected function __construct() {}
+
+    /**
+     * 获取单例
+     *
+     * @param mixed $options 初始化参数
+     * @return Session
+     */
+    public static function instance(): Session
+    {
+        if (is_null(static::$instance)) {
+            static::$instance = new static();
+        }
+        return static::$instance;
+    }
 
     /**
      * 获取服务实例

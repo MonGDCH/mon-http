@@ -32,19 +32,24 @@ class Fpm implements AppInterface
      * 构造方法
      *
      * @param boolean $debug    是否为调试模式
-     * @param string  $name     应用名称，也是中间件名
+     * @param string  $name     应用名称，也是中间件名、默认日志保存目录名称
      */
-    public function __construct(bool $debug = true, string $name = '__fpm__')
+    public function __construct(bool $debug = true, string $name = 'fpm')
     {
+        // 定义标志常量
+        defined('IN_FPM') || define('IN_FPM', true);
+        // 运行时目录默认为当前目录
+        defined('RUNTIME_PATH') || define('RUNTIME_PATH', '.');
+
         // 绑定应用驱动
         $this->debug = $debug;
         $this->app_name = $name;
 
+        // 注册请求服务
         $this->request_class = Request::class;
         Context::set($this->request_class, new Request(Container::instance()->get(FpmRequest::class)));
-
-        // 定义标志常量
-        defined('IN_FPM') || define('IN_FPM', true);
+        // 注册初始化日志服务
+        Logger::initialization($name);
 
         // 错误
         set_error_handler([$this, 'appError']);
@@ -84,6 +89,18 @@ class Fpm implements AppInterface
     }
 
     /**
+     * 自定义日志服务支持
+     *
+     * @param object|string $logger 日志服务对象
+     * @return Fpm
+     */
+    public function supportLogger($logger): Fpm
+    {
+        Logger::register($logger);
+        return $this;
+    }
+
+    /**
      * 执行
      *
      * @return void
@@ -91,19 +108,26 @@ class Fpm implements AppInterface
     public function run(): void
     {
         try {
+            // 请求方式
             $method = $this->request()->method();
+            // 请求路径
             $path = $this->request()->path();
             // 注册session服务
             Session::instance()->service(new FpmSession());
             // 解析路由
-            $handler = $this->route()->dispatch($method, $path);
-            if ($handler[0] === Dispatcher::FOUND) {
+            $dispatch = $this->route()->dispatch($method, $path);
+            if ($dispatch[0] === Dispatcher::FOUND) {
+                // 请求IP
+                $ip = $this->request()->ip();
+                // 记录日志
+                Logger::service()->log('', "{$ip} {$method} {$path}");
+
                 // 绑定路由请求参数
-                $this->request()->params = $handler[2];
+                $this->request()->params = $dispatch[2];
                 // 获取路由回调处理器
-                $callback = $this->getCallback($handler[1], $handler[2], $this->app_name);
+                $callback = $this->getCallback($dispatch[1], $dispatch[2], $this->app_name);
                 // 获取路由回调处理器信息
-                $callbackInfo = $this->getCallbackInfo($handler[1]['callback']);
+                $callbackInfo = $this->getCallbackInfo($dispatch[1]['callback']);
                 $this->request()->controller = $callbackInfo['controller'];
                 $this->request()->action = $callbackInfo['action'];
                 // 响应输出
@@ -247,5 +271,8 @@ class Fpm implements AppInterface
             // 应用错误
             $this->appError($error['type'], $error['message'], $error['file'], $error['line']);
         }
+
+        // 记录日志
+        Logger::save();
     }
 }

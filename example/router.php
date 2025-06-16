@@ -10,6 +10,7 @@ use mon\http\Response;
 use mon\http\Session;
 use mon\http\interfaces\RequestInterface;
 use mon\http\interfaces\MiddlewareInterface;
+use mon\log\Logger;
 
 /** @var \mon\http\Route $route */
 $route = $app->route();
@@ -43,9 +44,9 @@ $route->group(['path' => '/a', 'middleware' => MyMiddleware::class], function ($
 });
 
 // 定义错误路由
-$route->error(function ($request) {
-    return 'error: ' . $request->path();
-});
+// $route->error(function ($request) {
+//     return 'error: ' . $request->path();
+// });
 
 $route->post('/test', function (Request $request, Response $response) {
     $data = $request->xml();
@@ -59,7 +60,7 @@ class MyMiddleware implements MiddlewareInterface
     public function process(RequestInterface $request, Closure $callback): Response
     {
         // 执行前置逻辑...
-        // dd(1);
+        dd(1);
         return $callback($request);
     }
 }
@@ -97,6 +98,7 @@ class MyController
     {
         dd($request->test);
         // 返回数组，自动转Json
+        Logger::instance()->channel()->info('123456');
         return ['code'  => 200, 'class' => $a->getName()];
     }
 

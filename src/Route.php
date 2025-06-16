@@ -6,12 +6,14 @@ namespace mon\http;
 
 use Closure;
 use mon\util\File;
-use mon\util\Instance;
 use mon\util\Container;
 use ReflectionFunction;
 use InvalidArgumentException;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
+use mon\http\exception\RouteException;
 use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher\GroupCountBased as Dispatcher;
 
@@ -23,7 +25,12 @@ use FastRoute\Dispatcher\GroupCountBased as Dispatcher;
  */
 class Route
 {
-    use Instance;
+    /**
+     * 单例实体
+     *
+     * @var Route
+     */
+    protected static $instance = null;
 
     /**
      * fast-route路由容器
@@ -78,6 +85,50 @@ class Route
      * 单例化路由实例
      */
     protected function __construct() {}
+
+    /**
+     * 获取单例
+     *
+     * @param mixed $options 初始化参数
+     * @return Route
+     */
+    public static function instance(): Route
+    {
+        if (is_null(static::$instance)) {
+            static::$instance = new static();
+        }
+        return static::$instance;
+    }
+
+    /**
+     * 加载路由
+     *
+     * @param string $routePath     路由目录路径
+     * @param boolean $recursive    是否递归路由目录
+     * @return void
+     */
+    public static function load(string $routePath, bool $recursive = false): void
+    {
+        if (!is_dir($routePath)) {
+            throw new RouteException('Routes dir not found! path: ' . $routePath);
+        }
+        // 获取指定目录内容
+        $iterator = new RecursiveDirectoryIterator($routePath, RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
+        // 是否递归目录
+        $iterator = $recursive ? new RecursiveIteratorIterator($iterator) : $iterator;
+        // 加载路由文件，映射路由$route变量
+        static::instance()->group('', function (Route $route) use ($iterator) {
+            /** @var RecursiveDirectoryIterator $iterator */
+            foreach ($iterator as $file) {
+                // 过滤目录及非文件
+                if ($file->isDir() || $file->getExtension() != 'php') {
+                    continue;
+                }
+                // 加载文件
+                require_once $file->getPathname();
+            }
+        });
+    }
 
     /**
      * 设置路由数据

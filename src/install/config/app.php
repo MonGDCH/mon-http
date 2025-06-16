@@ -10,7 +10,7 @@
 
 return [
     // 异常错误处理器
-    'exception' => \support\http\HttpErrorHandler::class,
+    'exception' => \support\http\ErrorHandler::class,
     // FPM服务配置
     'fpm'       => [
         // 是否启用fpm

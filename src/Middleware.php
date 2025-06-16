@@ -3,7 +3,6 @@
 namespace mon\http;
 
 use RuntimeException;
-use mon\util\Instance;
 use mon\util\Container;
 
 /**
@@ -14,37 +13,29 @@ use mon\util\Container;
  */
 class Middleware
 {
-    use Instance;
-
     /**
      * 全局中间件模块名
      *
      * @var string
      */
-    protected $global_app = '';
+    protected static $global_app = '';
 
     /**
      * 中间件
      *
      * @var array
      */
-    protected $middlewares = [];
-
-    /**
-     * 私有化构造方法
-     */
-    protected function __construct() {}
+    protected static $middlewares = [];
 
     /**
      * 设置默认全局中间件模块名
      *
      * @param string $app 模块名
-     * @return Middleware
+     * @return void
      */
-    public function setGlobalApp(string $app): Middleware
+    public static function setGlobalApp(string $app)
     {
-        $this->global_app = $app;
-        return $this;
+        static::$global_app = $app;
     }
 
     /**
@@ -52,18 +43,18 @@ class Middleware
      *
      * @return string
      */
-    public function getGlobalApp(): string
+    public static function getGlobalApp(): string
     {
-        return $this->global_app;
+        return static::$global_app;
     }
 
     /**
      * 注册全局中间件
      *
      * @param array $middlewares
-     * @return Middleware
+     * @return void
      */
-    public function load(array $middlewares): Middleware
+    public static function load(array $middlewares)
     {
         foreach ($middlewares as $app => $list) {
             if (!is_array($list)) {
@@ -75,11 +66,9 @@ class Middleware
                     throw new RuntimeException("middleware {$class}::process not exsits");
                 }
                 // 生成实例进行存储
-                $this->middlewares[$app][] = [Container::instance()->get($class), 'process'];
+                static::$middlewares[$app][] = [Container::instance()->get($class), 'process'];
             }
         }
-
-        return $this;
     }
 
     /**
@@ -87,19 +76,17 @@ class Middleware
      *
      * @param string $app   模块名
      * @param array $middlewares    中间件列表
-     * @return Middleware
+     * @return void
      */
-    public function set(string $app, array $middlewares): Middleware
+    public static function set(string $app, array $middlewares)
     {
         foreach ($middlewares as $class) {
             if (!method_exists($class, 'process')) {
                 throw new RuntimeException("middleware {$class}::process not exsits");
             }
             // 生成实例进行存储
-            $this->middlewares[$app][] = [Container::instance()->get($class), 'process'];
+            static::$middlewares[$app][] = [Container::instance()->get($class), 'process'];
         }
-
-        return $this;
     }
 
     /**
@@ -109,14 +96,14 @@ class Middleware
      * @param boolean $with_global  是否使用全局中间件
      * @return array
      */
-    public function get(string $app, bool $with_global = true): array
+    public static function get(string $app, bool $with_global = true): array
     {
-        $global_middleware = $with_global && isset($this->middlewares[$this->global_app]) ? $this->middlewares[$this->global_app] : [];
-        if ($app == $this->global_app) {
+        $global_middleware = $with_global && isset(static::$middlewares[static::$global_app]) ? static::$middlewares[static::$global_app] : [];
+        if ($app == static::$global_app) {
             return $global_middleware;
         }
 
-        $app_middleware = $this->middlewares[$app] ?? [];
+        $app_middleware = static::$middlewares[$app] ?? [];
         return array_merge($global_middleware, $app_middleware);
     }
 
@@ -126,8 +113,8 @@ class Middleware
      * @param string $app
      * @return boolean
      */
-    public function has(string $app): bool
+    public static function has(string $app): bool
     {
-        return isset($this->middlewares[$app]);
+        return isset(static::$middlewares[$app]);
     }
 }

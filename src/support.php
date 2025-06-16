@@ -20,6 +20,21 @@ if (!function_exists('dump')) {
     }
 }
 
+if (!function_exists('redirect')) {
+    /**
+     * 获取响应实例
+     *
+     * @param string $url       跳转地址
+     * @param integer $status   状态码
+     * @return void
+     */
+    function redirect(string $url, int $status = 302)
+    {
+        throw new \mon\http\exception\JumpException($url, $status);
+    }
+}
+
+
 if (!function_exists('response')) {
     /**
      * 获取响应实例

@@ -5,11 +5,17 @@ use mon\http\Response;
 use mon\http\Request;
 use mon\http\Session;
 use mon\http\interfaces\RequestInterface;
+use mon\http\Logger as HttpLogger;
+use mon\log\Logger;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 ini_set('display_errors', 'on');
 error_reporting(E_ALL);
+
+define('RUNTIME_PATH', __DIR__);
+
+
 
 /**
  * 自定义错误接管
@@ -22,6 +28,12 @@ class E extends \mon\http\support\ErrorHandler
     }
 }
 
+// $e = new E;
+// $t = is_object($e);
+// dd($t);
+// exit;
+
+
 $app = new Fpm();
 // $app->supportError(E::class);
 // $app->supportSession([
@@ -29,10 +41,16 @@ $app = new Fpm();
 // ]);
 // require __DIR__ . '/router.php';
 
+// Logger::instance()->channel()->info('test');
+HttpLogger::service()->debug('aaa');
+
+
 $app->route()->get('/', function (Request $request, Response $response) {
     // $file = __DIR__ . '/router.php';
     // return $response->download($file);
     // return $response->file($file);
+    // throw new \Exception('exption');
+    Logger::instance()->channel()->info('test22');
     return 'Hello Fpm';
 });
 

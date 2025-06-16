@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace mon\http\support;
 
 use Throwable;
+use mon\http\Logger;
 use mon\http\Response;
-use Workerman\Protocols\Http\Session;
 use mon\http\interfaces\RequestInterface;
+use mon\http\interfaces\BusinessInterface;
 use mon\http\interfaces\ExceptionHandlerInterface;
 
 /**
@@ -19,7 +20,14 @@ use mon\http\interfaces\ExceptionHandlerInterface;
 class ErrorHandler implements ExceptionHandlerInterface
 {
     /**
-     * 上报异常信息
+     * 不需要记录信息（日志）的异常类列表
+     *
+     * @var array
+     */
+    protected $ignoreReport = [];
+
+    /**
+     * 上报异常信息，记录日志
      *
      * @param Throwable $e  错误实例
      * @param RequestInterface $request  请求实例
@@ -27,7 +35,16 @@ class ErrorHandler implements ExceptionHandlerInterface
      */
     public function report(Throwable $e, RequestInterface $request)
     {
-        // TODO 记录日志
+        if (!$this->isIgnoreReport($e)) {
+            $data = [
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                'message' => $e->getMessage(),
+                'code'    => $e->getCode(),
+            ];
+            $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+            Logger::service()->log('error', $log);
+        }
     }
 
     /**
@@ -40,8 +57,29 @@ class ErrorHandler implements ExceptionHandlerInterface
      */
     public function render(Throwable $e, RequestInterface $request, bool $debug = false): Response
     {
+        // 实现业务异常接口，直接返回对应响应对象
+        if ($e instanceof BusinessInterface) {
+            return $e->getResponse($request);
+        }
         $content = $debug ? $this->buildHTML($request, $e) : 'Server internal error';
         return new Response(500, [], $content);
+    }
+
+    /**
+     * 是否忽略记录日志的异常
+     *
+     * @param Throwable $exception
+     * @return boolean
+     */
+    protected function isIgnoreReport(Throwable $exception): bool
+    {
+        foreach ($this->ignoreReport as $class) {
+            if ($exception instanceof $class) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -61,25 +99,10 @@ class ErrorHandler implements ExceptionHandlerInterface
         $trace = $e->getTrace();
         $source = $this->getSourceCode($e);
 
-        // workerman特殊处理session
-        $session = $request->session();
-        if ($session instanceof Session) {
-            $session->all();
-        }
-
-        $tables = [
-            'GET Data'  => $request->get(),
-            'POST Data' => $request->post(),
-            'Files'     => $request->file(),
-            'Cookies'   => $request->cookie(),
-            'Session'   => $session,
-        ];
-
         $headerTmp = $this->buildHead();
         $messgaeTmp = $this->buildMessgae($name, $code, $file, $line, $msg);
         $sourceTmp = $this->buildSource($source);
         $traceTmp = $this->buildTrace($file, $line, $trace);
-        $tableTmp = $this->buildTable($tables);
         $jsTmp = $this->buildJS($line);
 
         $html = <<<HTMLTMP
@@ -91,62 +114,12 @@ class ErrorHandler implements ExceptionHandlerInterface
         {$messgaeTmp}
         {$sourceTmp}
         {$traceTmp}
-        {$tableTmp}
     </div>
     {$jsTmp}
 </body>
 </html>
 HTMLTMP;
 
-        return $html;
-    }
-
-    /**
-     * 生成表格
-     *
-     * @param array $tables
-     * @return string
-     */
-    protected function buildTable(array $tables = []): string
-    {
-        if (empty($tables)) {
-            return '';
-        }
-
-        $str = '';
-        foreach ($tables as $label => $value) {
-            $tbody = '';
-            if (empty($value)) {
-                $tbody = '<caption>' . $label . '<small>Empty</small></caption>';
-            } else {
-                $tbody = '<caption>' . $label . '</caption>';
-                $tr = '';
-                foreach ($value as $key => $val) {
-                    $tr .= '<tr><td>' . htmlentities(strval($key)) . '</td>';
-                    $td = '';
-                    if (is_array($val) || is_object($val)) {
-                        $td = htmlentities(strval(json_encode($val, JSON_PRETTY_PRINT)));
-                    } else if (is_bool($val)) {
-                        $td = $val ? 'true' : 'false';
-                    } else if (is_scalar($val)) {
-                        $td = htmlentities(strval($val));
-                    } else {
-                        $td = 'Resource';
-                    }
-                    $tr .= '<td>' . $td . '</td></tr>';
-                }
-                $tbody .= $tr;
-            }
-
-            $str .= '<table>' . $tbody . '</table>';
-        }
-
-        $html = <<<TABLE
-<div class="exception-var">
-    <h2>Environment Variables</h2>
-    {$str}
-</div>
-TABLE;
         return $html;
     }
 

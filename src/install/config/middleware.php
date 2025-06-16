@@ -10,15 +10,11 @@
 
 return [
     // 全局中间件
-    ''              => [
-        \support\http\middleware\LoggerMiddleware::class,
-        \support\http\middleware\FirewallMiddleware::class,
-        \support\http\middleware\ThrottleMiddleware::class
-    ],
-    // workerman服务http中间件
-    '__worker__'    => [],
+    ''              => [],
     // fpm服务http中间件
-    '__fpm__'       => [],
+    'fpm'           => [],
+    // workerman服务http中间件
+    'workerman'     => [],
     // 静态资源服务中间件
-    '__static__'    => []
+    'static_file'   => []
 ];

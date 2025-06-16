@@ -6,6 +6,8 @@ namespace mon\http\support;
 
 use mon\util\Common;
 use mon\http\Response;
+use mon\util\Validate;
+use mon\util\Container;
 use mon\http\interfaces\RequestInterface;
 
 /**
@@ -43,6 +45,23 @@ abstract class Controller
      * @var integer
      */
     protected $error_code = 0;
+
+    /**
+     * 验证器驱动，默认为内置的Validate验证器
+     *
+     * @var string
+     */
+    protected $validate = Validate::class;
+
+    /**
+     * 获取实例化验证器
+     *
+     * @return Validate
+     */
+    public function validate(): Validate
+    {
+        return Container::instance()->get($this->validate);
+    }
 
     /**
      * 输出文本内容
@@ -147,11 +166,10 @@ abstract class Controller
         switch ($this->dataType) {
             case 'xml':
                 $headers['Content-Type'] = 'text/xml;charset=' . $charset;
-                $root = 'mon';
                 $data  = "<?xml version=\"1.0\" encoding=\"{$charset}\"?>";
-                $data .= "<{$root}>";
+                $data .= "<xml>";
                 $data .= Common::arrToXML($result);
-                $data .= "</{$root}>";
+                $data .= "</xml>";
                 break;
             default:
                 $headers['Content-Type'] = 'application/json;charset=' . $charset;

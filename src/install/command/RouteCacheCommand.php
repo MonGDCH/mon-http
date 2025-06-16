@@ -12,8 +12,6 @@ use mon\console\Input;
 use mon\console\Output;
 use mon\console\Command;
 
-use function PHPSTORM_META\type;
-
 /**
  * 缓存路由表
  *

@@ -35,7 +35,7 @@ class WorkerMan implements AppInterface
      *
      * @var string
      */
-    protected $static_name = '__static__';
+    protected $static_name = 'static_file';
 
     /**
      * 是否支持静态文件访问
@@ -80,18 +80,23 @@ class WorkerMan implements AppInterface
      * @param boolean $newCtrl  每次回调重新实例化控制器
      * @param string  $name     应用名称，也是中间件名
      */
-    public function __construct(bool $debug = true, bool $newCtrl = true, string $name = '__worker__')
+    public function __construct(bool $debug = true, bool $newCtrl = true, string $name = 'workerman')
     {
+        // 定义标志常量
+        defined('IN_WORKERMAN') || define('IN_WORKERMAN', true);
+        // 运行时目录默认为当前目录
+        defined('RUNTIME_PATH') || define('RUNTIME_PATH', '.');
+
         // 绑定参数
         $this->debug = $debug;
         $this->new_ctrl = $newCtrl;
         $this->app_name = $name;
 
+        // 注册请求服务
         $this->request_class = Request::class;
         Http::requestClass(WorkermanRequest::class);
-
-        // 定义标志常量
-        defined('IN_WORKERMAN') || define('IN_WORKERMAN', true);
+        // 注册初始化日志服务
+        Logger::initialization($name);
 
         // 错误
         set_error_handler([$this, 'appError']);
@@ -126,7 +131,7 @@ class WorkerMan implements AppInterface
      * @param string $name          静态全局中间件名
      * @return App
      */
-    public function supportStaticFile(bool $supportSatic, string $staticPath, array $supportType = [], string $name = '__static__'): WorkerMan
+    public function supportStaticFile(bool $supportSatic, string $staticPath, array $supportType = [], string $name = 'static_file'): WorkerMan
     {
         $this->support_static_files = $supportSatic;
         $this->static_path = $staticPath;
@@ -182,6 +187,18 @@ class WorkerMan implements AppInterface
     }
 
     /**
+     * 自定义日志服务支持
+     *
+     * @param object|string $logger 日志服务对象
+     * @return WorkerMan
+     */
+    public function supportLogger($logger): WorkerMan
+    {
+        Logger::register($logger);
+        return $this;
+    }
+
+    /**
      * 执行回调
      *
      * @param TcpConnection $connection 链接实例
@@ -216,6 +233,10 @@ class WorkerMan implements AppInterface
             // 判断是否存在缓存处理器，执行缓存处理器
             $key = $method . $path;
             if (isset($this->cacheCallback[$key])) {
+                // 请求IP
+                $ip = $this->request()->ip();
+                // 记录日志
+                Logger::service()->log('', "{$ip} {$method} {$path}");
                 [$callback, $this->request()->controller, $this->request()->action, $this->request()->params] = $this->cacheCallback[$key];
                 return $this->send($connection, $this->request(), $callback($this->request()));
             }
@@ -234,6 +255,10 @@ class WorkerMan implements AppInterface
         } catch (Throwable $e) {
             // 异常响应
             return $this->send($connection, $this->request(), $this->handlerException($e, $this->request()));
+        } finally {
+            // dd($path);
+
+            Logger::save();
         }
     }
 
@@ -308,14 +333,18 @@ class WorkerMan implements AppInterface
     protected function handlerRoute(TcpConnection $connection, RequestInterface $request, string $method, string $path, string $key): bool
     {
         // 执行路由
-        $handler = $this->route()->dispatch($method, $path);
-        if ($handler[0] === Dispatcher::FOUND) {
+        $dispatch = $this->route()->dispatch($method, $path);
+        if ($dispatch[0] === Dispatcher::FOUND) {
+            // 请求IP
+            $ip = $this->request()->ip();
+            // 记录日志
+            Logger::service()->log('', "{$ip} {$method} {$path}");
             // 绑定路由请求参数
-            $request->params = $handler[2];
+            $request->params = $dispatch[2];
             // 获取路由回调处理器
-            $callback = $this->getCallback($handler[1], $handler[2], $this->app_name);
+            $callback = $this->getCallback($dispatch[1], $dispatch[2], $this->app_name);
             // 获取路由回调处理器信息
-            $callbackInfo = $this->getCallbackInfo($handler[1]['callback']);
+            $callbackInfo = $this->getCallbackInfo($dispatch[1]['callback']);
             $request->controller = $callbackInfo['controller'];
             $request->action = $callbackInfo['action'];
             // 判断清除缓存
@@ -323,7 +352,7 @@ class WorkerMan implements AppInterface
                 $this->clearCacheCallback();
             }
             // 缓存回调处理器
-            $this->cacheCallback[$key] = [$callback, $callbackInfo['controller'], $callbackInfo['action'], $handler[2]];
+            $this->cacheCallback[$key] = [$callback, $callbackInfo['controller'], $callbackInfo['action'], $dispatch[2]];
             // 返回响应类实例
             $this->send($connection, $request, $callback($request));
 

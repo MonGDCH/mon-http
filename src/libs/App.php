@@ -21,8 +21,6 @@ use mon\http\support\ErrorHandler;
 use mon\http\interfaces\AppInterface;
 use mon\http\exception\RouteException;
 use mon\http\interfaces\RequestInterface;
-use mon\http\interfaces\BusinessInterface;
-use mon\http\exception\CallbackParamsException;
 use mon\http\interfaces\ExceptionHandlerInterface;
 
 /**
@@ -179,7 +177,7 @@ trait App
     public function getCallback(array $handler, array $params = [], string $app = ''): Closure
     {
         // 获取回调中间件
-        $middlewares = Middleware::instance()->get($app);
+        $middlewares = Middleware::get($app);
         foreach ($handler['middleware'] as $middleware) {
             $middlewares[] = [Container::instance()->get($middleware), 'process'];
         }
@@ -240,6 +238,10 @@ trait App
      */
     public function getCallbackInfo($callback): array
     {
+        // 数组
+        if (is_array($callback) && isset($callback[0]) && isset($callback[1])) {
+            return ['controller' => $callback[0], 'action' => $callback[1]];
+        }
         // 字符串
         if (is_string($callback)) {
             // 分割字符串获取对象和方法
@@ -248,10 +250,7 @@ trait App
                 return ['controller' => $call[0], 'action' => $call[1]];
             }
         }
-        // 数组
-        if (is_array($callback) && isset($callback[0]) && isset($callback[1])) {
-            return ['controller' => $callback[0], 'action' => $callback[1]];
-        }
+
         return ['controller' => '', 'action' => ''];
     }
 
@@ -264,11 +263,6 @@ trait App
      */
     public function handlerException(Throwable $e, RequestInterface $request): Response
     {
-        // 实现业务异常接口，直接返回对应响应对象
-        if ($e instanceof BusinessInterface) {
-            return $e->getResponse($request);
-        }
-
         try {
             // 自定义异常处理
             $this->exceptionHandler()->report($e, $request);
@@ -304,7 +298,7 @@ trait App
         } elseif (is_array($callback) && isset($callback[0]) && isset($callback[1])) {
             $refreflection = new ReflectionMethod($callback[0], $callback[1]);
         } else {
-            throw new RouteException('Callback is faild!', 500);
+            throw new RouteException('Route callback not callable');
         }
 
         return function ($request, $args) use ($callback, $isClosure, $refreflection) {
@@ -342,7 +336,7 @@ trait App
      * @param RequestInterface $request  请求实例
      * @param array $params  路由注入参数
      * @param ReflectionFunctionAbstract $reflection  回调反射
-     * @throws CallbackParamsException
+     * @throws RouteException
      * @return array
      */
     protected function getCallParams(RequestInterface $request, array $params, ReflectionFunctionAbstract $reflection): array
@@ -370,7 +364,7 @@ trait App
                         $parameters[] = $parameter->getDefaultValue();
                     } else {
                         // 不存在，抛出异常
-                        throw new CallbackParamsException("bind parameters '{$paramsName}' were not found");
+                        throw new RouteException("Route callback bind parameters '{$paramsName}' were not found");
                     }
                 } else {
                     // 自定义对象类型
@@ -392,7 +386,7 @@ trait App
                     $parameters[] = $parameter->getDefaultValue();
                 } else {
                     // 不存在，抛出异常
-                    throw new CallbackParamsException("bind parameters '{$paramsName}' were not found!");
+                    throw new RouteException("Route callback bind parameters '{$paramsName}' were not found");
                 }
             }
         }
