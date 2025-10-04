@@ -61,7 +61,7 @@ class Fpm
             $config = Config::instance()->get('database', []);
             // 注册ORM
             $cache_store = class_exists(CacheService::class) ? CacheService::instance()->getService()->store() : null;
-            ORM::register(true, $config, Logger::service(), $cache_store);
+            ORM::register(false, $config, Logger::service(), $cache_store);
             // 注册ORM中间件
             Middleware::set('fpm', [ORMMiddleware::class]);
         }
