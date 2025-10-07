@@ -30,7 +30,7 @@ class Http
      * @var array
      */
     protected $process = [
-        'http'  => HttpApp::class
+        'http' => HttpApp::class
     ];
 
     /**
