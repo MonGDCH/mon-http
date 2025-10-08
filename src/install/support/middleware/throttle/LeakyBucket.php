@@ -35,7 +35,7 @@ class LeakyBucket extends ThrottleAbstract
         $rate = (float)$duration / $max_requests;
         if ($micronow - $last_time < $rate) {
             $this->cur_requests = 1;
-            $this->wait_seconds = ceil($rate - ($micronow - $last_time));
+            $this->wait_seconds = (int)ceil($rate - ($micronow - $last_time));
             return false;
         }
 

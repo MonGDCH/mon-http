@@ -35,42 +35,42 @@ class WorkerMan implements AppInterface
      *
      * @var string
      */
-    protected $static_name = 'static_file';
+    protected string $static_name = 'static_file';
 
     /**
      * 是否支持静态文件访问
      *
      * @var boolean
      */
-    protected $support_static_files = false;
+    protected bool $support_static_files = false;
 
     /**
      * 静态文件目录
      *
      * @var string
      */
-    protected $static_path = '';
+    protected string $static_path = '';
 
     /**
      * 支持静态访问文件的类型
      *
      * @var array
      */
-    protected $support_file_type = [];
+    protected array $support_file_type = [];
 
     /**
      * 最大缓存回调处理器数
      *
      * @var integer
      */
-    protected $maxCacheCallback = 1024;
+    protected int $maxCacheCallback = 1024;
 
     /**
      * 缓存的回调处理器
      *
      * @var array
      */
-    protected $cacheCallback = [];
+    protected array $cacheCallback = [];
 
     /**
      * 构造方法
@@ -256,8 +256,6 @@ class WorkerMan implements AppInterface
             // 异常响应
             return $this->send($connection, $this->request(), $this->handlerException($e, $this->request()));
         } finally {
-            // dd($path);
-
             Logger::save();
         }
     }

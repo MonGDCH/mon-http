@@ -23,28 +23,28 @@ class Request implements RequestInterface
      *
      * @var array
      */
-    protected $header = null;
+    protected ?array $header = null;
 
     /**
      * php://input数据
      *
      * @var string
      */
-    protected $input = null;
+    protected ?string $input = null;
 
     /**
      * 请求uri
      *
      * @var string
      */
-    protected $uri = null;
+    protected ?string $uri = null;
 
     /**
      * 请求pathinfo
      *
      * @var string
      */
-    protected $pathinfo = null;
+    protected ?string $pathinfo = null;
 
     /**
      * 获取GET数据
@@ -54,7 +54,7 @@ class Request implements RequestInterface
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function get($name = null, $default = null, bool $filter = true)
+    public function get(?string $name = null, mixed $default = null, bool $filter = true): mixed
     {
         $result = is_null($name) ? $_GET : $this->getData($_GET, $name, $default);
 
@@ -69,7 +69,7 @@ class Request implements RequestInterface
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function post($name = null, $default = null, bool $filter = true)
+    public function post(?string $name = null, mixed $default = null, bool $filter = true): mixed
     {
         $result = is_null($name) ? $_POST : $this->getData($_POST, $name, $default);
 
@@ -97,7 +97,7 @@ class Request implements RequestInterface
      * @param mixed $default 默认值
      * @return mixed
      */
-    public function header($name = null, $default = null)
+    public function header(?string $name = null, mixed $default = null): mixed
     {
         if (is_null($this->header)) {
             if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
@@ -135,7 +135,7 @@ class Request implements RequestInterface
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    public function server($name = null, $default = null)
+    public function server(?string $name = null, mixed $default = null): mixed
     {
         return is_null($name) ? $_SERVER : $this->getData($_SERVER, $name, $default);
     }
@@ -147,7 +147,7 @@ class Request implements RequestInterface
      * @param mixed $default    默认值
      * @return mixed
      */
-    public function session($name = null, $default = null)
+    public function session(?string $name = null, mixed $default = null): mixed
     {
         $value = session_status() == PHP_SESSION_ACTIVE ? $_SESSION : [];
         return is_null($name) ? $value : $this->getData($value, $name, $default);
@@ -160,7 +160,7 @@ class Request implements RequestInterface
      * @param mixed $default    默认值
      * @return mixed
      */
-    public function cookie($name = null, $default = null)
+    public function cookie(?string $name = null, mixed $default = null): mixed
     {
         return is_null($name) ? $_COOKIE : $this->getData($_COOKIE, $name, $default);
     }
@@ -171,7 +171,7 @@ class Request implements RequestInterface
      * @param mixed $name 文件参数名
      * @return mixed
      */
-    public function file($name = null)
+    public function file(?string $name = null): mixed
     {
         if (empty($_FILES)) {
             return is_null($name) ? [] : null;

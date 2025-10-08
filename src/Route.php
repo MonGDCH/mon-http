@@ -30,49 +30,49 @@ class Route
      *
      * @var Route
      */
-    protected static $instance = null;
+    protected static ?Route $instance = null;
 
     /**
      * fast-route路由容器
      *
      * @var RouteCollector
      */
-    protected $collector;
+    protected ?RouteCollector $collector = null;
 
     /**
      * fast-route路由调度
      *
      * @var Dispatcher
      */
-    protected $dispatcher;
+    protected ?Dispatcher $dispatcher = null;
 
     /**
      * 路由信息
      *
      * @var array
      */
-    protected $data = [];
+    protected array $data = [];
 
     /**
      * 路由组前缀
      *
      * @var string
      */
-    protected $groupPrefix = '';
+    protected string $groupPrefix = '';
 
     /**
      * 回调命名空间前缀
      *
      * @var string
      */
-    protected $prefix = '';
+    protected string $prefix = '';
 
     /**
      * 中间件
      *
      * @var array
      */
-    protected $middleware = [];
+    protected array $middleware = [];
 
     /**
      * 错误处理路由

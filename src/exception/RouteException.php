@@ -19,7 +19,7 @@ class RouteException extends Exception
      *
      * @var array
      */
-    protected $header = [];
+    protected array $header = [];
 
     /**
      * 设置异常相关
@@ -27,7 +27,7 @@ class RouteException extends Exception
      * @param mixed $data 移除信息
      * @return RouteException
      */
-    public function setHeader($header)
+    public function setHeader(array $header)
     {
         $this->header = $header;
 
@@ -37,9 +37,9 @@ class RouteException extends Exception
     /**
      * 获取相关数据
      *
-     * @return mixed
+     * @return array
      */
-    public function getHeader()
+    public function getHeader(): array
     {
         return $this->header;
     }

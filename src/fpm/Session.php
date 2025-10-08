@@ -19,7 +19,7 @@ class Session implements SessionInterface
      *
      * @var array
      */
-    protected static $config = [
+    protected static array $config = [
         // session名称，默认：PHPSID
         'session_name'      => 'PHPSID',
         // cookie有效期，默认：1440
@@ -45,7 +45,7 @@ class Session implements SessionInterface
      *
      * @var null
      */
-    protected $init = null;
+    protected ?bool $init = null;
 
     /**
      * 注册session配置
@@ -103,7 +103,7 @@ class Session implements SessionInterface
      * @param mixed  $default   默认值
      * @return mixed
      */
-    public function get(string $key = '', $default = null)
+    public function get(string $key = '', mixed $default = null): mixed
     {
         empty($this->init) && $this->bootstrap();
         if (empty($key)) {

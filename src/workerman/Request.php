@@ -20,19 +20,11 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
     use LibsRequest;
 
     /**
-     * 当前链接
-     *
-     * @var TcpConnection
-     */
-    public $connection;
-
-    /**
      * 获取链接
      *
-     * @param TcpConnection|null $connection
-     * @return TcpConnection
+     * @return TcpConnection|null
      */
-    public function connection(): TcpConnection
+    public function connection(): ?TcpConnection
     {
         return $this->connection;
     }
@@ -45,7 +37,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function get($name = null, $default = null, $filter = true)
+    public function get(?string $name = null, mixed $default = null, bool $filter = true): mixed
     {
         $result = parent::get($name, $default);
         return $filter && $result ? $this->filter($result) : $result;
@@ -59,7 +51,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function post($name = null, $default = null, $filter = true)
+    public function post(?string $name = null, mixed $default = null, bool $filter = true): mixed
     {
         $result = parent::post($name, $default);
         return $filter && $result ? $this->filter($result) : $result;
@@ -72,7 +64,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      * @param  mixed $default 默认值
      * @return mixed
      */
-    public function server($name = null, $default = null)
+    public function server(?string $name = null, mixed $default = null): mixed
     {
         return is_null($name) ? $_SERVER : $this->getData($_SERVER, $name, $default);
     }
@@ -83,7 +75,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      * @param string|null $name 文件名
      * @return null|UploadFile[]|UploadFile
      */
-    public function file($name = null)
+    public function file(?string $name = null): mixed
     {
         $files = parent::file($name);
         if (null === $files) {

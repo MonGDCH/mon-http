@@ -18,14 +18,14 @@ class Middleware
      *
      * @var string
      */
-    protected static $global_app = '';
+    protected static string $global_app = '';
 
     /**
      * 中间件
      *
      * @var array
      */
-    protected static $middlewares = [];
+    protected static array $middlewares = [];
 
     /**
      * 设置默认全局中间件模块名

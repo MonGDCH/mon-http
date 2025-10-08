@@ -20,14 +20,14 @@ class Session implements SessionInterface
      *
      * @var Session
      */
-    protected static $instance = null;
+    protected static ?Session $instance = null;
 
     /**
      * session实例
      *
      * @var SessionInterface
      */
-    protected $service = null;
+    protected ?SessionInterface $service = null;
 
     /**
      * 私有化构造方法
@@ -91,7 +91,7 @@ class Session implements SessionInterface
      * @param mixed  $default   默认值
      * @return mixed
      */
-    public function get(string $name = '', $default = null)
+    public function get(string $name = '', $default = null): mixed
     {
         return $this->service()->get($name, $default);
     }

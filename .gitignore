@@ -1,2 +1,5 @@
 /vendor/
+/example/log/
+/example/*.htaccess
+/example/*.log
 composer.phar

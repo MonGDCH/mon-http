@@ -22,7 +22,7 @@ class DumperException extends RuntimeException implements BusinessInterface
      *
      * @var array
      */
-    protected $data = [];
+    protected array $data = [];
 
     /**
      * 构造方法

@@ -24,7 +24,7 @@ class FirewallMiddleware implements MiddlewareInterface
      *
      * @var array
      */
-    protected $config = [
+    protected array $config = [
         // 是否启用访问防火墙
         'enable'    => false,
         // IP黑名单，['192.168.1.13', '123.23.23.44', '193.134.*.*']

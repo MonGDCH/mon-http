@@ -17,35 +17,35 @@ trait Request
      *
      * @var array
      */
-    public $params = [];
+    public array $params = [];
 
     /**
      * 控制器
      *
      * @var string
      */
-    public $controller = '';
+    public string $controller = '';
 
     /**
      * 控制器回调方法
      *
      * @var string
      */
-    public $action = '';
+    public string $action = '';
 
     /**
      * php:input数据json_decode后的数据
      *
      * @var array
      */
-    protected $jsonData = null;
+    protected ?array $jsonData = null;
 
     /**
      * php:input数据xml解析后的数据
      *
      * @var array
      */
-    protected $xmlData = null;
+    protected ?array $xmlData = null;
 
     /**
      * 获取路由参数
@@ -55,7 +55,7 @@ trait Request
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function params($name = null, $default = null, bool $filter = true)
+    public function params(?string $name = null, mixed $default = null, bool $filter = true): mixed
     {
         $result = is_null($name) ? $this->params : $this->getData($this->params, $name, $default);
 
@@ -90,7 +90,7 @@ trait Request
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function json($name = null, $default = null, bool $filter = true)
+    public function json(?string $name = null, mixed $default = null, bool $filter = true): mixed
     {
         if (is_null($this->jsonData)) {
             $input = $this->rawBody();
@@ -113,7 +113,7 @@ trait Request
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function xml($name = null, $default = null, bool $filter = true)
+    public function xml(?string $name = null, mixed $default = null, bool $filter = true): mixed
     {
         if (is_null($this->xmlData)) {
             $input = $this->rawBody();
@@ -255,7 +255,7 @@ trait Request
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    protected function getData(array $data, string $name, $default = null)
+    protected function getData(array $data, string $name, mixed $default = null): mixed
     {
         foreach (explode('.', $name) as $val) {
             if (array_key_exists($val, $data)) {

@@ -18,7 +18,7 @@ interface RequestInterface
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function params($name = null, $default = null, bool $filter = true);
+    public function params(?string $name = null, mixed $default = null, bool $filter = true): mixed;
 
     /**
      * 获取控制器名称
@@ -42,7 +42,7 @@ interface RequestInterface
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function get($name = null, $default = null, bool $filter = true);
+    public function get(?string $name = null, mixed $default = null, bool $filter = true): mixed;
 
     /**
      * 获取POST数据
@@ -52,7 +52,7 @@ interface RequestInterface
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function post($name = null, $default = null, bool $filter = true);
+    public function post(?string $name = null, mixed $default = null, bool $filter = true): mixed;
 
     /**
      * 获取application/json参数
@@ -62,7 +62,7 @@ interface RequestInterface
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function json($name = null, $default = null, bool $filter = true);
+    public function json(?string $name = null, mixed $default = null, bool $filter = true): mixed;
 
     /**
      * 获取header信息
@@ -71,7 +71,7 @@ interface RequestInterface
      * @param mixed $default 默认值
      * @return mixed
      */
-    public function header($name = null, $default = null);
+    public function header(?string $name = null, mixed $default = null): mixed;
 
     /**
      * 获取$_SERVER数据
@@ -80,14 +80,14 @@ interface RequestInterface
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    public function server($name = null, $default = null);
+    public function server(?string $name = null, mixed $default = null): mixed;
 
     /**
      * 获取请求Session
      *
      * @return mixed
      */
-    public function session();
+    public function session(): mixed;
 
     /**
      * 获取请求Cookie
@@ -96,7 +96,7 @@ interface RequestInterface
      * @param mixed $default    默认值
      * @return mixed
      */
-    public function cookie($name = null, $default = null);
+    public function cookie(?string $name = null, mixed $default = null): mixed;
 
     /**
      * 获取上传文件
@@ -104,7 +104,7 @@ interface RequestInterface
      * @param mixed $name 文件参数名
      * @return mixed
      */
-    public function file($name = null);
+    public function file(?string $name = null): mixed;
 
     /**
      * 获取请求类型

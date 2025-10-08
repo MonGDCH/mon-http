@@ -20,12 +20,12 @@ class Session implements SessionInterface
      *
      * @var HttpSession
      */
-    protected $handler;
+    protected HttpSession $handler;
 
     /**
      * 构造方法
      *
-     * @param SessionBase $handler  workerman session 驱动
+     * @param HttpSession $handler  workerman session 驱动
      */
     public function __construct(HttpSession $handler)
     {
@@ -53,7 +53,7 @@ class Session implements SessionInterface
      * @param mixed  $value  键值
      * @return Session
      */
-    public function set(string $key, $value = null): Session
+    public function set(string $key, mixed $value = null): Session
     {
         if (strpos($key, '.')) {
             list($name1, $name2) = explode('.', $key, 2);
@@ -79,7 +79,7 @@ class Session implements SessionInterface
      * @param mixed  $default   默认值
      * @return mixed
      */
-    public function get(string $name = '', $default = null)
+    public function get(string $name = '', mixed $default = null): mixed
     {
         $value = $this->handler()->all();
         if (empty($name)) {

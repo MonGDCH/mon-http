@@ -104,7 +104,7 @@ class MyController
 
     public function text(Request $request)
     {
-        dd($request->getName('test 111'));
+        // dd($request->getName('test 111'));
         dd($request->aa);
         // 直接返回字符串
         return 'HTML' . ' => ' . $request->controller() . '@' . $request->action();

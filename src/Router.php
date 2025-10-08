@@ -19,21 +19,21 @@ class Router
      *
      * @var array
      */
-    protected static $routers = [];
+    protected static array $routers = [];
 
     /**
      * 路由路径
      *
      * @var string
      */
-    protected $path;
+    protected string $path;
 
     /**
      * 请求方式
      *
      * @var array
      */
-    protected $method;
+    protected array $method;
 
     /**
      * 构造函数
@@ -71,7 +71,7 @@ class Router
      * 设置路由名称
      *
      * @param string $name
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return void
      */
     public function name(string $name)
@@ -107,7 +107,7 @@ class Router
      * 获取路由路径
      *
      * @param string $name  路由名称
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return string
      */
     public static function getRouter(string $name): string

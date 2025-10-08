@@ -23,21 +23,21 @@ class BusinessException extends Exception implements BusinessInterface
      *
      * @var string
      */
-    protected $dataType = 'json';
+    protected string $dataType = 'json';
 
     /**
      * 响应数据
      *
      * @var array
      */
-    protected $data = [];
+    protected array $data = [];
 
     /**
      * 响应状态码
      *
      * @var integer
      */
-    protected $status = 200;
+    protected int $status = 200;
 
     /**
      * 构造方法
