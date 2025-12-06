@@ -13,7 +13,7 @@ use mon\http\interfaces\MiddlewareInterface;
 use mon\log\Logger;
 
 /** @var \mon\http\Route $route */
-$route = $app->route();
+$route = Route::instance();
 
 $route->get('/', function (A $aa) {
     Session::instance()->set('test', 123456);

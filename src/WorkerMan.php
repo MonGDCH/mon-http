@@ -125,15 +125,15 @@ class WorkerMan implements AppInterface
     /**
      * 静态文件支持
      *
-     * @param boolean $supportSatic 是否开启静态文件支持
-     * @param string $staticPath    静态文件目录
-     * @param array $supportType    支持的文件类型，空则表示所有
-     * @param string $name          静态全局中间件名
+     * @param boolean $supportStatic 是否开启静态文件支持
+     * @param string $staticPath     静态文件目录
+     * @param array $supportType     支持的文件类型，空则表示所有
+     * @param string $name           静态全局中间件名
      * @return App
      */
-    public function supportStaticFile(bool $supportSatic, string $staticPath, array $supportType = [], string $name = 'static_file'): WorkerMan
+    public function supportStaticFile(bool $supportStatic, string $staticPath, array $supportType = [], string $name = 'static_file'): WorkerMan
     {
-        $this->support_static_files = $supportSatic;
+        $this->support_static_files = $supportStatic;
         $this->static_path = $staticPath;
         $this->support_file_type = $supportType;
         $this->static_name = $name;
