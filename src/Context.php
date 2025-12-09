@@ -20,14 +20,14 @@ final class Context
      *
      * @var mixed
      */
-    protected static $storage;
+    protected static ?SplObjectStorage $storage;
 
     /**
      * 数据对象
      *
      * @var stdClass
      */
-    protected static $data;
+    protected static ?stdClass $data;
 
     /**
      * 获取存储对象

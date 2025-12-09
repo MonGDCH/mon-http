@@ -64,12 +64,12 @@ class RouteCacheCommand extends Command
         $routerData = Route::instance()->cache();
         // 保存路由缓存
         $cache = <<<Tmp
-        <?php
-        return [
-        'routers' => $routersData,
-        'routerData' => $routerData,
-        ];
-        Tmp;
+<?php
+    return [
+    'routers' => $routersData,
+    'routerData' => $routerData,
+];
+Tmp;
         // 缓存路由文件
         $save = File::createFile($cache, $cache_route, false);
         if (!$save) {

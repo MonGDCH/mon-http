@@ -51,11 +51,11 @@
         },
         {
             "name": "mongdch/mon-util",
-            "version": "1.6.3",
+            "version": "1.6.5",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-util/1.6.3/mongdch-mon-util-1.6.3.zip",
-                "reference": "463c4a5b852737d5deb21300ef07222c4f29e765",
+                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-util/1.6.5/mongdch-mon-util-1.6.5.zip",
+                "reference": "397aa96c06bf1c9ff4092855d8dedfcd89e99837",
                 "shasum": ""
             },
             "require": {
@@ -91,9 +91,9 @@
             ],
             "support": {
                 "issues": "https://github.com/MonGDCH/mon-util/issues",
-                "source": "https://github.com/MonGDCH/mon-util/tree/1.6.3"
+                "source": "https://github.com/MonGDCH/mon-util/tree/1.6.5"
             },
-            "time": "2025-11-19T06:46:42+00:00"
+            "time": "2025-12-09T08:41:32+00:00"
         },
         {
             "name": "nikic/fast-route",
