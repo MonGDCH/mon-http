@@ -15,7 +15,7 @@ use mon\util\exception\ValidateException;
  * @author  Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class ErrorHandler extends \mon\http\support\ErrorHandler
+class ErrorHandler extends \mon\http\ErrorHandler
 {
     /**
      * 不需要记录信息（日志）的异常类列表

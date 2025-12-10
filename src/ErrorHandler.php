@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace mon\http\support;
+namespace mon\http;
 
 use Throwable;
-use mon\http\Logger;
-use mon\http\Response;
 use mon\http\interfaces\RequestInterface;
 use mon\http\interfaces\BusinessInterface;
 use mon\http\interfaces\ExceptionHandlerInterface;
@@ -229,10 +227,8 @@ MESSAGE;
         return <<<SCRIPT
 <script>
 var LINE = {$line};
-
 function $(selector, node) {
     var elements;
-
     node = node || document;
     if (document.querySelectorAll) {
         elements = node.querySelectorAll(selector);
@@ -255,27 +251,21 @@ function $(selector, node) {
     return elements;
 
     function get_elements_by_class(search_class, node, tag) {
-        var elements = [],
-            eles,
-            pattern = new RegExp('(^|\\s)' + search_class + '(\\s|$)');
-
+        var elements = [], eles, pattern = new RegExp('(^|\\s)' + search_class + '(\\s|$)');
         node = node || document;
         tag = tag || '*';
-
         eles = node.getElementsByTagName(tag);
         for (var i = 0; i < eles.length; i++) {
             if (pattern.test(eles[i].className)) {
                 elements.push(eles[i])
             }
         }
-
         return elements;
     }
 }
 
 $.getScript = function(src, func) {
     var script = document.createElement('script');
-
     script.async = 'async';
     script.src = src;
     script.onload = func || function() {};
@@ -283,17 +273,14 @@ $.getScript = function(src, func) {
     $('head')[0].appendChild(script);
 }
 
-;
-(function() {
+;(function() {
     var files = $('.toggle');
     var ol = $('ol', $('.prettyprint')[0]);
     var li = $('li', ol[0]);
-
     // 短路径和长路径变换
     for (var i = 0; i < files.length; i++) {
         files[i].ondblclick = function() {
             var title = this.title;
-
             this.title = this.innerHTML;
             this.innerHTML = title;
         }
@@ -302,10 +289,8 @@ $.getScript = function(src, func) {
     // 设置出错行
     var err_line = $('.line-' + LINE, ol[0])[0];
     err_line.className = err_line.className + ' line-error';
-
     $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function() {
         prettyPrint();
-
         // 解决Firefox浏览器一个很诡异的问题
         // 当代码高亮后，ol的行号莫名其妙的错位
         // 但是只要刷新li里面的html重新渲染就没有问题了
@@ -313,7 +298,6 @@ $.getScript = function(src, func) {
             ol[0].innerHTML = ol[0].innerHTML;
         }
     });
-
 })();
 </script>
 SCRIPT;

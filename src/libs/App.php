@@ -15,9 +15,9 @@ use mon\http\Response;
 use mon\util\Container;
 use ReflectionFunction;
 use mon\http\Middleware;
+use mon\http\ErrorHandler;
 use InvalidArgumentException;
 use ReflectionFunctionAbstract;
-use mon\http\support\ErrorHandler;
 use mon\http\interfaces\AppInterface;
 use mon\http\exception\RouteException;
 use mon\http\interfaces\RequestInterface;
@@ -36,7 +36,7 @@ trait App
      *
      * @var string
      */
-    protected string $version = '1.2.24';
+    protected string $version = '1.3.2';
 
     /**
      * 应用名

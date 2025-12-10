@@ -34,13 +34,6 @@ class Http
     ];
 
     /**
-     * 开启插件支持
-     *
-     * @var boolean
-     */
-    protected $supportPlugin = true;
-
-    /**
      * 构造方法
      */
     public function __construct()
@@ -68,8 +61,8 @@ class Http
         // 初始化
         App::init($this->name);
 
-        // 加载插件
-        $this->supportPlugin && Plugin::register();
+        // 注册启动插件
+        Plugin::register();
 
         // TODO 更多操作
 

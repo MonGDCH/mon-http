@@ -11,9 +11,9 @@ use Workerman\Worker;
 use gaia\ProcessTrait;
 use mon\http\WorkerMan;
 use mon\http\Middleware;
+use support\http\ErrorHandler;
 use support\cache\CacheService;
 use mon\thinkORM\ORMMiddleware;
-use mon\http\support\ErrorHandler;
 use gaia\interfaces\ProcessInterface;
 
 /**

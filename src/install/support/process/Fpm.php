@@ -11,9 +11,9 @@ use mon\http\Router;
 use mon\thinkORM\ORM;
 use mon\http\Middleware;
 use mon\http\Fpm as Http;
+use support\http\ErrorHandler;
 use support\cache\CacheService;
 use mon\thinkORM\ORMMiddleware;
-use mon\http\support\ErrorHandler;
 
 /**
  * HTTP初始化
