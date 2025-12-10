@@ -88,6 +88,6 @@ class Fpm
         }
 
         // 加载默认路由定义文件
-        require_once __DIR__ . '/Route.php';
+        require_once dirname(__DIR__) . '/Route.php';
     }
 }

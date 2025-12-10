@@ -55,7 +55,7 @@ class RouteCacheCommand extends Command
             return $out->block('Route cache file path error!', 'ERROR');
         }
         // 加载注册路由
-        \support\http\Fpm::registerRoute();
+        \support\http\process\Fpm::registerRoute();
 
         // 获取路由命名
         $routers = Router::getRouters();

@@ -51,9 +51,9 @@ class RouteTestCommand extends Command
         // 加载注册路由
         $isFpm = $in->getSopt('fpm', false);
         if ($isFpm) {
-            \support\http\Fpm::registerRoute();
+            \support\http\process\Fpm::registerRoute();
         } else {
-            \support\http\Http::registerRoute();
+            \support\http\process\Http::registerRoute();
         }
 
         $args = $in->getArgs();
