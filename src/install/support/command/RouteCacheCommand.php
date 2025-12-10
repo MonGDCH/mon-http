@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace support\command\http;
+namespace support\http\command;
 
 use mon\util\File;
 use mon\env\Config;

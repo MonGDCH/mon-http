@@ -40,4 +40,4 @@ require_once __DIR__ . '/../vendor/autoload.php';
 | 运行程序
 |
 */
-\support\http\Fpm::run();
+\support\http\process\Fpm::run();

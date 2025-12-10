@@ -6,7 +6,7 @@ declare(strict_types=1);
 use gaia\App;
 use gaia\Gaia;
 use support\Plugin;
-use support\http\Http as HttpApp;
+use support\http\process\Http as HttpApp;
 
 /**
  * http 应用启动入口

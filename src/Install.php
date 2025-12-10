@@ -37,7 +37,6 @@ class Install
     protected static $dir_relation = [
         'install/config'   => 'config/http',
         'install/support'  => 'support/http',
-        'install/command'  => 'support/command/http',
     ];
 
     /**
