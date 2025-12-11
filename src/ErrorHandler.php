@@ -22,7 +22,7 @@ class ErrorHandler implements ExceptionHandlerInterface
      *
      * @var array
      */
-    protected array $ignoreReport = [];
+    protected $ignoreReport = [];
 
     /**
      * 上报异常信息，记录日志

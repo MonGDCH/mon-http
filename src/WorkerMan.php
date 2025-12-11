@@ -368,7 +368,7 @@ class WorkerMan implements AppInterface
      * @param string|array|Response $response 响应对象
      * @return void
      */
-    protected function send(TcpConnection $connection, RequestInterface $request, $response): void
+    protected function send(TcpConnection $connection, RequestInterface $request, $response)
     {
         HttpSession::instance()->clearHandler();
         Context::destroy();
@@ -402,7 +402,7 @@ class WorkerMan implements AppInterface
      * @param  integer $errline 出错行号
      * @return void
      */
-    public function appError(int $level, string $errstr, string $errfile = '', int $errline = 0): void
+    public function appError(int $level, string $errstr, string $errfile = '', int $errline = 0)
     {
         if (error_reporting() & $level) {
             throw new ErrorException($errstr, 0, $level, $errfile, $errline);
@@ -414,7 +414,7 @@ class WorkerMan implements AppInterface
      *
      * @return void
      */
-    public function fatalError(int $start_time): void
+    public function fatalError(int $start_time)
     {
         // 运行worker的情况下不要立即结束进程，防止进程变成僵尸进程
         if (Worker::getAllWorkers() && time() - $start_time <= 1) {

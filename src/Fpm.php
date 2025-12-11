@@ -105,7 +105,7 @@ class Fpm implements AppInterface
      *
      * @return void
      */
-    public function run(): void
+    public function run()
     {
         try {
             // 请求方式
@@ -152,7 +152,7 @@ class Fpm implements AppInterface
      * @param Response|string|array $response   响应结果集
      * @return void
      */
-    public function send($response): void
+    public function send($response)
     {
         $response = $this->response($response);
         // 存在发送文件，则发送文件
@@ -187,7 +187,7 @@ class Fpm implements AppInterface
      * @param array $file
      * @return void
      */
-    protected function sendFile(Response $response): void
+    protected function sendFile(Response $response)
     {
         // 文件路径
         $file = $response->file['file'];
@@ -235,7 +235,7 @@ class Fpm implements AppInterface
      * @param  integer $errline 出错行号
      * @return void
      */
-    public function appError(int $errno, string $errstr, string $errfile = '', int $errline = 0): void
+    public function appError(int $errno, string $errstr, string $errfile = '', int $errline = 0)
     {
         // 清除输出缓冲区
         ob_get_clean();
@@ -249,7 +249,7 @@ class Fpm implements AppInterface
      * @param Throwable $e 异常错误实例
      * @return void
      */
-    public function appException(Throwable $e): void
+    public function appException(Throwable $e)
     {
         // 清除输出缓冲区
         ob_get_clean();
@@ -264,7 +264,7 @@ class Fpm implements AppInterface
      *
      * @return void
      */
-    public function fatalError(): void
+    public function fatalError()
     {
         $error = error_get_last() ?: null;
         if (!is_null($error) && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR])) {

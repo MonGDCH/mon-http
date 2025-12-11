@@ -36,63 +36,63 @@ trait App
      *
      * @var string
      */
-    protected string $version = '1.3.2';
+    protected $version = '1.3.2';
 
     /**
      * 应用名
      *
      * @var string
      */
-    protected string $app_name = '';
+    protected $app_name = '';
 
     /**
      * HTTP请求响应的request类对象名
      *
      * @var string
      */
-    protected string $request_class = '';
+    protected $request_class = '';
 
     /**
      * 异常处理类对象名
      *
      * @var string
      */
-    protected string $error_class = '';
+    protected $error_class = '';
 
     /**
      * 调试模式
      *
      * @var boolean
      */
-    protected bool $debug = true;
+    protected $debug = true;
 
     /**
      * 每次回调重新实例化控制器
      *
      * @var boolean
      */
-    protected bool $new_ctrl = true;
+    protected $new_ctrl = true;
 
     /**
      * 实例化后的控制器缓存
      *
      * @var array
      */
-    protected array $ctrl_cache = [];
+    protected $ctrl_cache = [];
 
     /**
      * 异常错误处理对象
      *
      * @var ExceptionHandlerInterface
      */
-    protected ?ExceptionHandlerInterface $exception_handler = null;
+    protected $exception_handler = null;
 
     /**
      * PHP内置常规类型
      *
      * @var array
      */
-    protected array $adapters = ['int', 'float', 'string', 'bool', 'array', 'object', 'mixed', 'resource'];
+    protected $adapters = ['int', 'float', 'string', 'bool', 'array', 'object', 'mixed', 'resource'];
 
     /**
      * 获取版本号

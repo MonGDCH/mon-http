@@ -20,7 +20,7 @@ class Session implements SessionInterface
      *
      * @var HttpSession
      */
-    protected HttpSession $handler;
+    protected $handler;
 
     /**
      * 构造方法
@@ -53,7 +53,7 @@ class Session implements SessionInterface
      * @param mixed  $value  键值
      * @return Session
      */
-    public function set(string $key, mixed $value = null): Session
+    public function set(string $key, $value = null): Session
     {
         if (strpos($key, '.')) {
             list($name1, $name2) = explode('.', $key, 2);
@@ -79,7 +79,7 @@ class Session implements SessionInterface
      * @param mixed  $default   默认值
      * @return mixed
      */
-    public function get(string $name = '', mixed $default = null): mixed
+    public function get(string $name = '', $default = null)
     {
         $value = $this->handler()->all();
         if (empty($name)) {
@@ -125,7 +125,7 @@ class Session implements SessionInterface
      * @param string $key 键名
      * @return void
      */
-    public function delete(string $name): void
+    public function delete(string $name)
     {
         $this->handler()->delete($name);
     }
@@ -135,7 +135,7 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    public function clear(): void
+    public function clear()
     {
         $this->handler()->flush();
     }

@@ -16,18 +16,6 @@ error_reporting(E_ALL);
 define('RUNTIME_PATH', __DIR__);
 
 
-
-/**
- * 自定义错误接管
- */
-class E extends \mon\http\support\ErrorHandler
-{
-    public function render(Throwable $e, RequestInterface $request, bool $debug = false): Response
-    {
-        return new Response(500, [], 'test');
-    }
-}
-
 // $e = new E;
 // $t = is_object($e);
 // dd($t);
@@ -35,15 +23,7 @@ class E extends \mon\http\support\ErrorHandler
 
 
 $app = new Fpm();
-// $app->supportError(E::class);
-// $app->supportSession([
-//     'session_name'  => 'mysid'
-// ]);
-// require __DIR__ . '/router.php';
-
-// Logger::instance()->channel()->info('test');
 HttpLogger::service()->debug('aaa');
-
 
 $app->route()->get('/', function (Request $request, Response $response) {
     // $file = __DIR__ . '/router.php';

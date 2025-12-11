@@ -20,14 +20,14 @@ class Session implements SessionInterface
      *
      * @var Session
      */
-    protected static ?Session $instance = null;
+    protected static $instance = null;
 
     /**
      * session实例
      *
      * @var SessionInterface
      */
-    protected ?SessionInterface $service = null;
+    protected $service = null;
 
     /**
      * 私有化构造方法
@@ -67,7 +67,7 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    public function clearHandler(): void
+    public function clearHandler()
     {
         $this->service = null;
     }
@@ -91,7 +91,7 @@ class Session implements SessionInterface
      * @param mixed  $default   默认值
      * @return mixed
      */
-    public function get(string $name = '', $default = null): mixed
+    public function get(string $name = '', $default = null)
     {
         return $this->service()->get($name, $default);
     }
@@ -113,7 +113,7 @@ class Session implements SessionInterface
      * @param  string $key 键名
      * @return void
      */
-    public function delete(string $key): void
+    public function delete(string $key)
     {
         $this->service()->delete($key);
     }
@@ -123,7 +123,7 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    public function clear(): void
+    public function clear()
     {
         $this->service()->clear();
     }

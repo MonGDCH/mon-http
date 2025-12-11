@@ -30,49 +30,49 @@ class Route
      *
      * @var Route
      */
-    protected static ?Route $instance = null;
+    protected static $instance = null;
 
     /**
      * fast-route路由容器
      *
      * @var RouteCollector
      */
-    protected ?RouteCollector $collector = null;
+    protected $collector = null;
 
     /**
      * fast-route路由调度
      *
      * @var Dispatcher
      */
-    protected ?Dispatcher $dispatcher = null;
+    protected $dispatcher = null;
 
     /**
      * 路由信息
      *
      * @var array
      */
-    protected array $data = [];
+    protected $data = [];
 
     /**
      * 路由组前缀
      *
      * @var string
      */
-    protected string $groupPrefix = '';
+    protected $groupPrefix = '';
 
     /**
      * 回调命名空间前缀
      *
      * @var string
      */
-    protected string $prefix = '';
+    protected $prefix = '';
 
     /**
      * 中间件
      *
      * @var array
      */
-    protected array $middleware = [];
+    protected $middleware = [];
 
     /**
      * 错误处理路由
@@ -107,7 +107,7 @@ class Route
      * @param boolean $recursive    是否递归路由目录
      * @return void
      */
-    public static function load(string $routePath, bool $recursive = false): void
+    public static function load(string $routePath, bool $recursive = false)
     {
         if (!is_dir($routePath)) {
             throw new RouteException('Routes dir not found! path: ' . $routePath);
@@ -271,7 +271,7 @@ class Route
      * @param  Closure $callback 路由回调
      * @return void
      */
-    public function group($pattern, Closure $callback): void
+    public function group($pattern, Closure $callback)
     {
         $groupPrefix = $this->groupPrefix;
         $prefix = $this->prefix;
@@ -328,7 +328,7 @@ class Route
      * @param array $method 允许请求方式
      * @return void
      */
-    public function file(string $path, string $root, array $ext = [], array $method = ['GET', 'POST']): void
+    public function file(string $path, string $root, array $ext = [], array $method = ['GET', 'POST'])
     {
         // 生成路由路径
         $paths = [$path == '/' ? '' : $path, '{filePath:.+}'];
@@ -363,7 +363,7 @@ class Route
      * @param Closure|array|string $callback
      * @return void
      */
-    public function error($callback): void
+    public function error($callback)
     {
         // 字符串
         if (is_string($callback)) {

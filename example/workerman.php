@@ -70,38 +70,6 @@ Worker::$onMasterReload = function () {
     }
 };
 
-/**
- * 自定义错误接管
- */
-class E extends \mon\http\support\ErrorHandler
-{
-    /**
-     * 上报异常信息
-     *
-     * @param Throwable $e  错误实例
-     * @param RequestInterface $request  请求实例
-     * @return mixed
-     */
-    public function report(Throwable $e, RequestInterface $request)
-    {
-        // TODO 记录日志
-        dd($e->getMessage());
-    }
-}
-
-
-class MyRequest extends Request
-{
-    public $aa = __CLASS__;
-
-    public function getName(string $name)
-    {
-        return 'My name is' . $name;
-    }
-}
-
-
-
 // 开启程序
 $worker = new Worker($config['listen'], (array)$config['context']);
 $property_map = ['name', 'count', 'user', 'group', 'reusePort', 'transport', 'protocol'];
@@ -115,14 +83,6 @@ foreach ($property_map as $property) {
 $worker->onWorkerStart = function ($worker) {
     // 初始化HTTP服务器
     $app = new WorkerMan(true, true);
-    // 异常错误处理
-    // $app->supportError(E::class);
-    // 自定义请求类
-    // $app->supportRequest(MyRequest::class);
-    // 静态文件支持
-    // $app->supportStaticFile(true, __DIR__, ['ico']);
-    // session扩展支持
-    // $app->supportSession(['handler' => FileSessionHandler::class, 'setting' => ['save_path' => __DIR__ . '/sess/']]);
     // 加载路由
     require __DIR__ . '/router.php';
     // 绑定响应请求

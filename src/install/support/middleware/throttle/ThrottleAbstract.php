@@ -18,14 +18,14 @@ abstract class ThrottleAbstract
      *
      * @var integer
      */
-    protected int $cur_requests = 0;
+    protected $cur_requests = 0;
 
     /**
      * 距离下次合法请求还有多少秒
      *
      * @var integer
      */
-    protected int $wait_seconds = 0;
+    protected $wait_seconds = 0;
 
     /**
      * 是否允许请求

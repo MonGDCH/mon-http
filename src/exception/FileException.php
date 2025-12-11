@@ -12,6 +12,4 @@ use RuntimeException;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class FileException extends RuntimeException
-{
-}
+class FileException extends RuntimeException {}

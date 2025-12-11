@@ -17,35 +17,35 @@ trait Request
      *
      * @var array
      */
-    public array $params = [];
+    public $params = [];
 
     /**
      * 控制器
      *
      * @var string
      */
-    public string $controller = '';
+    public $controller = '';
 
     /**
      * 控制器回调方法
      *
      * @var string
      */
-    public string $action = '';
+    public $action = '';
 
     /**
-     * php:input数据json_decode后的数据
+     * php://input数据json_decode后的数据
      *
      * @var array
      */
-    protected ?array $jsonData = null;
+    protected $jsonData = null;
 
     /**
-     * php:input数据xml解析后的数据
+     * php://input数据xml解析后的数据
      *
      * @var array
      */
-    protected ?array $xmlData = null;
+    protected $xmlData = null;
 
     /**
      * 获取路由参数
@@ -55,7 +55,7 @@ trait Request
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function params(?string $name = null, mixed $default = null, bool $filter = true): mixed
+    public function params(?string $name = null, $default = null, bool $filter = true)
     {
         $result = is_null($name) ? $this->params : $this->getData($this->params, $name, $default);
 
@@ -85,12 +85,12 @@ trait Request
     /**
      * 获取application/json参数
      *
-     * @param mixed $name       参数键名
+     * @param string $name      参数键名
      * @param mixed $default    默认值
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function json(?string $name = null, mixed $default = null, bool $filter = true): mixed
+    public function json(?string $name = null, $default = null, bool $filter = true)
     {
         if (is_null($this->jsonData)) {
             $input = $this->rawBody();
@@ -108,12 +108,12 @@ trait Request
     /**
      * 获取application/xml参数
      *
-     * @param mixed $name       参数键名
+     * @param string $name      参数键名
      * @param mixed $default    默认值
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function xml(?string $name = null, mixed $default = null, bool $filter = true): mixed
+    public function xml(?string $name = null, $default = null, bool $filter = true)
     {
         if (is_null($this->xmlData)) {
             $input = $this->rawBody();
@@ -255,7 +255,7 @@ trait Request
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    protected function getData(array $data, string $name, mixed $default = null): mixed
+    protected function getData(array $data, string $name, $default = null)
     {
         foreach (explode('.', $name) as $val) {
             if (array_key_exists($val, $data)) {

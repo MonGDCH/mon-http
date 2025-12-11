@@ -19,7 +19,7 @@ class Session implements SessionInterface
      *
      * @var array
      */
-    protected static array $config = [
+    protected static $config = [
         // session名称，默认：PHPSID
         'session_name'      => 'PHPSID',
         // cookie有效期，默认：1440
@@ -45,7 +45,7 @@ class Session implements SessionInterface
      *
      * @var null
      */
-    protected ?bool $init = null;
+    protected $init = null;
 
     /**
      * 注册session配置
@@ -53,7 +53,7 @@ class Session implements SessionInterface
      * @param array $config
      * @return void
      */
-    public static function register(array $config = []): void
+    public static function register(array $config = [])
     {
         self::$config = array_merge(self::$config, $config);
     }
@@ -63,7 +63,7 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    public function bootstrap(): void
+    public function bootstrap()
     {
         if (is_null($this->init)) {
             $this->init();
@@ -103,7 +103,7 @@ class Session implements SessionInterface
      * @param mixed  $default   默认值
      * @return mixed
      */
-    public function get(string $key = '', mixed $default = null): mixed
+    public function get(string $key = '', $default = null)
     {
         empty($this->init) && $this->bootstrap();
         if (empty($key)) {
@@ -151,7 +151,7 @@ class Session implements SessionInterface
      * @param  string $key 键名
      * @return void
      */
-    public function delete(string $key): void
+    public function delete(string $key)
     {
         empty($this->init) && $this->bootstrap();
         if (strpos($key, '.')) {
@@ -170,7 +170,7 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    public function clear(): void
+    public function clear()
     {
         empty($this->init) && $this->bootstrap();
         $_SESSION = [];
@@ -181,7 +181,7 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    protected function init(): void
+    protected function init()
     {
         $isDoStart = false;
         // 判断是否在php.ini中开启是否已开启session

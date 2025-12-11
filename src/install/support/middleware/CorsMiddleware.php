@@ -28,7 +28,7 @@ class CorsMiddleware implements MiddlewareInterface
      *
      * @var array
      */
-    protected array $config = [
+    protected $config = [
         // 允许所有域名跨域
         'allow_all' => false,
         // 允许跨域的域名

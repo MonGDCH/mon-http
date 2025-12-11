@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace mon\http\workerman;
 
+use RuntimeException;
 use mon\http\libs\UploadFile;
 use Workerman\Connection\TcpConnection;
 use mon\http\libs\Request as LibsRequest;
 use mon\http\interfaces\RequestInterface;
+use Workerman\Protocols\Http\Request as WorkermanRequest;
 
 /**
  * 请求处理
@@ -15,18 +17,60 @@ use mon\http\interfaces\RequestInterface;
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Request extends \Workerman\Protocols\Http\Request implements RequestInterface
+class Request implements RequestInterface
 {
     use LibsRequest;
 
     /**
+     * workerman请求对象
+     *
+     * @var WorkermanRequest
+     */
+    protected $service;
+
+    /**
+     * 构造方法
+     *
+     * @param string $buffer
+     */
+    public function __construct($buffer)
+    {
+        $this->service = new WorkermanRequest($buffer);
+    }
+
+    /**
+     * 获取 Workerman 请求对象
+     *
+     * @return WorkermanRequest
+     */
+    public function service(): WorkermanRequest
+    {
+        return $this->service;
+    }
+
+    /**
      * 获取链接
      *
-     * @return TcpConnection|null
+     * @return TcpConnection
      */
-    public function connection(): ?TcpConnection
+    public function connection(): TcpConnection
     {
-        return $this->connection;
+        if (!$this->service()->connection) {
+            throw new RuntimeException('Request connection not initialization!');
+        }
+        return $this->service()->connection;
+    }
+
+    /**
+     * 设置属性，装饰 Workerman的Request对象
+     *
+     * @param string $name  属性名
+     * @param mixed  $value 属性值
+     * @return void
+     */
+    public function __set(string $name, $value)
+    {
+        $this->service()->$name = $value;
     }
 
     /**
@@ -37,9 +81,9 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function get(?string $name = null, mixed $default = null, bool $filter = true): mixed
+    public function get(?string $name = null, $default = null, bool $filter = true)
     {
-        $result = parent::get($name, $default);
+        $result = $this->service()->get($name, $default);
         return $filter && $result ? $this->filter($result) : $result;
     }
 
@@ -51,10 +95,22 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function post(?string $name = null, mixed $default = null, bool $filter = true): mixed
+    public function post(?string $name = null, $default = null, bool $filter = true)
     {
-        $result = parent::post($name, $default);
+        $result = $this->service()->post($name, $default);
         return $filter && $result ? $this->filter($result) : $result;
+    }
+
+    /**
+     * 获取header信息
+     *
+     * @param mixed $name    参数键名
+     * @param mixed $default 默认值
+     * @return mixed
+     */
+    public function header(?string $name = null, $default = null)
+    {
+        return $this->service()->header($name, $default);
     }
 
     /**
@@ -64,9 +120,39 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      * @param  mixed $default 默认值
      * @return mixed
      */
-    public function server(?string $name = null, mixed $default = null): mixed
+    public function server(?string $name = null, $default = null)
     {
         return is_null($name) ? $_SERVER : $this->getData($_SERVER, $name, $default);
+    }
+
+    /**
+     * 获取请求Session
+     *
+     * @param string|null $name 键名，null 返回session实例，'' 返回所有session数据
+     * @param mixed $default    默认值
+     * @return mixed
+     */
+    public function session(?string $name = null, $default = null)
+    {
+        if (is_null($name)) {
+            return $this->service()->session();
+        }
+        if ($name === '') {
+            return $this->service()->session()->all();
+        }
+        return $this->service()->session()->get($name, $default);
+    }
+
+    /**
+     * 获取请求Cookie
+     *
+     * @param string|null $name cookie名
+     * @param mixed $default    默认值
+     * @return mixed
+     */
+    public function cookie(?string $name = null, $default = null)
+    {
+        return $this->service()->cookie($name, $default);
     }
 
     /**
@@ -75,9 +161,9 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      * @param string|null $name 文件名
      * @return null|UploadFile[]|UploadFile
      */
-    public function file(?string $name = null): mixed
+    public function file(?string $name = null)
     {
-        $files = parent::file($name);
+        $files = $this->service()->file($name);
         if (null === $files) {
             return $name === null ? [] : null;
         }
@@ -108,7 +194,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      */
     public function method(): string
     {
-        return parent::method();
+        return $this->service()->method();
     }
 
     /**
@@ -118,7 +204,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      */
     public function host($without_port = false): string
     {
-        return parent::host($without_port);
+        return $this->service()->host($without_port);
     }
 
     /**
@@ -128,7 +214,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      */
     public function path(): string
     {
-        return parent::path();
+        return $this->service()->path();
     }
 
     /**
@@ -138,7 +224,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      */
     public function uri(): string
     {
-        return parent::uri();
+        return $this->service()->uri();
     }
 
     /**
@@ -148,7 +234,7 @@ class Request extends \Workerman\Protocols\Http\Request implements RequestInterf
      */
     public function protocolVersion(): string
     {
-        return parent::protocolVersion();
+        return $this->service()->protocolVersion();
     }
 
     /**

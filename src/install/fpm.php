@@ -10,7 +10,6 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 
-
 /*
 |--------------------------------------------------------------------------
 | 初始化应用
@@ -19,7 +18,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 |
 */
 \gaia\App::initialize('fpm');
-
 
 
 /*

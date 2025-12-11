@@ -21,7 +21,7 @@ class Response extends \Workerman\Protocols\Http\Response
      *
      * @var Throwable
      */
-    protected ?Throwable $_exception = null;
+    protected $_exception = null;
 
     /**
      * 重载构造方法
@@ -74,7 +74,7 @@ class Response extends \Workerman\Protocols\Http\Response
      * @param Throwable|null $exception
      * @return Throwable
      */
-    public function exception(Throwable $exception = null): ?Throwable
+    public function exception(?Throwable $exception = null): ?Throwable
     {
         if ($exception) {
             $this->_exception = $exception;

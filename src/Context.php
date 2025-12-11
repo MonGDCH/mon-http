@@ -82,7 +82,7 @@ final class Context
      * @param mixed $value  值
      * @return void
      */
-    public static function set(string $key, $value): void
+    public static function set(string $key, $value)
     {
         $data = static::getData();
         if ($key !== '') {
@@ -96,7 +96,7 @@ final class Context
      * @param string $key   键名
      * @return void
      */
-    public static function delete(string $key): void
+    public static function delete(string $key)
     {
         $data = static::getData();
         unset($data->$key);
@@ -119,7 +119,7 @@ final class Context
      *
      * @return void
      */
-    public static function destroy(): void
+    public static function destroy()
     {
         unset(static::$storage[static::getKey()]);
     }

@@ -22,7 +22,7 @@ class ErrorHandler extends \mon\http\ErrorHandler
      *
      * @var array
      */
-    protected array $ignoreReport = [
+    protected $ignoreReport = [
         ValidateException::class
     ];
 

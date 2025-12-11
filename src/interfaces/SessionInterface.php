@@ -19,7 +19,7 @@ interface SessionInterface
      * @param mixed $value  键值
      * @return SessionInterface
      */
-    public function set(string $key, mixed $value = null): SessionInterface;
+    public function set(string $key, $value = null): SessionInterface;
 
     /**
      * 获取session值，支持.无限级获取值
@@ -28,7 +28,7 @@ interface SessionInterface
      * @param mixed  $default   默认值
      * @return mixed
      */
-    public function get(string $name = '', mixed $default = null): mixed;
+    public function get(string $name = '', $default = null);
 
     /**
      * 是否存在某个key，支持.无限级判断
@@ -44,12 +44,12 @@ interface SessionInterface
      * @param  string $key 键名
      * @return void
      */
-    public function delete(string $key): void;
+    public function delete(string $key);
 
     /**
      * 清空Session
      *
      * @return void
      */
-    public function clear(): void;
+    public function clear();
 }

@@ -28,7 +28,7 @@ class ThrottleMiddleware implements MiddlewareInterface
      *
      * @var array
      */
-    public static array $default_config = [
+    public static $default_config = [
         'enable' => false,                          // 是否启用
         'cache_name' => null,                       // 缓存驱动
         'driver_name' => CounterFixed::class,       // 限流算法驱动
@@ -45,7 +45,7 @@ class ThrottleMiddleware implements MiddlewareInterface
      *
      * @var array
      */
-    public static array $duration = [
+    public static $duration = [
         's' => 1,
         'm' => 60,
         'h' => 3600,
@@ -57,49 +57,49 @@ class ThrottleMiddleware implements MiddlewareInterface
      *
      * @var array
      */
-    protected array $config = [];
+    protected $config = [];
 
     /**
      * 算法驱动实例
      *
      * @var ThrottleAbstract
      */
-    protected ?ThrottleAbstract $driver_class = null;
+    protected $driver_class = null;
 
     /**
      * 下次合法请求还有多少秒
      *
      * @var integer
      */
-    protected int $wait_seconds = 0;
+    protected $wait_seconds = 0;
 
     /**
      * 当前时间戳
      *
      * @var integer
      */
-    protected int $now = 0;
+    protected $now = 0;
 
     /**
      * 规定时间内允许的最大请求次数
      *
      * @var integer
      */
-    protected int $max_requests = 0;
+    protected $max_requests = 0;
 
     /**
      * 规定时间
      *
      * @var integer
      */
-    protected int $expire = 0;
+    protected $expire = 0;
 
     /**
      * 规定时间内还能请求的次数
      *
      * @var integer
      */
-    protected int $remaining = 0;
+    protected $remaining = 0;
 
     /**
      * 构造方法

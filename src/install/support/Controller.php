@@ -23,35 +23,35 @@ abstract class Controller
      *
      * @var array
      */
-    protected array $headers = [];
+    protected $headers = [];
 
     /**
      * 返回数据类型
      *
      * @var string
      */
-    protected string $dataType = 'json';
+    protected $dataType = 'json';
 
     /**
      * 成功响应code值
      *
      * @var integer
      */
-    protected int $success_code = 1;
+    protected $success_code = 1;
 
     /**
      * 错误响应code值
      *
      * @var integer
      */
-    protected int $error_code = 0;
+    protected $error_code = 0;
 
     /**
      * 验证器驱动，默认为内置的Validate验证器
      *
      * @var string
      */
-    protected string $validate = Validate::class;
+    protected $validate = Validate::class;
 
     /**
      * 获取实例化验证器

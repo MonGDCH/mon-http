@@ -18,21 +18,21 @@ class UploadFile extends File
      *
      * @var string
      */
-    protected string $_uploadName;
+    protected $_uploadName;
 
     /**
      * 上传文件mime-type
      *
      * @var string
      */
-    protected string $_uploadMimeType;
+    protected $_uploadMimeType;
 
     /**
      * 上传文件错误码
      *
      * @var integer
      */
-    protected int $_uploadErrorCode;
+    protected $_uploadErrorCode;
 
     /**
      * 重载SplFileInfo构造方法

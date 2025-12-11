@@ -7,8 +7,9 @@ namespace mon\http;
 use InvalidArgumentException;
 
 /**
- * 路由器，暂时只记录路由路径和请求方式
+ * 路由器
  * 
+ * @see 记录路由路径和请求方式
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
@@ -19,21 +20,21 @@ class Router
      *
      * @var array
      */
-    protected static array $routers = [];
+    protected static $routers = [];
 
     /**
      * 路由路径
      *
      * @var string
      */
-    protected string $path;
+    protected $path;
 
     /**
      * 请求方式
      *
      * @var array
      */
-    protected array $method;
+    protected $method;
 
     /**
      * 构造函数

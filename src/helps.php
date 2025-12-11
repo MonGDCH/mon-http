@@ -14,7 +14,7 @@ if (!function_exists('dump')) {
      * @throws \mon\http\exception\DumperException
      * @return void
      */
-    function dump(...$args): void
+    function dump(...$args)
     {
         throw new \mon\http\exception\DumperException($args);
     }
@@ -71,7 +71,6 @@ if (!function_exists('route')) {
      */
     function route(string $name): string
     {
-        $path = \mon\http\Router::getRouter($name);
-        return $path;
+        return \mon\http\Router::getRouter($name);
     }
 }

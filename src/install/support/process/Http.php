@@ -42,7 +42,7 @@ class Http implements ProcessInterface
      * @param Worker $worker
      * @return void
      */
-    public function onWorkerStart(Worker $worker): void
+    public function onWorkerStart(Worker $worker)
     {
         // 运行模式
         $debug = Config::instance()->get('app.debug', false);
