@@ -31,11 +31,5 @@
         "files": [
             "src/helps.php"
         ]
-    },
-    "repositories": {
-        "packagist": {
-            "type": "composer",
-            "url": "https://packagist.org/"
-        }
     }
 }
