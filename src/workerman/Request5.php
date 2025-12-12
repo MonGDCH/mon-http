@@ -4,63 +4,29 @@ declare(strict_types=1);
 
 namespace mon\http\workerman;
 
-use mon\util\Tool;
-use RuntimeException;
-use InvalidArgumentException;
 use mon\http\libs\UploadFile;
 use Workerman\Connection\TcpConnection;
 use mon\http\libs\Request as LibsRequest;
 use mon\http\interfaces\RequestInterface;
-use Workerman\Protocols\Http\Request as WorkermanRequest;
 
 /**
- * 请求处理
+ * 请求处理，用于workerman5.1.0以上版本
  * 
  * @author Mon <985558837@qq.com>
  * @version 1.0.0
  */
-class Request implements RequestInterface
+class Request5 extends \Workerman\Protocols\Http\Request implements RequestInterface
 {
     use LibsRequest;
 
     /**
-     * workerman请求对象
-     *
-     * @var WorkermanRequest
-     */
-    protected $service;
-
-    /**
-     * 构造方法
-     *
-     * @param string $buffer
-     */
-    public function __construct($buffer)
-    {
-        $this->service = new WorkermanRequest($buffer);
-    }
-
-    /**
-     * 获取 Workerman 请求对象
-     *
-     * @return WorkermanRequest
-     */
-    public function service(): WorkermanRequest
-    {
-        return $this->service;
-    }
-
-    /**
      * 获取链接
      *
-     * @return TcpConnection
+     * @return TcpConnection|null
      */
-    public function connection(): TcpConnection
+    public function connection(): ?TcpConnection
     {
-        if (!$this->service()->connection) {
-            throw new RuntimeException('Request connection not initialization!');
-        }
-        return $this->service()->connection;
+        return $this->connection;
     }
 
     /**
@@ -71,9 +37,9 @@ class Request implements RequestInterface
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function get(?string $name = null, $default = null, bool $filter = true)
+    public function get(?string $name = null, mixed $default = null, bool $filter = true): mixed
     {
-        $result = $this->service()->get($name, $default);
+        $result = parent::get($name, $default);
         return $filter && $result ? $this->filter($result) : $result;
     }
 
@@ -85,22 +51,10 @@ class Request implements RequestInterface
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function post(?string $name = null, $default = null, bool $filter = true)
+    public function post(?string $name = null, mixed $default = null, bool $filter = true): mixed
     {
-        $result = $this->service()->post($name, $default);
+        $result = parent::post($name, $default);
         return $filter && $result ? $this->filter($result) : $result;
-    }
-
-    /**
-     * 获取header信息
-     *
-     * @param mixed $name    参数键名
-     * @param mixed $default 默认值
-     * @return mixed
-     */
-    public function header(?string $name = null, $default = null)
-    {
-        return $this->service()->header($name, $default);
     }
 
     /**
@@ -110,39 +64,9 @@ class Request implements RequestInterface
      * @param  mixed $default 默认值
      * @return mixed
      */
-    public function server(?string $name = null, $default = null)
+    public function server(?string $name = null, mixed $default = null): mixed
     {
         return is_null($name) ? $_SERVER : $this->getData($_SERVER, $name, $default);
-    }
-
-    /**
-     * 获取请求Session
-     *
-     * @param string|null $name    session键名
-     * @param mixed $default       默认值
-     * @return mixed
-     */
-    public function session(?string $name = null, $default = null)
-    {
-        if (is_null($name)) {
-            return $this->service()->session();
-        }
-        if ($name === '') {
-            return $this->service()->session()->all();
-        }
-        return $this->service()->session()->get($name, $default);
-    }
-
-    /**
-     * 获取请求Cookie
-     *
-     * @param string|null $name cookie名
-     * @param mixed $default    默认值
-     * @return mixed
-     */
-    public function cookie(?string $name = null, $default = null)
-    {
-        return $this->service()->cookie($name, $default);
     }
 
     /**
@@ -151,9 +75,9 @@ class Request implements RequestInterface
      * @param string|null $name 文件名
      * @return null|UploadFile[]|UploadFile
      */
-    public function file(?string $name = null)
+    public function file(?string $name = null): mixed
     {
-        $files = $this->service()->file($name);
+        $files = parent::file($name);
         if (null === $files) {
             return $name === null ? [] : null;
         }
@@ -184,7 +108,7 @@ class Request implements RequestInterface
      */
     public function method(): string
     {
-        return $this->service()->method();
+        return parent::method();
     }
 
     /**
@@ -194,7 +118,7 @@ class Request implements RequestInterface
      */
     public function host($without_port = false): string
     {
-        return $this->service()->host($without_port);
+        return parent::host($without_port);
     }
 
     /**
@@ -204,7 +128,7 @@ class Request implements RequestInterface
      */
     public function path(): string
     {
-        return $this->service()->path();
+        return parent::path();
     }
 
     /**
@@ -214,7 +138,7 @@ class Request implements RequestInterface
      */
     public function uri(): string
     {
-        return $this->service()->uri();
+        return parent::uri();
     }
 
     /**
@@ -224,7 +148,7 @@ class Request implements RequestInterface
      */
     public function protocolVersion(): string
     {
-        return $this->service()->protocolVersion();
+        return parent::protocolVersion();
     }
 
     /**
@@ -266,10 +190,13 @@ class Request implements RequestInterface
     public function ip(bool $safe_mode = true): string
     {
         $remote_ip = $this->getRemoteIp();
-        if ($safe_mode && !Tool::isIntranetIp($remote_ip)) {
+        if ($safe_mode && !$this->isIntranetIp($remote_ip)) {
             return $remote_ip;
         }
-        return $this->header('client-ip', $this->header('x-forwarded-for', $this->header('x-real-ip', $this->header('x-client-ip', $this->header('via', $remote_ip)))));
+        return $this->header('client-ip', $this->header(
+            'x-forwarded-for',
+            $this->header('x-real-ip', $this->header('x-client-ip', $this->header('via', $remote_ip)))
+        ));
     }
 
     /**
@@ -313,6 +240,47 @@ class Request implements RequestInterface
     }
 
     /**
+     * 判断是否为内网IP
+     *
+     * @param string $ip
+     * @return boolean
+     */
+    public function isIntranetIp(string $ip = ''): bool
+    {
+        $ip = $ip ?: $this->getRemoteIp();
+        // Not validate ip .
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            return false;
+        }
+        // Is intranet ip ? For IPv4, the result of false may not be accurate, so we need to check it manually later .
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return true;
+        }
+        // Manual check only for IPv4 .
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            return false;
+        }
+        // Manual check .
+        $reserved_ips = [
+            1681915904 => 1686110207, // 100.64.0.0 -  100.127.255.255
+            3221225472 => 3221225727, // 192.0.0.0 - 192.0.0.255
+            3221225984 => 3221226239, // 192.0.2.0 - 192.0.2.255
+            3227017984 => 3227018239, // 192.88.99.0 - 192.88.99.255
+            3323068416 => 3323199487, // 198.18.0.0 - 198.19.255.255
+            3325256704 => 3325256959, // 198.51.100.0 - 198.51.100.255
+            3405803776 => 3405804031, // 203.0.113.0 - 203.0.113.255
+            3758096384 => 4026531839, // 224.0.0.0 - 239.255.255.255
+        ];
+        $ip_long = ip2long($ip);
+        foreach ($reserved_ips as $ip_start => $ip_end) {
+            if (($ip_long >= $ip_start) && ($ip_long <= $ip_end)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 解析文件
      *
      * @param array $file 文件信息
@@ -340,61 +308,5 @@ class Request implements RequestInterface
             }
         }
         return $upload_files;
-    }
-
-    /**
-     * 设置属性，装饰 Workerman的Request对象
-     *
-     * @param string $name  属性名
-     * @param mixed  $value 属性值
-     * @return void
-     */
-    public function __set(string $name, $value)
-    {
-        $this->service()->$name = $value;
-    }
-
-    /**
-     * 获取属性，装饰 Workerman的Request对象
-     *
-     * @param string $name 属性名
-     * @return mixed
-     */
-    public function __get(string $name)
-    {
-        return $this->service()->$name;
-    }
-
-    /**
-     * 魔术方法调用，支持请求实例接口额外支持的方法
-     *
-     * @param  string $method 方法名
-     * @param  array  $params 参数
-     * @throws InvalidArgumentException
-     * @return mixed
-     */
-    public function __call(string $method, array $params)
-    {
-        if (is_callable([$this->service(), $method])) {
-            return call_user_func_array([$this->service(), $method], $params);
-        }
-
-        throw new InvalidArgumentException("WorkerMan Request method not found => " . $method);
-    }
-
-    /**
-     * 销毁Request对象
-     *
-     * @return void
-     */
-    public function destroy()
-    {
-        if ($this->service()->context) {
-            $this->service()->context  = [];
-        }
-        if ($this->service()->properties) {
-            $this->service()->properties = [];
-        }
-        $this->service()->connection = null;
     }
 }

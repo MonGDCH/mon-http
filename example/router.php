@@ -15,8 +15,9 @@ use mon\log\Logger;
 /** @var \mon\http\Route $route */
 $route = Route::instance();
 
-$route->get('/', function () {
+$route->get('/', function (Request $request) {
     Session::instance()->set('test', 123456);
+    $request->aa = 123;
     return 'Hello World!';
 });
 

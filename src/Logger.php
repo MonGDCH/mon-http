@@ -113,6 +113,10 @@ class Logger
      */
     public static function save()
     {
-        method_exists(static::service(), 'saveLog') && static::service()->saveLog();
+        if (method_exists(static::service(), 'saveLog')) {
+            static::service()->saveLog();
+        } elseif (method_exists(static::service(), 'save')) {
+            static::service()->save();
+        }
     }
 }

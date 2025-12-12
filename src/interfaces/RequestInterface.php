@@ -87,7 +87,7 @@ interface RequestInterface
      *
      * @return mixed
      */
-    public function session(?string $name = null, $default = null);
+    public function session();
 
     /**
      * 获取请求Cookie

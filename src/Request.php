@@ -30,7 +30,7 @@ class Request implements RequestInterface
      *
      * @var array
      */
-    protected array $_data = [];
+    protected $_data = [];
 
     /**
      * 构造方法
@@ -246,7 +246,7 @@ class Request implements RequestInterface
      * @throws InvalidArgumentException
      * @return mixed
      */
-    public function __call($method, array $params)
+    public function __call(string $method, array $params)
     {
         if (is_callable([$this->service(), $method])) {
             return call_user_func_array([$this->service(), $method], $params);

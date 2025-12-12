@@ -8,17 +8,18 @@ use Throwable;
 use ErrorException;
 use Workerman\Worker;
 use mon\http\Context;
-use mon\http\Request;
 use mon\http\libs\App;
 use FastRoute\Dispatcher;
 use Workerman\Protocols\Http;
+use mon\http\workerman\Request;
+use mon\http\workerman\Request5;
+use mon\http\Request as HttpRequest;
 use mon\http\Session as HttpSession;
 use Workerman\Protocols\Http\Session;
 use mon\http\interfaces\AppInterface;
 use Workerman\Connection\TcpConnection;
 use mon\http\interfaces\RequestInterface;
 use mon\http\workerman\Session as WorkermanSession;
-use mon\http\workerman\Request as WorkermanRequest;
 
 /**
  * WorkerMan应用
@@ -92,9 +93,10 @@ class WorkerMan implements AppInterface
         $this->new_ctrl = $newCtrl;
         $this->app_name = $name;
 
-        // 注册请求服务
-        $this->request_class = Request::class;
-        Http::requestClass(WorkermanRequest::class);
+        $this->request_class = HttpRequest::class;
+        // 注册请求服务，自动判断是否为workerman5.1.0以上版本
+        Http::requestClass(version_compare(Worker::VERSION, '5.1.0', '>=') ? Request5::class : Request::class);
+        // Http::requestClass(Request::class);
         // 注册初始化日志服务
         Logger::initialization($name);
 
@@ -210,8 +212,8 @@ class WorkerMan implements AppInterface
         try {
             // 绑定对象容器
             $request->connection = $connection;
-            Context::set($this->request_class, new Request($request));
-
+            Context::set($this->request_class, new HttpRequest($request));
+            // 绑定请求session
             HttpSession::instance()->service(new WorkermanSession($this->request()->session()));
             // 请求路径
             $path = $this->request()->path();
@@ -334,7 +336,7 @@ class WorkerMan implements AppInterface
         $dispatch = $this->route()->dispatch($method, $path);
         if ($dispatch[0] === Dispatcher::FOUND) {
             // 请求IP
-            $ip = $this->request()->ip();
+            $ip = $request->ip();
             // 记录日志
             Logger::service()->log('', "{$ip} {$method} {$path}");
             // 绑定路由请求参数
