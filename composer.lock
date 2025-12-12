@@ -4,19 +4,14 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5e0f717c00cea78778a608cf4fb7e352",
+    "content-hash": "de3d4e704880015dc3bd3097a85fcd50",
     "packages": [
         {
             "name": "mongdch/mon-log",
             "version": "1.0.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/MonGDCH/mon-log.git",
-                "reference": "8188d3cb8b41730e5510c26b7507bf4666e80930"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MonGDCH/mon-log/zipball/8188d3cb8b41730e5510c26b7507bf4666e80930",
+                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-log/1.0.6/mongdch-mon-log-1.0.6.zip",
                 "reference": "8188d3cb8b41730e5510c26b7507bf4666e80930",
                 "shasum": ""
             },
@@ -30,7 +25,6 @@
                     "mon\\log\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -58,14 +52,9 @@
         {
             "name": "mongdch/mon-util",
             "version": "1.6.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/MonGDCH/mon-util.git",
-                "reference": "397aa96c06bf1c9ff4092855d8dedfcd89e99837"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MonGDCH/mon-util/zipball/397aa96c06bf1c9ff4092855d8dedfcd89e99837",
+                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-util/1.6.5/mongdch-mon-util-1.6.5.zip",
                 "reference": "397aa96c06bf1c9ff4092855d8dedfcd89e99837",
                 "shasum": ""
             },
@@ -82,7 +71,6 @@
                     "mon\\util\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Apache-2.0"
             ],
@@ -110,14 +98,9 @@
         {
             "name": "nikic/fast-route",
             "version": "v1.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nikic/FastRoute.git",
-                "reference": "181d480e08d9476e61381e04a71b34dc0432e812"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/FastRoute/zipball/181d480e08d9476e61381e04a71b34dc0432e812",
+                "url": "https://mirrors.tencent.com/repository/composer/nikic/fast-route/v1.3.0/nikic-fast-route-v1.3.0.zip",
                 "reference": "181d480e08d9476e61381e04a71b34dc0432e812",
                 "shasum": ""
             },
@@ -136,7 +119,6 @@
                     "FastRoute\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -160,14 +142,9 @@
         {
             "name": "psr/container",
             "version": "2.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-fig/container.git",
-                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/c71ecc56dfe541dbd90c5360474fbc405f8d5963",
+                "url": "https://mirrors.tencent.com/repository/composer/psr/container/2.0.2/psr-container-2.0.2.zip",
                 "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963",
                 "shasum": ""
             },
@@ -185,7 +162,6 @@
                     "Psr\\Container\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -213,14 +189,9 @@
         {
             "name": "psr/log",
             "version": "3.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-fig/log.git",
-                "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
+                "url": "https://mirrors.tencent.com/repository/composer/psr/log/3.0.2/psr-log-3.0.2.zip",
                 "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
                 "shasum": ""
             },
@@ -238,7 +209,6 @@
                     "Psr\\Log\\": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -263,14 +233,9 @@
         {
             "name": "workerman/coroutine",
             "version": "v1.1.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/workerman-php/coroutine.git",
-                "reference": "b0bebfa9d41b992ad0a835ddf2ee8fa5d58eca44"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/workerman-php/coroutine/zipball/b0bebfa9d41b992ad0a835ddf2ee8fa5d58eca44",
+                "url": "https://mirrors.tencent.com/repository/composer/workerman/coroutine/v1.1.4/workerman-coroutine-v1.1.4.zip",
                 "reference": "b0bebfa9d41b992ad0a835ddf2ee8fa5d58eca44",
                 "shasum": ""
             },
@@ -288,7 +253,6 @@
                     "Workerman\\Coroutine\\": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -302,14 +266,9 @@
         {
             "name": "workerman/workerman",
             "version": "v5.1.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/walkor/workerman.git",
-                "reference": "9b83bdf9fd0eaff9419a240b47da870447583112"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/walkor/workerman/zipball/9b83bdf9fd0eaff9419a240b47da870447583112",
+                "url": "https://mirrors.tencent.com/repository/composer/workerman/workerman/v5.1.6/workerman-workerman-v5.1.6.zip",
                 "reference": "9b83bdf9fd0eaff9419a240b47da870447583112",
                 "shasum": ""
             },
@@ -336,7 +295,6 @@
                     "Workerman\\": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -363,16 +321,6 @@
                 "source": "https://github.com/walkor/workerman",
                 "wiki": "https://www.workerman.net/doc/workerman/"
             },
-            "funding": [
-                {
-                    "url": "https://opencollective.com/workerman",
-                    "type": "open_collective"
-                },
-                {
-                    "url": "https://www.patreon.com/walkor",
-                    "type": "patreon"
-                }
-            ],
             "time": "2025-11-12T01:36:20+00:00"
         }
     ],
