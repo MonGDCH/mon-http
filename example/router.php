@@ -17,11 +17,14 @@ $route = Route::instance();
 
 $route->get('/', function (Request $request) {
     Session::instance()->set('test', 123456);
+    Session::instance()->set('test2', ['a' => 1, 'b' => 2]);
     $request->aa = 123;
     return 'Hello World!';
 });
 
-$route->get('/get', function () {
+$route->get('/get', function (Request $request) {
+    dd($request->session(''));
+    dd($request->session('test2.b'));
     return Session::instance()->get('test');
 });
 

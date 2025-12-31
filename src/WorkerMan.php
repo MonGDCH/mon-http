@@ -12,7 +12,6 @@ use mon\http\libs\App;
 use FastRoute\Dispatcher;
 use Workerman\Protocols\Http;
 use mon\http\workerman\Request;
-use mon\http\workerman\Request5;
 use mon\http\Request as HttpRequest;
 use mon\http\Session as HttpSession;
 use Workerman\Protocols\Http\Session;
@@ -94,9 +93,8 @@ class WorkerMan implements AppInterface
         $this->app_name = $name;
 
         $this->request_class = HttpRequest::class;
-        // 注册请求服务，自动判断是否为workerman5.1.0以上版本
-        Http::requestClass(version_compare(Worker::VERSION, '5.1.0', '>=') ? Request5::class : Request::class);
-        // Http::requestClass(Request::class);
+        // 注册请求服务
+        Http::requestClass(Request::class);
         // 注册初始化日志服务
         Logger::initialization($name);
 

@@ -72,7 +72,7 @@ final class Context
             return $data;
         }
 
-        return $data->$key ?? $default;
+        return $data->{$key} ?? $default;
     }
 
     /**
@@ -86,7 +86,7 @@ final class Context
     {
         $data = static::getData();
         if ($key !== '') {
-            $data->$key = $value;
+            $data->{$key} = $value;
         }
     }
 
@@ -99,7 +99,7 @@ final class Context
     public static function delete(string $key)
     {
         $data = static::getData();
-        unset($data->$key);
+        unset($data->{$key});
     }
 
     /**

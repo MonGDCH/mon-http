@@ -154,7 +154,7 @@ class Session implements SessionInterface
     public function __get(string $name)
     {
         if (property_exists($this->service(), $name)) {
-            return $this->service()->$name;
+            return $this->service()->{$name};
         }
 
         throw new InvalidArgumentException("Session facade property not found => " . $name);

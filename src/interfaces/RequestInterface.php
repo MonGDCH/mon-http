@@ -85,9 +85,11 @@ interface RequestInterface
     /**
      * 获取请求Session
      *
+     * @param string $name 键名
+     * @param mixed $default    默认值
      * @return mixed
      */
-    public function session();
+    public function session(?string $name = null, $default = null);
 
     /**
      * 获取请求Cookie

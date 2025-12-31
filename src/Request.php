@@ -267,7 +267,7 @@ class Request implements RequestInterface
             return $this->_data[$name];
         }
         if (property_exists($this->service(), $name)) {
-            return $this->service()->$name;
+            return $this->service()->{$name};
         }
 
         throw new InvalidArgumentException("Request facade property not found => " . $name);

@@ -127,10 +127,8 @@ class Request implements RequestInterface
         if (is_null($name)) {
             return $this->service()->session();
         }
-        if ($name === '') {
-            return $this->service()->session()->all();
-        }
-        return $this->service()->session()->get($name, $default);
+        $value = $this->service()->session()->all();
+        return is_null($name) || $name === '' ? $value : $this->getData($value, $name, $default);
     }
 
     /**
@@ -351,7 +349,7 @@ class Request implements RequestInterface
      */
     public function __set(string $name, $value)
     {
-        $this->service()->$name = $value;
+        $this->service()->{$name} = $value;
     }
 
     /**
@@ -362,7 +360,7 @@ class Request implements RequestInterface
      */
     public function __get(string $name)
     {
-        return $this->service()->$name;
+        return $this->service()->{$name};
     }
 
     /**

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "de3d4e704880015dc3bd3097a85fcd50",
+    "content-hash": "8640b61da2a127ecbc6dc6945a0b7e05",
     "packages": [
         {
             "name": "mongdch/mon-log",
@@ -51,11 +51,11 @@
         },
         {
             "name": "mongdch/mon-util",
-            "version": "1.6.5",
+            "version": "1.6.6",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-util/1.6.5/mongdch-mon-util-1.6.5.zip",
-                "reference": "397aa96c06bf1c9ff4092855d8dedfcd89e99837",
+                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-util/1.6.6/mongdch-mon-util-1.6.6.zip",
+                "reference": "d455ceeb3b1f959bf1f82d5c0cb7a5eb2948ad99",
                 "shasum": ""
             },
             "require": {
@@ -91,9 +91,9 @@
             ],
             "support": {
                 "issues": "https://github.com/MonGDCH/mon-util/issues",
-                "source": "https://github.com/MonGDCH/mon-util/tree/1.6.5"
+                "source": "https://github.com/MonGDCH/mon-util/tree/1.6.6"
             },
-            "time": "2025-12-09T08:41:32+00:00"
+            "time": "2025-12-31T02:04:59+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -265,11 +265,11 @@
         },
         {
             "name": "workerman/workerman",
-            "version": "v5.1.6",
+            "version": "v5.1.7",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/workerman/workerman/v5.1.6/workerman-workerman-v5.1.6.zip",
-                "reference": "9b83bdf9fd0eaff9419a240b47da870447583112",
+                "url": "https://mirrors.tencent.com/repository/composer/workerman/workerman/v5.1.7/workerman-workerman-v5.1.7.zip",
+                "reference": "510eb286cf5254c626b08f94dc28adc6340d09b3",
                 "shasum": ""
             },
             "require": {
@@ -282,8 +282,8 @@
             },
             "require-dev": {
                 "guzzlehttp/guzzle": "^7.0",
-                "mockery/mockery": "2.0.x-dev",
-                "pestphp/pest": "2.x-dev",
+                "mockery/mockery": "^1.6",
+                "pestphp/pest": "^2.36 || ^3 || ^4",
                 "phpstan/phpstan": "2.1.x-dev"
             },
             "suggest": {
@@ -321,13 +321,16 @@
                 "source": "https://github.com/walkor/workerman",
                 "wiki": "https://www.workerman.net/doc/workerman/"
             },
-            "time": "2025-11-12T01:36:20+00:00"
+            "time": "2025-12-29T03:44:19+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "mongdch/mon-log": 20,
+        "mongdch/mon-util": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
