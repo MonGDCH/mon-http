@@ -266,7 +266,7 @@ class Request implements RequestInterface
         if (isset($this->_data[$name])) {
             return $this->_data[$name];
         }
-        if (property_exists($this->service(), $name)) {
+        if ($this->service()->{$name}) {
             return $this->service()->{$name};
         }
 
