@@ -375,7 +375,7 @@ class WorkerMan implements AppInterface
 
         $response = $this->response($response);
         $keep_alive = $request->header('connection');
-        if (($keep_alive === null && $request->protocolVersion() === '1.1') || $keep_alive === 'keep-alive' || $keep_alive === 'Keep-Alive') {
+        if (($keep_alive === null && $request->protocolVersion() === '1.1') || $keep_alive === 'keep-alive' || $keep_alive === 'Keep-Alive' || (is_a($response, Response::class) && $response->getHeader('Transfer-Encoding') === 'chunked')) {
             $connection->send($response);
             return;
         }
