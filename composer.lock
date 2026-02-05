@@ -51,11 +51,11 @@
         },
         {
             "name": "mongdch/mon-util",
-            "version": "1.6.6",
+            "version": "1.6.7",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-util/1.6.6/mongdch-mon-util-1.6.6.zip",
-                "reference": "d455ceeb3b1f959bf1f82d5c0cb7a5eb2948ad99",
+                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-util/1.6.7/mongdch-mon-util-1.6.7.zip",
+                "reference": "ed262d1d531521d06c1d2cbe8158b0a90fde2471",
                 "shasum": ""
             },
             "require": {
@@ -91,9 +91,9 @@
             ],
             "support": {
                 "issues": "https://github.com/MonGDCH/mon-util/issues",
-                "source": "https://github.com/MonGDCH/mon-util/tree/1.6.6"
+                "source": "https://github.com/MonGDCH/mon-util/tree/1.6.7"
             },
-            "time": "2025-12-31T02:04:59+00:00"
+            "time": "2026-01-27T06:47:13+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -265,11 +265,11 @@
         },
         {
             "name": "workerman/workerman",
-            "version": "v5.1.7",
+            "version": "v5.1.9",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/workerman/workerman/v5.1.7/workerman-workerman-v5.1.7.zip",
-                "reference": "510eb286cf5254c626b08f94dc28adc6340d09b3",
+                "url": "https://mirrors.tencent.com/repository/composer/workerman/workerman/v5.1.9/workerman-workerman-v5.1.9.zip",
+                "reference": "fff0954628f8ceeccfe29d3e817f0fad87cfdbf2",
                 "shasum": ""
             },
             "require": {
@@ -321,7 +321,7 @@
                 "source": "https://github.com/walkor/workerman",
                 "wiki": "https://www.workerman.net/doc/workerman/"
             },
-            "time": "2025-12-29T03:44:19+00:00"
+            "time": "2026-01-09T03:26:15+00:00"
         }
     ],
     "packages-dev": [],

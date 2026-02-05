@@ -98,7 +98,7 @@ class ErrorHandler implements ExceptionHandlerInterface
         $source = $this->getSourceCode($e);
 
         $headerTmp = $this->buildHead();
-        $messgaeTmp = $this->buildMessgae($name, $code, $file, $line, $msg);
+        $messgaeTmp = $this->buildMessgae($name, intval($code), $file, $line, $msg);
         $sourceTmp = $this->buildSource($source);
         $traceTmp = $this->buildTrace($file, $line, $trace);
         $jsTmp = $this->buildJS($line);
