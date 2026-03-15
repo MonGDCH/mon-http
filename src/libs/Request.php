@@ -215,7 +215,7 @@ trait Request
      */
     public function filter($input)
     {
-        if (is_numeric($input)) {
+        if (is_numeric($input) || is_bool($input) || is_null($input)) {
             return $input;
         }
         if (is_array($input)) {
@@ -235,13 +235,7 @@ trait Request
     {
         $result = [];
         foreach ($input as $key => $value) {
-            if (is_numeric($value)) {
-                $result[$key] = $value;
-            } elseif (is_array($value)) {
-                $result[$key] = $this->filterArray($value);
-            } else {
-                $result[$key] = htmlspecialchars((string)$value ?: '');
-            }
+            $result[$key] = $this->filter($value);
         }
 
         return $result;
