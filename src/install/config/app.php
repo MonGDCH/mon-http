@@ -14,7 +14,7 @@ return [
     // FPM服务配置
     'fpm'       => [
         // 是否启用fpm
-        'enable'    => false,
+        'enable'    => env('HTTP_FPM_ENABLE', false),
         // 路由缓存文件
         'cache'     => RUNTIME_PATH . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'fpm_route_cache.php',
     ],
@@ -23,7 +23,7 @@ return [
         // 进程配置
         'config'    => [
             // 监听协议端口
-            'listen'    => 'http://0.0.0.0:8087',
+            'listen'    => 'http://' . env('HTTP_LISTEN_HOST', '0.0.0.0') . ':' . env('HTTP_LISTEN_PORT', 8087),
             // 额外参数
             'context'   => [],
             // 通信协议
@@ -42,7 +42,7 @@ return [
         // 静态文件访问配置
         'static'    => [
             // 是否启用静态资源访问 
-            'enable'    => false,
+            'enable'    => env('HTTP_STATIC_ENABLE', false),
             // 静态资源目录
             'path'      => ROOT_PATH . '/public',
             // 允许访问的文件类型，空则不限制
