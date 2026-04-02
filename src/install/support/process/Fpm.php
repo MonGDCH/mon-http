@@ -6,13 +6,11 @@ namespace support\http\process;
 
 use mon\env\Config;
 use mon\http\Route;
-use mon\http\Logger;
 use mon\http\Router;
 use mon\thinkORM\ORM;
 use mon\http\Middleware;
 use mon\http\Fpm as Http;
 use support\http\ErrorHandler;
-use support\cache\CacheService;
 use mon\thinkORM\ORMMiddleware;
 
 /**
@@ -61,8 +59,7 @@ class Fpm
         if (class_exists(ORM::class)) {
             $config = Config::instance()->get('database', []);
             // 注册ORM
-            $cache_store = class_exists(CacheService::class) ? CacheService::instance()->getService()->store() : null;
-            ORM::register(false, $config, Logger::service(), $cache_store);
+            ORM::register(false, $config);
             // 注册ORM中间件
             Middleware::set('fpm', [ORMMiddleware::class]);
         }

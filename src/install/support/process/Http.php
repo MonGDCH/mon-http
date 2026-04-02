@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace support\http\process;
 
 use mon\env\Config;
-use mon\http\Logger;
 use mon\thinkORM\ORM;
 use Workerman\Worker;
 use gaia\ProcessTrait;
 use mon\http\WorkerMan;
 use mon\http\Middleware;
 use support\http\ErrorHandler;
-use support\cache\CacheService;
 use mon\thinkORM\ORMMiddleware;
 use gaia\interfaces\ProcessInterface;
 
@@ -33,7 +31,9 @@ class Http implements ProcessInterface
      */
     public static function getProcessConfig(): array
     {
-        return Config::instance()->get('http.app.workerman.config', []);
+        $config = Config::instance()->get('http.app.workerman.config', []);
+        $config['count'] = $config['count'] == 0 ? (\gaia\App::cpuCount() * 2) : $config['count'];
+        return $config;
     }
 
     /**
@@ -73,8 +73,7 @@ class Http implements ProcessInterface
         if (class_exists(ORM::class)) {
             $config = Config::instance()->get('database', []);
             // 注册ORM
-            $cache_store = class_exists(CacheService::class) ? CacheService::instance()->getService()->store() : null;
-            ORM::register(true, $config, Logger::service(), $cache_store);
+            ORM::register(true, $config);
             // 注册ORM中间件
             Middleware::set('workerman', [ORMMiddleware::class]);
         }

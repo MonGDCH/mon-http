@@ -28,8 +28,8 @@ return [
             'context'   => [],
             // 通信协议
             'transport' => 'tcp',
-            // 进程数
-            'count'     => \gaia\App::cpuCount() * 2,
+            // 进程数，默认0表示自动根据CPU核心数x2计算
+            'count'     => env('HTTP_WORKER_COUNT', 0),
             // 进程用户
             'user'      => '',
             // 进程用户组
