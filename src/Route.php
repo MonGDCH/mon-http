@@ -89,7 +89,6 @@ class Route
     /**
      * 获取单例
      *
-     * @param mixed $options 初始化参数
      * @return Route
      */
     public static function instance(): Route
@@ -386,7 +385,7 @@ class Route
     /**
      * 获取错误处理器
      *
-     * @return \callable|null
+     * @return mixed
      */
     public function getErrorHandler()
     {
