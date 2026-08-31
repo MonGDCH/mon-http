@@ -163,12 +163,12 @@ class Request implements RequestInterface
             return $this->parseFile($files);
         }
         $upload_files = [];
-        foreach ($files as $name => $file) {
+        foreach ($files as $key => $file) {
             // 多文件
             if (is_array(current($file))) {
-                $upload_files[$name] = $this->parseFiles($file);
+                $upload_files[$key] = $this->parseFiles($file);
             } else {
-                $upload_files[$name] = $this->parseFile($file);
+                $upload_files[$key] = $this->parseFile($file);
             }
         }
 

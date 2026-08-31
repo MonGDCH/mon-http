@@ -8,11 +8,11 @@
     "packages": [
         {
             "name": "mongdch/mon-log",
-            "version": "1.0.6",
+            "version": "1.0.7",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-log/1.0.6/mongdch-mon-log-1.0.6.zip",
-                "reference": "8188d3cb8b41730e5510c26b7507bf4666e80930",
+                "url": "https://mirrors.tencent.com/repository/composer/mongdch/mon-log/1.0.7/mongdch-mon-log-1.0.7.zip",
+                "reference": "396b7538d119b5de57756381b4fa2c3abd766bd5",
                 "shasum": ""
             },
             "require": {
@@ -45,9 +45,9 @@
             ],
             "support": {
                 "issues": "https://github.com/MonGDCH/mon-log/issues",
-                "source": "https://github.com/MonGDCH/mon-log/tree/1.0.6"
+                "source": "https://github.com/MonGDCH/mon-log/tree/1.0.7"
             },
-            "time": "2025-06-14T09:39:31+00:00"
+            "time": "2026-08-31T00:42:38+00:00"
         },
         {
             "name": "mongdch/mon-util",
@@ -97,11 +97,11 @@
         },
         {
             "name": "nikic/fast-route",
-            "version": "v1.3.0",
+            "version": "1.3.1",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/nikic/fast-route/v1.3.0/nikic-fast-route-v1.3.0.zip",
-                "reference": "181d480e08d9476e61381e04a71b34dc0432e812",
+                "url": "https://mirrors.tencent.com/repository/composer/nikic/fast-route/1.3.1/nikic-fast-route-1.3.1.zip",
+                "reference": "7476684f39bb9124b3be69ed3d84b66723920298",
                 "shasum": ""
             },
             "require": {
@@ -135,9 +135,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/FastRoute/issues",
-                "source": "https://github.com/nikic/FastRoute/tree/master"
+                "source": "https://github.com/nikic/FastRoute/tree/1.3.1"
             },
-            "time": "2018-02-13T20:26:39+00:00"
+            "time": "2026-07-09T19:38:47+00:00"
         },
         {
             "name": "psr/container",
@@ -232,11 +232,11 @@
         },
         {
             "name": "workerman/coroutine",
-            "version": "v1.1.5",
+            "version": "v1.1.6",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/workerman/coroutine/v1.1.5/workerman-coroutine-v1.1.5.zip",
-                "reference": "b60e44267b90d398dbfa7a320f3e97b46357ac9f",
+                "url": "https://mirrors.tencent.com/repository/composer/workerman/coroutine/v1.1.6/workerman-coroutine-v1.1.6.zip",
+                "reference": "918c10be5270a74f91ff77cc66b6a821cc456a25",
                 "shasum": ""
             },
             "require": {
@@ -260,17 +260,17 @@
             "description": "Workerman coroutine",
             "support": {
                 "issues": "https://github.com/workerman-php/coroutine/issues",
-                "source": "https://github.com/workerman-php/coroutine/tree/v1.1.5"
+                "source": "https://github.com/workerman-php/coroutine/tree/v1.1.6"
             },
-            "time": "2026-03-12T02:07:37+00:00"
+            "time": "2026-07-26T14:42:35+00:00"
         },
         {
             "name": "workerman/workerman",
-            "version": "v5.1.10",
+            "version": "v5.2.2",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/workerman/workerman/v5.1.10/workerman-workerman-v5.1.10.zip",
-                "reference": "6ecda94609c40ade0f1e548535d24d8e09e67409",
+                "url": "https://mirrors.tencent.com/repository/composer/workerman/workerman/v5.2.2/workerman-workerman-v5.2.2.zip",
+                "reference": "a0866601af066c0eab5a2f7b9aef8bdda8fa1911",
                 "shasum": ""
             },
             "require": {
@@ -283,7 +283,7 @@
             },
             "require-dev": {
                 "guzzlehttp/guzzle": "^7.10",
-                "mockery/mockery": "^1.6",
+                "mockery/mockery": "^1.6.12",
                 "pestphp/pest": "^2.36 || ^3 || ^4",
                 "phpstan/phpstan": "^2.1"
             },
@@ -322,7 +322,7 @@
                 "source": "https://github.com/walkor/workerman",
                 "wiki": "https://www.workerman.net/doc/workerman/"
             },
-            "time": "2026-03-20T09:38:10+00:00"
+            "time": "2026-06-04T07:31:34+00:00"
         }
     ],
     "packages-dev": [],

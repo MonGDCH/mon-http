@@ -37,7 +37,7 @@ class Session implements SessionInterface
      *
      * @return HttpSession
      */
-    public function handler(HttpSession $handler = null): HttpSession
+    public function handler(?HttpSession $handler = null): HttpSession
     {
         if (!is_null($handler)) {
             $this->handler = $handler;
@@ -75,7 +75,7 @@ class Session implements SessionInterface
     /**
      * 获取session值，支持.无限级获取值
      *
-     * @param string $key       键名
+     * @param string $name      键名
      * @param mixed  $default   默认值
      * @return mixed
      */
@@ -122,7 +122,7 @@ class Session implements SessionInterface
     /**
      * 删除某个key
      *
-     * @param string $key 键名
+     * @param string $name 键名
      * @return void
      */
     public function delete(string $name)

@@ -99,7 +99,7 @@ abstract class Controller
      * @param RequestInterface|null $request    请求实例
      * @return Response
      */
-    protected function file(string $path, RequestInterface $request = null): Response
+    protected function file(string $path, ?RequestInterface $request = null): Response
     {
         return (new Response())->file($path, $request);
     }

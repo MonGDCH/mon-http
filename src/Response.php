@@ -43,7 +43,7 @@ class Response extends \Workerman\Protocols\Http\Response
      * @param RequestInterface $request 请求实例或者null
      * @return Response
      */
-    public function file(string $file, RequestInterface $request = null): Response
+    public function file(string $file, ?RequestInterface $request = null): Response
     {
         if ($request && $this->notModifiedSince($file, $request)) {
             return $this->withStatus(304);

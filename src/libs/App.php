@@ -153,7 +153,7 @@ trait App
      * 自定义错误处理类支持
      *
      * @param string $error_class 错误处理类名
-     * @return static
+     * @return AppInterface
      */
     public function supportError(string $error_class): AppInterface
     {
@@ -221,7 +221,7 @@ trait App
     /**
      * 获取错误回调
      *
-     * @return \callable
+     * @throws \Closure
      */
     public function getFallback()
     {

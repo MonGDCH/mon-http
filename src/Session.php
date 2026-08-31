@@ -37,7 +37,6 @@ class Session implements SessionInterface
     /**
      * 获取单例
      *
-     * @param mixed $options 初始化参数
      * @return Session
      */
     public static function instance(): Session
@@ -53,7 +52,7 @@ class Session implements SessionInterface
      *
      * @return SessionInterface
      */
-    public function service(SessionInterface $service = null): ?SessionInterface
+    public function service(?SessionInterface $service = null): ?SessionInterface
     {
         if (!is_null($service)) {
             $this->service = $service;
@@ -87,7 +86,7 @@ class Session implements SessionInterface
     /**
      * 获取session值，支持.无限级获取值
      *
-     * @param string $key       键名
+     * @param string $name      键名
      * @param mixed  $default   默认值
      * @return mixed
      */

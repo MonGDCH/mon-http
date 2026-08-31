@@ -95,7 +95,8 @@ trait Request
         if (is_null($this->jsonData)) {
             $input = $this->rawBody();
             if (!$input) {
-                return $default;
+                // return $default;
+                return [];
             }
             $this->jsonData = (array)json_decode($input, true);
         }
@@ -118,7 +119,8 @@ trait Request
         if (is_null($this->xmlData)) {
             $input = $this->rawBody();
             if (!$input) {
-                return $default;
+                // return $default;
+                return [];
             }
             // 开启内部错误处理
             libxml_use_internal_errors(true);

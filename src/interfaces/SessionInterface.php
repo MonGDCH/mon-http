@@ -24,7 +24,7 @@ interface SessionInterface
     /**
      * 获取session值，支持.无限级获取值
      *
-     * @param string $key       键名
+     * @param string $name      键名
      * @param mixed  $default   默认值
      * @return mixed
      */

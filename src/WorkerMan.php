@@ -75,7 +75,6 @@ class WorkerMan implements AppInterface
     /**
      * 构造方法
      *
-     * @param string  $request  HTTP请求响应的request类对象名
      * @param boolean $debug    是否为调试模式
      * @param boolean $newCtrl  每次回调重新实例化控制器
      * @param string  $name     应用名称，也是中间件名
@@ -265,7 +264,6 @@ class WorkerMan implements AppInterface
      *
      * @param TcpConnection $connection 链接实例
      * @param RequestInterface $request 请求实例
-     * @param string $method            请求方式
      * @param string $path              请求路径
      * @param string $key               缓存回调名称
      * @return boolean

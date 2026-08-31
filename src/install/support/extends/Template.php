@@ -50,7 +50,7 @@ trait Template
      *
      * @param mixed $key
      * @param mixed $value
-     * @return Controller
+     * @return static
      */
     protected function assign($key, $value = null): static
     {
