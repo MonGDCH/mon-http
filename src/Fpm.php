@@ -136,6 +136,12 @@ class Fpm implements AppInterface
                 return;
             }
 
+            // 请求方式不允许
+            if ($dispatch[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+                $this->send(new Response(405, ['Allow' => implode(', ', $dispatch[1])], 'Method Not Allowed'));
+                return;
+            }
+
             // 未发现路由
             $failback = $this->getFallback();
             $this->send($failback($this->request()));
@@ -184,7 +190,7 @@ class Fpm implements AppInterface
     /**
      * 发送文件
      *
-     * @param array $file
+     * @param Response $response 响应结果集
      * @return void
      */
     protected function sendFile(Response $response)

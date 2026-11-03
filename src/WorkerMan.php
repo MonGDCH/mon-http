@@ -373,6 +373,13 @@ class WorkerMan implements AppInterface
             return true;
         }
 
+        // 请求方式不允许
+        if ($dispatch[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+            $this->send($connection, $request, new Response(405, ['Allow' => implode(', ', $dispatch[1])], 'Method Not Allowed'));
+
+            return true;
+        }
+
         return false;
     }
 

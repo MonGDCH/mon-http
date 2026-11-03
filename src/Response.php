@@ -61,8 +61,10 @@ class Response extends \Workerman\Protocols\Http\Response
      */
     public function download(string $file, string $name = ''): Response
     {
-        if ($name) {
-            $this->header('Content-Disposition', "attachment; filename=\"$name\"");
+        if ($name !== '') {
+            // 过滤换行符、空字节等非法字符，防止响应头注入
+            $name = str_replace(["\r", "\n", "\0", '"'], '', $name);
+            $this->header('Content-Disposition', 'attachment; filename="' . $name . '"');
         }
 
         return $this->withFile($file);

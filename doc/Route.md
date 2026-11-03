@@ -71,6 +71,17 @@ $app->route()->auto([
 // 3、开启路由缓存后通用路由配置会一并缓存，无需再执行路由文件
 
 
+#### 路由缓存
+
+使用 `cache()` 生成路由缓存源码，需要在路由闭包中遵守以下约定：
+
+1. 闭包内引用的类名必须使用完全限定名（如 `\mon\http\Response`），缓存后不会在路由文件中重新执行 `use` 语句
+2. 不支持箭头函数（`fn() => ...`）、绑定了 `$this` 的闭包以及 `use` 绑定对象变量，缓存时会抛出 `RouteException`
+3. 请求路径会先执行 `rawurldecode` 再进入调度，保证 `%20` 等编码路径能够正确匹配
+
+```php
+<?php
+
 // 错误处理
 $app->route()->error([App\Controller\Index::class, 'index']);
 

@@ -98,6 +98,13 @@ class Route
     protected $autoRoutes = [];
 
     /**
+     * 路由缓存中的闭包源码，以占位符为键
+     *
+     * @var array
+     */
+    protected $closureCode = [];
+
+    /**
      * 单例化路由实例
      */
     protected function __construct() {}
@@ -361,15 +368,15 @@ class Route
         $paths = [$path == '/' ? '' : $path, '{filePath:.+}'];
         $route_path = implode('/', $paths);
         // 创建路由
-        $this->map($method, $route_path, function (string $filePath) use ($root, $ext): Response {
+        $this->map($method, $route_path, function (string $filePath) use ($root, $ext): \mon\http\Response {
             // 统一由 resolveFile 完成解码、安全校验和根目录包含验证
             $file = \mon\http\Route::resolveFile($root, $filePath, $ext);
             if (is_null($file)) {
-                return new Response(404);
+                return new \mon\http\Response(404);
             }
 
             clearstatcache(true, $file);
-            return (new Response())->file($file);
+            return (new \mon\http\Response())->file($file);
         });
     }
 
@@ -575,6 +582,10 @@ class Route
      */
     public function dispatch(string $method, string $path): array
     {
+        // 按 fast-route 约定先解码 URI，避免编码字符无法匹配路由规则
+        if (strpos($path, '%') !== false) {
+            $path = rawurldecode($path);
+        }
         $dispatch = $this->dispatcher()->dispatch($method, $path);
         // 命中显式路由
         if ($dispatch[0] === Dispatcher::FOUND) {
@@ -844,7 +855,11 @@ class Route
         }
         array_walk_recursive($data, [$this, 'buildClosure']);
         $content = var_export($data, true);
-        $content = str_replace(['\'[__start__', '__end__]\''], '', stripcslashes($content));
+        // 精确还原闭包源码，避免 stripcslashes 破坏其他字符串的转义
+        foreach ($this->closureCode as $token => $code) {
+            $content = str_replace(var_export($token, true), $code, $content);
+        }
+        $this->closureCode = [];
         // 不存在缓存文件路径，返回缓存结果集
         if (empty($path)) {
             return $content;
@@ -862,19 +877,61 @@ class Route
      */
     protected function buildClosure(&$value)
     {
-        if ($value instanceof Closure) {
-            $reflection = new ReflectionFunction($value);
-            $startLine  = $reflection->getStartLine();
-            $endLine    = $reflection->getEndLine();
-            $file       = $reflection->getFileName();
-            $item       = file($file);
-            $content    = '';
-            for ($i = $startLine - 1, $j = $endLine - 1; $i <= $j; $i++) {
-                $content .= $item[$i];
-            }
-            $start = strpos($content, 'function');
-            $end   = strrpos($content, '}');
-            $value = '[__start__' . substr($content, $start, $end - $start + 1) . '__end__]';
+        if (!$value instanceof Closure) {
+            return;
         }
+        $reflection = new ReflectionFunction($value);
+        $file = $reflection->getFileName();
+        if (empty($file) || !is_file($file)) {
+            throw new RouteException('Route cache does not support internal closure');
+        }
+        $content = $this->getClosureSource($reflection, $file);
+        // 闭包 use 变量在缓存后无法从原作用域获取，通过工厂函数注入
+        $vars = '';
+        foreach ($reflection->getStaticVariables() as $name => $var) {
+            if (is_resource($var)) {
+                throw new RouteException('Route cache does not support closure `use` variable of resource type: $' . $name . ' in ' . $file . ':' . $reflection->getStartLine());
+            }
+            $export = var_export($var, true);
+            if (strpos($export, '__set_state') !== false) {
+                throw new RouteException('Route cache does not support closure `use` variable of object type: $' . $name . ' in ' . $file . ':' . $reflection->getStartLine());
+            }
+            $vars .= '$' . $name . ' = ' . $export . '; ';
+        }
+        // 缓存文件作用域不存在 $this，绑定 $this 的闭包无法缓存
+        if ($reflection->getClosureThis() && strpos($content, '$this') !== false) {
+            throw new RouteException('Route cache does not support closure bound to $this in ' . $file . ':' . $reflection->getStartLine());
+        }
+        // 相同源码的闭包可能对应不同的 use 变量，占位符必须包含变量内容，避免互相覆盖
+        $token = '[__closure_' . md5($vars . $content) . '__]';
+        $this->closureCode[$token] = '(function () { ' . $vars . 'return ' . $content . '; })()';
+        $value = $token;
+    }
+
+    /**
+     * 获取闭包源代码
+     *
+     * @param ReflectionFunction $reflection 闭包反射
+     * @param string $file      闭包所在文件
+     * @return string
+     */
+    protected function getClosureSource(ReflectionFunction $reflection, string $file): string
+    {
+        $lines = file($file);
+        $content = '';
+        for ($i = $reflection->getStartLine() - 1, $j = $reflection->getEndLine() - 1; $i <= $j; $i++) {
+            $content .= $lines[$i];
+        }
+        $start = strpos($content, 'function');
+        if ($start === false) {
+            // 箭头函数无法从源码中还原，明确报错而不是生成错误的缓存文件
+            throw new RouteException('Route cache does not support arrow function, please use `function` closure in ' . $file . ':' . $reflection->getStartLine());
+        }
+        $end = strrpos($content, '}');
+        if ($end === false || $end < $start) {
+            throw new RouteException('Route cache failed to parse closure source in ' . $file . ':' . $reflection->getStartLine());
+        }
+
+        return substr($content, $start, $end - $start + 1);
     }
 }

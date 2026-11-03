@@ -349,36 +349,11 @@ trait App
         foreach ($reflection->getParameters() as $parameter) {
             // 参数名称
             $paramsName = $parameter->getName();
-            if ($parameter->hasType()) {
-                /** @var \ReflectionNamedType $class 变量类型 */
-                $class = $parameter->getType();
-                // 指定类型，获取类型名称注入参数
-                $typeName = $class->getName();
-                if (in_array($typeName, $this->adapters)) {
-                    // 内置类型
-                    if (isset($params[$paramsName])) {
-                        // 从路由参数中取值
-                        $parameters[] = $params[$paramsName];
-                    } elseif ($parameter->isDefaultValueAvailable()) {
-                        // 取默认值
-                        $parameters[] = $parameter->getDefaultValue();
-                    } else {
-                        // 不存在，抛出异常
-                        throw new RouteException("Route callback bind parameters '{$paramsName}' were not found");
-                    }
-                } else {
-                    // 自定义对象类型
-                    if ($typeName == $this->request_class) {
-                        // 请求类
-                        $parameters[] = $request;
-                    } else {
-                        // 其他类
-                        $parameters[] = Container::instance()->make($typeName);
-                    }
-                }
-            } else {
-                // 未指定类型，从路由参数中取值，不存在则取默认值
-                if (isset($params[$paramsName])) {
+            // 参数类型，兼容联合类型、交集类型
+            $typeNames = $this->getParameterTypeNames($parameter);
+            if (empty($typeNames) || $this->hasAdapterType($typeNames)) {
+                // 内置类型或未指定类型，从路由参数中取值
+                if (array_key_exists($paramsName, $params)) {
                     // 从路由参数中取值
                     $parameters[] = $params[$paramsName];
                 } elseif ($parameter->isDefaultValueAvailable()) {
@@ -388,10 +363,63 @@ trait App
                     // 不存在，抛出异常
                     throw new RouteException("Route callback bind parameters '{$paramsName}' were not found");
                 }
+            } else {
+                // 自定义对象类型
+                $typeName = $typeNames[0];
+                if ($typeName == $this->request_class) {
+                    // 请求类
+                    $parameters[] = $request;
+                } else {
+                    // 其他类
+                    $parameters[] = Container::instance()->make($typeName);
+                }
             }
         }
 
         return $parameters;
+    }
+
+    /**
+     * 获取参数类型名称集合，兼容联合类型、交集类型
+     *
+     * @param \ReflectionParameter $parameter 参数反射
+     * @return array
+     */
+    protected function getParameterTypeNames(\ReflectionParameter $parameter): array
+    {
+        $type = $parameter->getType();
+        if (is_null($type)) {
+            return [];
+        }
+        if ($type instanceof \ReflectionNamedType) {
+            return [$type->getName()];
+        }
+        $names = [];
+        if ($type instanceof \ReflectionUnionType || $type instanceof \ReflectionIntersectionType) {
+            foreach ($type->getTypes() as $item) {
+                /** @var \ReflectionNamedType $item */
+                $names[] = $item->getName();
+            }
+        }
+
+        return $names;
+    }
+
+    /**
+     * 参数类型中是否包含PHP内置类型
+     *
+     * @param array $typeNames 参数类型名称集合
+     * @return boolean
+     */
+    protected function hasAdapterType(array $typeNames): bool
+    {
+        foreach ($typeNames as $typeName) {
+            if (in_array($typeName, $this->adapters, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -421,12 +449,19 @@ trait App
             foreach ($parameters as $param) {
                 // 变量名
                 $name = $param->getName();
-                /** @var \ReflectionNamedType $class 变量类型 */
-                $class = $param->getType();
+                // 参数类型名称，兼容联合类型、交集类型
+                $typeNames = $this->getParameterTypeNames($param);
+                // 过滤PHP内置类型，获取需要注入的对象类型
+                $objectTypes = [];
+                foreach ($typeNames as $typeName) {
+                    if (!in_array($typeName, $this->adapters, true)) {
+                        $objectTypes[] = $typeName;
+                    }
+                }
                 // 绑定参数
-                if ($class && !in_array($class->getName(), $this->adapters)) {
+                if (!empty($objectTypes)) {
                     // 对象类型，且不是PHP内置常规类型，获取对象实例注入
-                    $className = $class->getName();
+                    $className = $objectTypes[0];
                     if ($className == $this->request_class) {
                         $args[] = $request;
                     } else {
@@ -461,17 +496,24 @@ trait App
     {
         $params = [];
         foreach ($values as $key => $val) {
-            if (!is_numeric($val)) {
+            // 非字符串参数无需处理
+            if (!is_string($val) || !is_numeric($val)) {
                 $params[$key] = $val;
                 continue;
             }
-            if (is_int($val - 0)) {
-                // 整数
-                $params[$key] = intval($val);
-            } elseif (is_float($val - 0)) {
-                // 浮点数
-                $params[$key] = floatval($val);
+            // 保留前导零的数字字符串（如 '000123'），避免丢失业务语义
+            if (preg_match('/^-?0\d+$/', $val)) {
+                $params[$key] = $val;
+                continue;
             }
+            // 整数，溢出整型范围时保持字符串，避免精度丢失
+            if (preg_match('/^-?\d+$/', $val)) {
+                $intVal = (int) $val;
+                $params[$key] = ((string) $intVal === $val) ? $intVal : $val;
+                continue;
+            }
+            // 浮点数
+            $params[$key] = is_float($val - 0) ? floatval($val) : $val;
         }
 
         return $params;

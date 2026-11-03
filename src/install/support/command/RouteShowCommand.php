@@ -70,8 +70,60 @@ class RouteShowCommand extends Command
             }
         }
 
+        // 动态路由，数据结构为 method => [ ['regex' => ..., 'routeMap' => [...]] ]
+        if (isset($data[1]) && is_array($data[1])) {
+            foreach ($data[1] as $method => $chunks) {
+                foreach ($chunks as $chunk) {
+                    if (!isset($chunk['routeMap']) || !is_array($chunk['routeMap'])) {
+                        continue;
+                    }
+                    foreach ($chunk['routeMap'] as $route) {
+                        $info = $route[0] ?? [];
+                        if (!is_array($info)) {
+                            continue;
+                        }
+                        $res[] = [
+                            'method'    => $method,
+                            'path'      => $this->getRegexPath((string) ($chunk['regex'] ?? '')),
+                            'callback'  => $this->getCallback($info['callback'] ?? ''),
+                            'middleware' => isset($info['middleware']) ? implode(', ', $info['middleware']) : '',
+                        ];
+                    }
+                }
+            }
+        }
+
+        // 通用路由
+        foreach (Route::instance()->getAutoRoutes() as $item) {
+            $res[] = [
+                'method'    => empty($item['method']) ? 'ANY' : implode('|', $item['method']),
+                'path'      => ($item['path'] === '' ? '' : $item['path']) . '/* PathInfo',
+                'callback'  => 'Auto: ' . $item['namespace'] . '\\*' . $item['suffix'] . '::' . $item['action'],
+                'middleware' => implode(', ', (array) $item['middleware']),
+            ];
+        }
+
         $name = $isFpm ? 'FPM Router Table' : 'HTTP Router Table';
         return $out->table($res, $name, $columns);
+    }
+
+    /**
+     * 解析动态路由的匹配规则为可读路径
+     *
+     * @param string $regex 动态路由正则
+     * @return string
+     */
+    protected function getRegexPath(string $regex): string
+    {
+        $prefix = '~^(?|';
+        if (strpos($regex, $prefix) === 0) {
+            $regex = substr($regex, strlen($prefix));
+        }
+        if (substr($regex, -3) === ')$~') {
+            $regex = substr($regex, 0, -3);
+        }
+
+        return $regex;
     }
 
     /**
