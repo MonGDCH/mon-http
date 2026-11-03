@@ -22,7 +22,7 @@ define('RUNTIME_PATH', __DIR__);
 // exit;
 
 
-$app = new Fpm();
+$app = new Fpm(true);
 HttpLogger::service()->debug('aaa');
 
 $app->route()->get('/', function (Request $request, Response $response) {

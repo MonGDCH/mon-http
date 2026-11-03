@@ -29,6 +29,6 @@ Route::instance()->group([], function (Route $route) {
     })->name('demo');
 });
 
-$app = new Fpm();
+$app = new Fpm(true);
 
 $app->run();

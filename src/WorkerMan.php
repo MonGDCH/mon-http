@@ -75,11 +75,11 @@ class WorkerMan implements AppInterface
     /**
      * 构造方法
      *
-     * @param boolean $debug    是否为调试模式
+     * @param boolean $debug    是否为调试模式，默认关闭避免泄露内部信息
      * @param boolean $newCtrl  每次回调重新实例化控制器
      * @param string  $name     应用名称，也是中间件名
      */
-    public function __construct(bool $debug = true, bool $newCtrl = true, string $name = 'workerman')
+    public function __construct(bool $debug = false, bool $newCtrl = true, string $name = 'workerman')
     {
         // 定义标志常量
         defined('IN_WORKERMAN') || define('IN_WORKERMAN', true);
@@ -217,15 +217,7 @@ class WorkerMan implements AppInterface
             // 请求方式
             $method = $this->request()->method();
             // 验证请求路径安全
-            if (
-                strpos($path, '/../') !== false ||
-                substr($path, -3) === '/..' ||
-                strpos($path, '..') !== false ||
-                strpos($path, "\\") !== false ||
-                strpos($path, "\0") !== false ||
-                strpos($path, '//') !== false ||
-                !$path
-            ) {
+            if (!$this->safePath($path)) {
                 $failback = $this->getFallback();
                 return $this->send($connection, $this->request(), $failback($this->request()));
             }
@@ -260,6 +252,21 @@ class WorkerMan implements AppInterface
     }
 
     /**
+     * 验证请求路径安全
+     *
+     * @param string $path 请求路径
+     * @return boolean
+     */
+    protected function safePath(string $path): bool
+    {
+        return $path !== ''
+            && strpos($path, '..') === false
+            && strpos($path, "\\") === false
+            && strpos($path, "\0") === false
+            && strpos($path, '//') === false;
+    }
+
+    /**
      * 处理静态文件资源响应
      *
      * @param TcpConnection $connection 链接实例
@@ -274,17 +281,28 @@ class WorkerMan implements AppInterface
         if (!$this->support_static_files || empty($this->static_path)) {
             return false;
         }
-        // 修正请求路径
+        // 修正请求路径，先解码再做安全校验，防止编码绕过
         if (preg_match('/%[0-9a-f]{2}/i', $path)) {
-            $path = urldecode($path);
+            $path = rawurldecode($path);
         }
-        // 验证文件扩展名白名单
-        if (!empty($this->support_file_type) && !in_array(pathinfo($path, PATHINFO_EXTENSION), $this->support_file_type)) {
+        // 解码后重新校验路径安全
+        if (!$this->safePath($path)) {
             return false;
         }
-        // 判断文件是否存在
-        $file = "{$this->static_path}/{$path}";
-        if (!is_file($file)) {
+        // 验证文件扩展名白名单
+        if (!empty($this->support_file_type) && !in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), array_map('strtolower', $this->support_file_type), true)) {
+            return false;
+        }
+        // 验证文件真实路径位于静态目录内，拦截目录穿越与符号链接逃逸
+        $root = realpath($this->static_path);
+        if ($root === false || !is_dir($root)) {
+            return false;
+        }
+        $file = realpath($root . DIRECTORY_SEPARATOR . ltrim(str_replace('/', DIRECTORY_SEPARATOR, $path), DIRECTORY_SEPARATOR . '/'));
+        if ($file === false || !is_file($file)) {
+            return false;
+        }
+        if (strpos($file, rtrim($root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) !== 0) {
             return false;
         }
 

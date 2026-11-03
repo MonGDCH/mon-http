@@ -270,8 +270,8 @@ trait App
             $response->exception($e);
             return $response;
         } catch (Throwable $err) {
-            // 抛出异常
-            $response = new Response(500, [], $this->debug() ? (string) $err : $err->getMessage());
+            // 抛出异常，非调试模式不暴露异常详情，避免泄露内部信息
+            $response = new Response(500, [], $this->debug() ? (string) $err : 'Server internal error');
             $response->exception($err);
             return $response;
         }

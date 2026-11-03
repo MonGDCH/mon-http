@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace mon\http;
 
 use Throwable;
+use mon\http\exception\DumperException;
 use mon\http\interfaces\RequestInterface;
 use mon\http\interfaces\BusinessInterface;
 use mon\http\interfaces\ExceptionHandlerInterface;
@@ -57,6 +58,11 @@ class ErrorHandler implements ExceptionHandlerInterface
     {
         // 实现业务异常接口，直接返回对应响应对象
         if ($e instanceof BusinessInterface) {
+            // 调试打印数据仅在调试模式下输出，避免泄露业务数据
+            if (!$debug && $e instanceof DumperException) {
+                return new Response(500, [], 'Server internal error');
+            }
+
             return $e->getResponse($request);
         }
         $content = $debug ? $this->buildHTML($request, $e) : 'Server internal error';

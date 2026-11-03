@@ -31,10 +31,10 @@ class Fpm implements AppInterface
     /**
      * 构造方法
      *
-     * @param boolean $debug    是否为调试模式
+     * @param boolean $debug    是否为调试模式，默认关闭避免泄露内部信息
      * @param string  $name     应用名称，也是中间件名、默认日志保存目录名称
      */
-    public function __construct(bool $debug = true, string $name = 'fpm')
+    public function __construct(bool $debug = false, string $name = 'fpm')
     {
         // 定义标志常量
         defined('IN_FPM') || define('IN_FPM', true);

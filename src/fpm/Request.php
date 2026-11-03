@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace mon\http\fpm;
 
+use mon\util\Tool;
 use mon\http\libs\UploadFile;
 use mon\http\libs\Request as LibsRequest;
 use mon\http\interfaces\RequestInterface;
@@ -309,17 +310,34 @@ class Request implements RequestInterface
     /**
      * 获取真实IP
      *
+     * 安全模式下仅在直连IP为内网IP（即存在可信代理）时才解析转发头，
+     * 且从右往左取第一个有效的外网IP，避免客户端伪造 X-Forwarded-For 绕过限流、黑名单。
+     *
+     * @param boolean $safe_mode 是否安全模式
      * @return string
      */
-    public function ip(): string
+    public function ip(bool $safe_mode = true): string
     {
-        foreach (['X_FORWARDED_FOR', 'HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR'] as $key) {
-            if (isset($_SERVER[$key])) {
-                return $_SERVER[$key];
+        // 直连IP
+        $remote_ip = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+        // 非安全模式或直连IP非内网IP，直接使用直连IP，忽略转发头
+        if ($safe_mode && !Tool::isIntranetIp($remote_ip)) {
+            return $remote_ip;
+        }
+        // 解析转发头，从右往左取第一个有效的外网IP
+        foreach (['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP'] as $key) {
+            if (empty($_SERVER[$key])) {
+                continue;
+            }
+            $ips = array_reverse(array_map('trim', explode(',', (string) $_SERVER[$key])));
+            foreach ($ips as $ip) {
+                if (filter_var($ip, FILTER_VALIDATE_IP) && !Tool::isIntranetIp($ip)) {
+                    return $ip;
+                }
             }
         }
-
-        return '';
+        // 未解析到有效外网IP，返回直连IP
+        return $remote_ip;
     }
 
     /**
